@@ -162,7 +162,7 @@
         <label class="label">House REF / Meter No *</label>
         <input id="refNo" class="input" placeholder="e.g. METER-98745">
 
-        <label class="label">LIVE GPS Location (Detailed Address) *</label>
+        <label class="label">LIVE GPS Location Address *</label>
         <div id="gpsStatus" class="gps-box">
             <span class="loader" id="gpsLoader"></span>
             <span id="gpsText">📍 Waiting for Location...</span>
@@ -172,7 +172,10 @@
             🔄 Refresh LIVE GPS
         </button>
 
-        <textarea id="liveAddr" class="input" style="height:100px; font-size:13px; background:#fff; font-weight:600; line-height: 1.5;" placeholder="Detailed GPS location will appear here automatically..."></textarea>
+        <!-- Address view box (Non-editable) -->
+        <div id="displayAddress" style="padding: 12px; background: #e5e7eb; border-radius: 8px; font-size: 13px; font-weight: 700; color: #374151; min-height: 50px; border: 1px solid #d1d5db; white-space: pre-line;">
+            Fetching location...
+        </div>
 
         <label class="label">House / Meter Photo *</label>
         <input type="file" id="photo" class="input" accept="image/*" capture="environment" style="padding: 10px;">
@@ -304,8 +307,8 @@ let records = [];
 let photos = [];
 
 function syncData() {
-    records = JSON.parse(localStorage.getItem('mediland_records_v7') || '[]');
-    photos = JSON.parse(localStorage.getItem('mediland_photos_v7') || '[]');
+    records = JSON.parse(localStorage.getItem('mediland_records_v9') || '[]');
+    photos = JSON.parse(localStorage.getItem('mediland_photos_v9') || '[]');
 }
 
 document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -326,15 +329,17 @@ function showPage(p) {
     }
 }
 
-// --- FULL DETAILED GPS FETCHING ---
+// --- AUTOMATIC GPS FETCHING ---
 function fetchDynamicGPS() {
     let statusText = document.getElementById('gpsText');
     let loader = document.getElementById('gpsLoader');
     let box = document.getElementById('gpsStatus');
+    let displayBox = document.getElementById('displayAddress');
     
     box.style.background = "#fef3c7"; box.style.borderColor = "#facc15";
     statusText.innerText = "Fetching High-Precision GPS Location...";
     loader.style.display = "inline-block";
+    displayBox.innerText = "Fetching location...";
     
     if (!navigator.geolocation) {
         alert("GPS not supported on this device.");
@@ -349,33 +354,38 @@ function fetchDynamicGPS() {
         statusText.innerText = `GPS Locked (±${acc}m). Resolving Full Address...`;
 
         try {
-            let res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json&zoom=18`);
+            let res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json&zoom=18&addressdetails=1`);
             let data = await res.json();
             let a = data.address || {};
             
-            let village = a.village || a.hamlet || a.suburb || a.neighbourhood || a.residential || "";
+            let house = a.house_number || a.building || "";
             let road = a.road || a.pedestrian || a.street || "";
-            let city = a.city || a.town || a.county || "Toba Tek Singh";
-            let district = a.district || a.county || "Toba Tek Singh";
+            let village = a.village || a.hamlet || a.neighbourhood || a.suburb || a.residential || "";
+            let city = a.city || a.town || a.city_district || "Toba Tek Singh";
+            let district = a.district || a.county || a.state_district || "Toba Tek Singh";
             let state = a.state || "Punjab";
 
-            if (village && road) {
-                line1Text = `${village}, ${city}, ${state}`;
-                line2Text = `${road}, ${village}, Tehsil ${city}, District ${district}, ${state}, Pakistan`;
-            } else if (village) {
-                line1Text = `${village}, ${city}, ${state}`;
-                line2Text = `${village}, Tehsil ${city}, District ${district}, ${state}, Pakistan`;
-            } else {
-                line1Text = `${city}, ${state}`;
-                line2Text = `Tehsil ${city}, District ${district}, ${state}, Pakistan`;
+            let part1 = [];
+            if(house) part1.push(`House/Plot ${house}`);
+            if(road) part1.push(road);
+            if(village) part1.push(village);
+
+            let mainTitle = part1.length > 0 ? part1.join(", ") + `, ${city}` : `${city}, ${state}`;
+            let fullSubtitle = `Tehsil ${city}, District ${district}, ${state}, Pakistan`;
+            
+            if (road && village) {
+                fullSubtitle = `Street: ${road}, ${village}, Tehsil ${city}, District ${district}, ${state}`;
             }
+
+            line1Text = mainTitle;
+            line2Text = fullSubtitle;
 
         } catch (e) {
             line1Text = "Toba Tek Singh, Punjab";
             line2Text = "Tehsil Toba Tek Singh, District Toba Tek Singh, Punjab, Pakistan";
         }
 
-        document.getElementById('liveAddr').value = `${line1Text}\n${line2Text}`;
+        displayBox.innerText = `${line1Text}\n${line2Text}`;
         loader.style.display = "none";
         box.style.background = "#d1fae5"; box.style.borderColor = "#10b981";
         statusText.innerText = `✅ GPS Locked! Acc: ±${acc}m | Lat: ${gpsLat.toFixed(6)}`;
@@ -403,11 +413,11 @@ document.getElementById('photo').addEventListener('change', e => {
     r.readAsDataURL(f);
 });
 
-// --- CANVAS STAMPING (SCREENSHOT STAMP STYLE) ---
+// --- AUTOMATIC CANVAS STAMPING ---
 function submitData() {
     let dist = document.getElementById('distributor').value;
     let ref = document.getElementById('refNo').value.trim();
-    let customAddress = document.getElementById('liveAddr').value.trim();
+    let autoAddress = `${line1Text}\n${line2Text}`;
     let btn = document.getElementById('submitBtn');
 
     if (!dist || !ref) { alert('❌ Please select Worker Name and enter REF No.'); return; }
@@ -437,53 +447,48 @@ function submitData() {
     
     ctx.drawImage(currentImg, 0, 0, width, height);
 
-    // Dark Overlay Box at Top/Bottom
-    let stampHeight = Math.floor(height * 0.26); 
-    if(stampHeight < 200) stampHeight = 200;
+    // Dark Overlay Box at Bottom
+    let stampHeight = Math.floor(height * 0.30); 
+    if(stampHeight < 220) stampHeight = 220;
     
-    ctx.fillStyle = "rgba(0,0,0,0.78)";
+    ctx.fillStyle = "rgba(0,0,0,0.82)";
     ctx.fillRect(0, height - stampHeight, width, stampHeight);
 
     let padLeft = Math.floor(width * 0.04);
-    let topY = height - stampHeight + Math.floor(stampHeight * 0.28);
+    let topY = height - stampHeight + Math.floor(stampHeight * 0.25);
 
-    // 1. Time & Date (With Yellow Bar)
+    // 1. Time & Date Stamp
     ctx.fillStyle = "#ffffff";
-    ctx.font = `bold ${Math.floor(width * 0.07)}px Arial`;
+    ctx.font = `bold ${Math.floor(width * 0.082)}px Arial`;
     ctx.fillText(timeStr, padLeft, topY);
     let timeW = ctx.measureText(timeStr).width;
 
     let lineX = padLeft + timeW + Math.floor(width * 0.03);
-    ctx.fillStyle = "#eab308"; // Yellow Divider Line
-    ctx.fillRect(lineX, topY - Math.floor(width * 0.055), 5, Math.floor(width * 0.065));
+    ctx.fillStyle = "#facc15"; 
+    ctx.fillRect(lineX, topY - Math.floor(width * 0.065), 6, Math.floor(width * 0.075));
 
     ctx.fillStyle = "#ffffff";
-    ctx.font = `bold ${Math.floor(width * 0.034)}px Arial`;
-    ctx.fillText(dateStr, lineX + Math.floor(width*0.02), topY - Math.floor(width*0.028));
+    ctx.font = `bold ${Math.floor(width * 0.038)}px Arial`;
+    ctx.fillText(dateStr, lineX + Math.floor(width*0.025), topY - Math.floor(width*0.032));
     ctx.fillStyle = "#cbd5e1";
-    ctx.fillText(dayStr, lineX + Math.floor(width*0.02), topY);
+    ctx.fillText(dayStr, lineX + Math.floor(width*0.025), topY + Math.floor(width*0.005));
 
-    // Address Lines Parsing
-    let addLines = customAddress.split('\n');
-    let l1 = addLines[0] || line1Text;
-    let l2 = addLines[1] || line2Text;
-
-    // 2. Line 1: Big Title Address (e.g. Chak 381 JB, Toba Tek Singh, Punjab)
-    let addrY1 = topY + Math.floor(stampHeight * 0.24);
+    // 2. Line 1: Main Title Address
+    let addrY1 = topY + Math.floor(stampHeight * 0.25);
     ctx.fillStyle = "#ffffff";
-    ctx.font = `bold ${Math.floor(width * 0.04)}px Arial`;
-    ctx.fillText(l1.substring(0, 55), padLeft, addrY1);
+    ctx.font = `bold ${Math.floor(width * 0.048)}px Arial`;
+    ctx.fillText(line1Text.substring(0, 52), padLeft, addrY1);
 
     // 3. Line 2: Subtitle Detailed Address
-    let addrY2 = addrY1 + Math.floor(stampHeight * 0.18);
+    let addrY2 = addrY1 + Math.floor(stampHeight * 0.20);
     ctx.fillStyle = "#e2e8f0";
-    ctx.font = `${Math.floor(width * 0.027)}px Arial`;
-    ctx.fillText(l2.substring(0, 75), padLeft, addrY2);
+    ctx.font = `bold ${Math.floor(width * 0.032)}px Arial`;
+    ctx.fillText(line2Text.substring(0, 70), padLeft, addrY2);
 
     // 4. Coordinates
-    let addrY3 = addrY2 + Math.floor(stampHeight * 0.18);
+    let addrY3 = addrY2 + Math.floor(stampHeight * 0.20);
     ctx.fillStyle = "#ffffff";
-    ctx.font = `bold ${Math.floor(width * 0.035)}px Arial`;
+    ctx.font = `bold ${Math.floor(width * 0.04)}px Arial`;
     ctx.fillText(`Lat ${gpsLat.toFixed(6)}°  Long ${gpsLong.toFixed(6)}°`, padLeft, addrY3);
 
     // Save Data
@@ -492,7 +497,7 @@ function submitData() {
     let rec = {
         id: Date.now(), name: dist, ref: ref,
         lat: gpsLat.toFixed(6), lng: gpsLong.toFixed(6),
-        address: customAddress,
+        address: autoAddress,
         date: now.toISOString().slice(0,10), time: timeStr
     };
 
@@ -501,8 +506,8 @@ function submitData() {
     photos.push({id: rec.id, data: stampedDataUrl});
 
     try {
-        localStorage.setItem('mediland_records_v7', JSON.stringify(records));
-        localStorage.setItem('mediland_photos_v7', JSON.stringify(photos));
+        localStorage.setItem('mediland_records_v9', JSON.stringify(records));
+        localStorage.setItem('mediland_photos_v9', JSON.stringify(photos));
         
         document.getElementById('msg').innerHTML = `✅ Successfully Submitted!<br><span style="font-size:12px;color:#444;">${rec.address.replace('\n', ' ')}</span>`;
         document.getElementById('refNo').value = "";
@@ -534,7 +539,6 @@ function loadAdmin() {
     let fd = document.getElementById('filterDate').value;
     let fr = document.getElementById('filterRef').value.toLowerCase();
 
-    // Render Worker Summary Table
     renderWorkerSummary();
 
     let filtered = records.filter(r => {
@@ -571,7 +575,7 @@ function loadAdmin() {
             </div>
             <div class="card-actions">
                 <button class="btn-card-save" onclick="saveSinglePhoto(${rec.id})">💾 Save</button>
-                <button class="btn-card-edit" onclick="editRecord(${rec.id})">✏️</button>
+                <button class="btn-card-edit" onclick="editRecord(${rec.id})">✏️ Edit</button>
                 <button class="btn-card-delete" onclick="deleteRecord(${rec.id})">🗑️ Delete</button>
             </div>
         </div>`;
@@ -588,7 +592,6 @@ function renderWorkerSummary() {
         else counts[r.name] = 1;
     });
 
-    // Sort workers by highest count
     let sorted = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
     let maxVal = Math.max(...Object.values(counts), 1);
 
@@ -636,7 +639,7 @@ function editRecord(id) {
     let newRef = prompt("Edit Reference Number:", rec.ref);
     if(newRef !== null && newRef.trim() !== "") {
         rec.ref = newRef.trim();
-        localStorage.setItem('mediland_records_v7', JSON.stringify(records));
+        localStorage.setItem('mediland_records_v9', JSON.stringify(records));
         loadAdmin();
     }
 }
@@ -646,8 +649,8 @@ function deleteRecord(id) {
         syncData();
         records = records.filter(r => r.id !== id);
         photos = photos.filter(p => p.id !== id);
-        localStorage.setItem('mediland_records_v7', JSON.stringify(records));
-        localStorage.setItem('mediland_photos_v7', JSON.stringify(photos));
+        localStorage.setItem('mediland_records_v9', JSON.stringify(records));
+        localStorage.setItem('mediland_photos_v9', JSON.stringify(photos));
         loadAdmin();
     }
 }
@@ -711,8 +714,8 @@ async function downloadAllPhotosZIP() {
 function clearAll() {
     let pin = prompt("Enter Admin PIN to permanently clear all gallery records:");
     if (pin === ADMIN_PIN) {
-        localStorage.removeItem('mediland_records_v7');
-        localStorage.removeItem('mediland_photos_v7');
+        localStorage.removeItem('mediland_records_v9');
+        localStorage.removeItem('mediland_photos_v9');
         records = []; photos = [];
         loadAdmin();
         alert("✅ All data cleared.");

@@ -1,60 +1,642 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MEDILAND - Bills Distribution</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#eef2ee}.header-new{display:flex;align-items:center;justify-content:space-between;background:#0a3d2a;padding:8px 10px;gap:8px}.logo-box{background:#fff;border-radius:12px;padding:5px;width:115px;height:80px;display:flex;align-items:center;justify-content:center}.logo-box img{max-width:100%;max-height:100%;object-fit:contain}.center{text-align:center;flex:1;color:#fff}.center h1{font-size:20px;color:#ffeb3b;font-weight:900}.center p{font-size:9px}.center h2{font-size:12px;color:#ffeb3b}.tabs{display:flex;background:#fff;border-bottom:2px solid #064e3b;position:sticky;top:0;z-index:20}.tabs button{flex:1;padding:14px;border:none;background:#f3f4f6;font-weight:900;cursor:pointer}.tabs button.active{background:#fff;color:#064e3b;border-bottom:3px solid #064e3b}.card{background:#fff;border-radius:14px;padding:14px;margin:10px;box-shadow:0 2px 6px rgba(0,0,0,.08)}.label{font-size:12px;font-weight:800;margin:10px 0 5px;display:block;color:#064e3b}.input,.select{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px}.gps-box{padding:12px;border-radius:8px;font-size:13px;border:2px solid #10b981;background:#d1fae5;font-weight:700;min-height:48px}.btn{padding:12px;border-radius:8px;border:none;font-weight:800;cursor:pointer}.btn-green{background:#064e3b;color:#fff;width:100%;margin-top:14px;font-size:15px}.page{display:none}.page.active{display:block}.record{border:1px solid #e5e7eb;border-radius:10px;padding:10px;margin:8px 0;background:#f9fafb}.record img{width:100%;border-radius:8px;margin-top:6px;max-height:220px;object-fit:cover;cursor:zoom-in}.pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}.pin-box{background:#fff;padding:25px;border-radius:16px;width:100%;max-width:360px;text-align:center}.pin-box input{width:100%;padding:14px;font-size:18px;text-align:center;margin:12px 0;border:2px solid #064e3b;border-radius:10px}.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}.stat{background:#064e3b;color:#fff;padding:10px;border-radius:10px;text-align:center}.stat b{font-size:20px;display:block}.gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g-item{border:1px solid #ddd;border-radius:10px;overflow:hidden;background:#fff;position:relative}.g-item img{width:100%;height:130px;object-fit:cover;cursor:zoom-in}.g-item div{padding:6px;font-size:10px}.small{font-size:11px;color:#666}.admin-section{border:1px solid #064e3b;border-radius:12px;padding:12px;margin:10px 0;background:#f8fafc}.flex{display:flex;gap:6px}.action-bar{display:flex;gap:4px;margin-top:6px}.action-bar button{flex:1;padding:6px;font-size:10px;border-radius:6px;border:1px solid #ddd;cursor:pointer;font-weight:700}.btn-edit{background:#fef3c7;border-color:#fde68a!important}.btn-del{background:#fee2e2;border-color:#fecaca!important;color:#b91c1c}.btn-save{background:#d1fae5;border-color:#a7f3d0!important}.zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;display:none;align-items:center;justify-content:center;padding:10px;flex-direction:column}.zoom-overlay img{max-width:100%;max-height:85vh;border-radius:10px}.zoom-overlay p{color:#fff;margin-top:10px;font-size:12px;text-align:center}.edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:150;display:none;align-items:center;justify-content:center;padding:20px}.edit-box{background:#fff;padding:20px;border-radius:16px;width:100%;max-width:380px}</style></head><body>
-<div class="tabs"><button id="tabWorker" class="active" onclick="tryShow('worker')">👷 Worker App</button><button id="tabAdmin" onclick="tryShow('admin')">🔐 Admin Portal</button></div>
-<div class="header-new"><div class="logo-box"><img src="mediland-logo.jpg"></div><div class="center"><h1>BILLS DISTRIBUTION</h1><p>Mediland Pakistan Pvt Ltd - Suthra Punjab Agency - Tehsil Toba Tek Singh</p><h2>بلوں کی تقسیم - ستھرا پنجاب</h2></div><div class="logo-box"><img src="suthra-logo.jpg"></div></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDILAND - Bills Distribution Portal</title>
+    <!-- JSZip for ZIP downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f0fdf4; color: #111827; }
+        
+        /* Auth Screen */
+        #authScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #064e3b; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: white; }
+        .auth-box { background: white; padding: 30px; border-radius: 12px; text-align: center; color: #333; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .auth-box h2 { color: #064e3b; margin-bottom: 20px; font-weight: 800; }
+        .auth-btn { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-worker { background: #facc15; color: #064e3b; }
+        .btn-admin { background: #064e3b; color: white; }
 
+        /* Header & Logos */
+        .header-new { display: flex; align-items: center; justify-content: space-between; background: #064e3b; padding: 12px 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .logo-box { background: #fff; border-radius: 8px; padding: 5px; width: 90px; height: 70px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .center-title { text-align: center; flex: 1; color: #fff; padding: 0 10px; }
+        .center-title h1 { font-size: 22px; color: #facc15; font-weight: 900; letter-spacing: 1px; }
+        .center-title p { font-size: 10px; margin: 4px 0; }
+        .center-title h2 { font-size: 14px; color: #facc15; }
+
+        /* Navigation Tabs */
+        .tabs { display: flex; background: #fff; border-bottom: 2px solid #064e3b; position: sticky; top: 0; z-index: 10; display: none; }
+        .tabs button { flex: 1; padding: 15px; border: none; background: #f3f4f6; font-weight: 800; cursor: pointer; font-size: 15px; transition: 0.3s; }
+        .tabs button.active { background: #fff; color: #064e3b; border-bottom: 4px solid #064e3b; }
+
+        /* App Containers */
+        .page { display: none; padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .page.active { display: block; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e5e7eb; }
+        
+        /* Form Elements */
+        .label { font-size: 14px; font-weight: 800; margin: 15px 0 8px; display: block; color: #064e3b; }
+        .input, .select { width: 100%; padding: 14px; border: 2px solid #d1d5db; border-radius: 8px; font-size: 15px; background: #f9fafb; transition: 0.3s; }
+        .input:focus, .select:focus { border-color: #064e3b; outline: none; background: #fff; }
+        
+        /* Location Box */
+        .gps-box { padding: 15px; border-radius: 8px; font-size: 14px; border: 2px solid #10b981; background: #d1fae5; font-weight: 700; color: #065f46; display: flex; align-items: center; gap: 10px; }
+        .loader { width: 20px; height: 20px; border: 3px solid #10b981; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; display: none; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Buttons */
+        .btn { padding: 14px; border-radius: 8px; border: none; font-weight: 800; font-size: 16px; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn-refresh { background: #fef08a; color: #854d0e; margin: 10px 0; border: 1px solid #facc15; }
+        .btn-green { background: #064e3b; color: #fff; margin-top: 20px; font-size: 18px; box-shadow: 0 4px 6px rgba(6, 78, 59, 0.3); }
+
+        /* Admin Gallery & Cards UI */
+        .admin-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; border-left: 5px solid #064e3b; }
+        .stat-card.dark { background: #064e3b; color: white; border-left: none; }
+        .stat-card h4 { font-size: 14px; color: #6b7280; font-weight: 700; margin-bottom: 8px; }
+        .stat-card.dark h4 { color: #d1fae5; }
+        .stat-card h2 { font-size: 32px; font-weight: 900; }
+        
+        .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filters .input { flex: 1; min-width: 200px; }
+        
+        .record-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .card-gallery { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .card-gallery img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+        .card-gallery img:hover { transform: scale(1.02); }
+        .card-meta { margin-top: 10px; font-size: 13px; line-height: 1.5; color: #374151; }
+        .card-ref { font-weight: 800; color: #0284c7; font-size: 14px; margin-bottom: 4px; }
+        .card-user { font-weight: 700; color: #4b5563; }
+        .card-date { color: #9ca3af; font-size: 11px; margin-bottom: 10px; }
+        
+        .card-actions { display: flex; gap: 8px; margin-top: auto; }
+        .btn-card-save { flex: 1; background: #0284c7; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 700; cursor: pointer; text-align: center; font-size: 13px; }
+        .btn-card-delete { flex: 1; background: #ef4444; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 700; cursor: pointer; text-align: center; font-size: 13px; }
+        .btn-card-edit { background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 13px; }
+
+        .action-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+        .action-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; }
+        .btn-zip { background: #4b5563; color: white; }
+        .btn-excel { background: #10b981; color: white; }
+        .btn-clear { background: #dc2626; color: white; }
+
+        .logout-btn { background: transparent; color: white; border: 1px solid white; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; margin-top: 10px; }
+
+        /* Modal Image Zoom */
+        #imageModal { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
+        #imageModal img { max-width: 95%; max-height: 95%; border-radius: 8px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        #imageModal .close-modal { position: absolute; top: 20px; right: 30px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<!-- AUTHENTICATION SCREEN -->
+<div id="authScreen">
+    <div class="logo-box" style="width:120px; height:120px; margin-bottom: 20px;">
+        <img src="mediland-logo.jpg" alt="Mediland">
+    </div>
+    <div class="auth-box">
+        <h2>PORTAL LOGIN</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Please select your role to continue</p>
+        <button class="auth-btn btn-worker" onclick="login('worker')">🧑‍💼 Worker App</button>
+        <button class="auth-btn btn-admin" onclick="login('admin')">🔒 Admin Portal</button>
+    </div>
+</div>
+
+<!-- HEADER -->
+<div class="header-new" id="mainHeader" style="display:none;">
+    <div class="logo-box">
+        <img src="mediland-logo.jpg" alt="Mediland">
+    </div>
+    <div class="center-title">
+        <h1>BILLS DISTRIBUTION</h1>
+        <p>Mediland Pakistan Pvt Ltd - Suthra Punjab Agency</p>
+        <h2>بلوں کی تقسیم - ستھرا پنجاب</h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    <div class="logo-box">
+        <img src="suthra-logo.jpg" alt="Suthra Punjab">
+    </div>
+</div>
+
+<div class="tabs" id="navTabs">
+    <button id="tabWorker" class="active" onclick="showPage('worker')">📱 Worker App</button>
+    <button id="tabAdmin" onclick="showPage('admin')">📊 Admin Portal</button>
+</div>
+
+<!-- WORKER APP PAGE -->
 <div id="workerPage" class="page active">
-<div class="card" style="background:#064e3b;color:#fff"><h3>👷 My Overview</h3><div class="stats"><div class="stat"><b id="wTotal">0</b>Total</div><div class="stat" style="background:#065f46"><b id="wToday">0</b>Today</div><div class="stat" style="background:#047857"><b id="wMy">0</b>My Bills</div></div><p style="font-size:11px;margin-top:8px" id="wNameShow">Name select karen</p></div>
-<div class="card"><label class="label">Select Distributor *</label><select id="distributor" class="select" onchange="updateMyCount()"></select><label class="label">House REF / Meter No *</label><input id="refNo" class="input" placeholder="e.g. 381 JB House"><label class="label">LIVE GPS (Exact UC - Single Detail) *</label><div id="gpsStatus" class="gps-box">📍 Loading... Allow dabayen</div><button class="btn" style="width:100%;margin:6px 0;background:#fde68a;color:#000" onclick="refreshGPS()">🔄 Refresh LIVE GPS</button><textarea id="liveAddr" class="input" style="height:95px;background:#fffbeb;font-weight:700;font-size:11px" readonly placeholder="Exact UC location single detail..."></textarea><label class="label">House / Meter Photo *</label><input type="file" id="photo" accept="image/*" capture="environment"><img id="imgPreview" style="display:none;width:100%;border-radius:10px;margin-top:8px;border:2px solid #064e3b;cursor:zoom-in" onclick="openZoom(this.src,'Preview')"><button class="btn btn-green" onclick="submitData()">📸 Submit - Single Location Stamp</button><div id="msg" style="text-align:center;font-weight:800;margin-top:10px;color:#065f46"></div></div>
+    <div class="card">
+        <label class="label">Select Distributor *</label>
+        <select id="distributor" class="select">
+            <option value="">-- Choose Your Name --</option>
+            <option>Mr Hanan</option>
+            <option>Mr Zubair</option>
+            <option>Ms Anila</option>
+            <option>Mr Waris Ali</option>
+            <option>Mr Faraz Ahmed</option>
+            <option>Mr Samiullah</option>
+            <option>Mr Zahid</option>
+            <option>Mr Faizan Javed</option>
+            <option>Mr Hussnain</option>
+            <option>Mr Usman</option>
+        </select>
+
+        <label class="label">House REF / Meter No *</label>
+        <input id="refNo" class="input" placeholder="e.g. METER-98745">
+
+        <label class="label">LIVE GPS Location (Dynamic Address) *</label>
+        <div id="gpsStatus" class="gps-box">
+            <span class="loader" id="gpsLoader"></span>
+            <span id="gpsText">📍 Waiting for Location Permission...</span>
+        </div>
+        
+        <button class="btn btn-refresh" onclick="fetchDynamicGPS()">
+            🔄 Refresh LIVE GPS
+        </button>
+
+        <textarea id="liveAddr" class="input" style="height:110px; font-size:13px; background:#fffbeb; font-weight:600; line-height: 1.6;" readonly placeholder="Dynamic location will appear here automatically..."></textarea>
+
+        <label class="label">House / Meter Photo *</label>
+        <input type="file" id="photo" class="input" accept="image/*" capture="environment" style="padding: 10px;">
+        <img id="imgPreview" style="display:none; width:100%; border-radius:10px; margin-top:15px; border:3px solid #064e3b;" onclick="openZoom(this.src)">
+
+        <button class="btn btn-green" id="submitBtn" onclick="submitData()">📸 Submit Delivery Record</button>
+        <div id="msg" style="text-align:center; font-weight:800; margin-top:15px; color:#065f46; font-size: 16px;"></div>
+    </div>
 </div>
 
+<!-- ADMIN PORTAL PAGE -->
 <div id="adminPage" class="page">
-<div class="card"><h3 style="color:#064e3b">📊 All Workers Overview</h3><div class="stats"><div class="stat"><b id="aTotal">0</b>Total</div><div class="stat" style="background:#065f46"><b id="aToday">0</b>Today</div><div class="stat" style="background:#b45309"><b id="aWorkers">0</b>Workers</div></div><div id="workersOverview" style="margin-top:10px"></div></div>
-<div class="card admin-section"><h3>👥 Workers Manage</h3><div class="flex"><input id="newWorkerName" class="input" placeholder="New Worker"><button class="btn" style="background:#064e3b;color:#fff" onclick="addWorker()">Add</button></div><div id="workersListManage" style="margin-top:10px"></div></div>
-<div class="card admin-section"><h3>🔑 Password Settings</h3><label class="label">Worker PIN</label><div class="flex"><input id="setWorkerPin" class="input"><button class="btn" style="background:#f59e0b" onclick="saveWorkerPin()">Save</button></div><label class="label">Admin PIN</label><div class="flex"><input id="setAdminPin" class="input"><button class="btn" style="background:#dc2626;color:#fff" onclick="saveAdminPin()">Save</button></div></div>
-<div class="card"><h3>🖼️ Gallery + Date Filter - Edit / Delete / Zoom</h3><div class="flex" style="flex-wrap:wrap"><input type="date" id="filterDate" class="input" style="flex:1"><select id="filterDist" class="select" style="flex:1" onchange="loadAdmin()"><option value="">All Workers</option></select><button class="btn" style="background:#e5e7eb" onclick="clearFilters()">Clear</button></div><div id="galleryList" class="gallery" style="margin-top:10px"></div><div id="adminList" style="margin-top:12px"></div><button onclick="exportCSV()" style="margin-top:12px;padding:12px;background:#064e3b;color:#fff;border:none;border-radius:8px;width:100%;font-weight:800">📥 Download Excel CSV</button><button onclick="clearAll()" style="margin-top:8px;padding:10px;background:#fee2e2;color:#b91c1c;border-radius:8px;width:100%">🗑️ Clear All</button></div>
+    
+    <div class="admin-header">
+        <h2 style="color: #064e3b; font-weight: 900;">Distribution Overview</h2>
+        <span style="background: #e5e7eb; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 600;" id="currentDateDisplay"></span>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card dark">
+            <h4>Total Bills Distributed</h4>
+            <h2 id="totalBills">0</h2>
+        </div>
+        <div class="stat-card">
+            <h4>Active Workers Today</h4>
+            <h2 id="activeWorkers">0</h2>
+        </div>
+        <div class="stat-card">
+            <h4>Latest Upload Time</h4>
+            <h2 id="latestTime">--:--</h2>
+        </div>
+    </div>
+
+    <!-- Actions & Filters -->
+    <div class="card">
+        <div class="action-btns">
+            <button class="btn-zip" onclick="downloadAllPhotosZIP()">📁 Download Gallery ZIP</button>
+            <button class="btn-excel" onclick="exportCSV()">📊 Export Excel (CSV)</button>
+            <button class="btn-clear" onclick="clearAll()">🗑️ Clear All Data</button>
+        </div>
+
+        <div class="filters">
+            <select id="filterWorker" class="input" onchange="loadAdmin()">
+                <option value="All">- All Workers -</option>
+            </select>
+            <input type="date" id="filterDate" class="input" onchange="loadAdmin()">
+            <input type="text" id="filterRef" class="input" placeholder="Search REF Number..." oninput="loadAdmin()">
+        </div>
+    </div>
+
+    <h3 style="color:#064e3b; margin-bottom: 15px;">📋 Gallery Records (<span id="matchCount">0</span> found)</h3>
+    <div id="adminList" class="record-grid"></div>
 </div>
 
-<div id="workerPinOverlay" class="pin-overlay" style="display:none"><div class="pin-box"><h3>🔒 Worker PIN</h3><input id="workerPinInput" type="password" placeholder="PIN"><button class="btn btn-green" onclick="checkWorkerPin()">Unlock</button></div></div>
-<div id="adminPinOverlay" class="pin-overlay" style="display:none"><div class="pin-box"><h3>🔐 Admin PIN</h3><input id="adminPinInput" type="password" placeholder="PIN"><button class="btn btn-green" onclick="checkAdminPin()">Unlock</button></div></div>
+<!-- Modal Image Zoom -->
+<div id="imageModal">
+    <span class="close-modal" onclick="closeZoom()">&times;</span>
+    <img id="modalImg" src="">
+</div>
 
-<div id="zoomOverlay" class="zoom-overlay" onclick="closeZoom()"><img id="zoomImg" src=""><p id="zoomText"></p><p style="font-size:10px;color:#aaa">Click anywhere to close - Photo zoom</p></div>
-
-<div id="editOverlay" class="edit-overlay"><div class="edit-box"><h3 style="color:#064e3b">✏️ Edit Record</h3><label class="label">Worker Name</label><select id="editName" class="select"></select><label class="label">REF No</label><input id="editRef" class="input"><label class="label">Address (UC Detail)</label><textarea id="editAddr" class="input" style="height:70px"></textarea><div class="flex" style="margin-top:12px"><button class="btn" style="background:#e5e7eb;flex:1" onclick="closeEdit()">Cancel</button><button class="btn" style="background:#064e3b;color:#fff;flex:1" onclick="saveEdit()">💾 Save Changes</button></div></div></div>
-
+<!-- Hidden Canvas for Stamping -->
 <canvas id="canvas" style="display:none"></canvas>
-<script>
-let defaultWorkers=["Mr Hanan","Mr Zubair","Ms Anila","Mr Waris Ali","Mr Faraz Ahmed","Mr Samiullah","Mr Zahid","Mr Faizan Javed","Mr Hussnain","Mr Usman"];
-let workers=JSON.parse(localStorage.getItem('mediland_workers')||'null')||defaultWorkers;
-let WORKER_PIN=localStorage.getItem('mediland_worker_pin')||"1111";
-let ADMIN_PIN=localStorage.getItem('mediland_admin_pin')||"381381";
-let gpsLat=null,gpsLong=null,gpsFullAddr="",currentImg=null,editingId=null;
-let isWorkerUnlocked=localStorage.getItem('worker_unlocked')==='yes';
-let isAdminUnlocked=false;
-function initSelects(){let opts='<option value="">-- Choose --</option>';workers.forEach(w=>opts+=`<option>${w}</option>`);document.getElementById('distributor').innerHTML=opts;document.getElementById('filterDist').innerHTML='<option value="">All Workers</option>'+workers.map(w=>`<option>${w}</option>`).join('');document.getElementById('editName').innerHTML=workers.map(w=>`<option>${w}</option>`).join('');document.getElementById('setWorkerPin').value=WORKER_PIN;document.getElementById('setAdminPin').value=ADMIN_PIN;renderWorkersManage();}
-function tryShow(p){if(p==='worker'&&!isWorkerUnlocked){document.getElementById('workerPinOverlay').style.display='flex';return;}if(p==='admin'&&!isAdminUnlocked){document.getElementById('adminPinOverlay').style.display='flex';return;}document.getElementById('workerPage').classList.remove('active');document.getElementById('adminPage').classList.remove('active');document.getElementById('tabWorker').classList.remove('active');document.getElementById('tabAdmin').classList.remove('active');if(p==='worker'){document.getElementById('workerPage').classList.add('active');document.getElementById('tabWorker').classList.add('active');updateOverview();if(!gpsLat)refreshGPS();}else{document.getElementById('adminPage').classList.add('active');document.getElementById('tabAdmin').classList.add('active');loadAdmin();}}
-function checkWorkerPin(){let v=document.getElementById('workerPinInput').value;if(v===WORKER_PIN){isWorkerUnlocked=true;localStorage.setItem('worker_unlocked','yes');document.getElementById('workerPinOverlay').style.display='none';tryShow('worker');}else alert('Wrong PIN');}
-function checkAdminPin(){let v=document.getElementById('adminPinInput').value;if(v===ADMIN_PIN){isAdminUnlocked=true;document.getElementById('adminPinOverlay').style.display='none';tryShow('admin');}else alert('Wrong PIN');}
-function addWorker(){let n=document.getElementById('newWorkerName').value.trim();if(!n)return alert('Name');if(workers.includes(n))return alert('Exists');workers.push(n);localStorage.setItem('mediland_workers',JSON.stringify(workers));document.getElementById('newWorkerName').value='';initSelects();loadAdmin();updateOverview();}
-function deleteWorker(name){if(!confirm(name+' delete?'))return;workers=workers.filter(w=>w!==name);localStorage.setItem('mediland_workers',JSON.stringify(workers));initSelects();loadAdmin();}
-function renderWorkersManage(){let h='';workers.forEach(w=>{h+=`<div style="display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #eee"><span>${w}</span><button onclick="deleteWorker('${w.replace(/'/g,"\\'")}')" style="background:#fee2e2;border:1px solid #fecaca;padding:4px 10px;border-radius:6px">Delete</button></div>`;});document.getElementById('workersListManage').innerHTML=h;}
-function saveWorkerPin(){let v=document.getElementById('setWorkerPin').value.trim();if(v.length<4)return alert('Min 4');WORKER_PIN=v;localStorage.setItem('mediland_worker_pin',v);alert('Worker PIN saved: '+v);}
-function saveAdminPin(){let v=document.getElementById('setAdminPin').value.trim();if(v.length<4)return alert('Min 4');ADMIN_PIN=v;localStorage.setItem('mediland_admin_pin',v);alert('Admin PIN saved: '+v);}
-function updateOverview(){let r=JSON.parse(localStorage.getItem('mediland_records_v5')||'[]');let today=new Date().toISOString().slice(0,10);document.getElementById('wTotal').innerText=r.length;document.getElementById('wToday').innerText=r.filter(x=>x.date===today).length;let name=document.getElementById('distributor').value;if(name){let my=r.filter(x=>x.name===name);document.getElementById('wMy').innerText=my.length;document.getElementById('wNameShow').innerText=`${name}: Total ${my.length} | Today ${my.filter(x=>x.date===today).length}`;}else document.getElementById('wMy').innerText=0;}
-function refreshGPS(){let b=document.getElementById('gpsStatus');b.style.background="#fef3c7";b.innerHTML="⏳ Exact UC location...";if(!navigator.geolocation){b.innerHTML="❌ GPS Blocked";return;}navigator.geolocation.getCurrentPosition(async p=>{gpsLat=p.coords.latitude;gpsLong=p.coords.longitude;let acc=Math.round(p.coords.accuracy);b.style.background="#d1fae5";b.innerHTML=`✅ Locked ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)} ±${acc}m - Address...`;try{let r1=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${gpsLat}&longitude=${gpsLong}&localityLanguage=en`);let d1=await r1.json();let village=d1.locality||d1.village||"Chak 381 JB";let district=d1.city||"Toba Tek Singh";let r2=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json&zoom=18`);let d2=await r2.json();let a2=d2.address||{};let disp=d2.display_name||"";let m=disp.match(/Chak\s*\d+\s*[A-Z]*/i);if(m)village=m[0];let road=a2.road||"Tahli - Kahlawan Road";gpsFullAddr=`${village}, Toba Tek Singh, Punjab\n${road}, ${village}, Tehsil Toba Tek Singh, District ${district}, Punjab, Pakistan`;}catch(e){gpsFullAddr=`Lat ${gpsLat.toFixed(5)} Long ${gpsLong.toFixed(5)} Near Chak 381 JB\nTahli - Kahlawan Road, Tehsil Toba Tek Singh, District Toba Tek Singh`;}document.getElementById('liveAddr').value=gpsFullAddr;b.innerHTML=`✅ LIVE UC: ${gpsFullAddr.split('\n')[0]} | ${gpsLat.toFixed(5)}, ${gpsLong.toFixed(5)} ±${acc}m`;},err=>{b.innerHTML=err.code==1?"❌ BLOCK! 🔒 > Allow karein":"❌ GPS OFF! ON karein";b.style.background="#fee2e2";},{enableHighAccuracy:true,timeout:25000,maximumAge:0});}
-document.getElementById('photo').addEventListener('change',e=>{let f=e.target.files[0];let r=new FileReader();r.onload=ev=>{currentImg=new Image();currentImg.onload=()=>{document.getElementById('imgPreview').src=ev.target.result;document.getElementById('imgPreview').style.display='block';};currentImg.src=ev.target.result;};r.readAsDataURL(f);});
-function submitData(){let dist=document.getElementById('distributor').value,ref=document.getElementById('refNo').value.trim();if(!dist||!ref)return alert('Name & REF');if(!gpsLat)return alert('GPS');if(!currentImg)return alert('Photo');let now=new Date();let timeStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});let dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})+" - "+now.toLocaleDateString('en-US',{weekday:'long'});let rec={id:Date.now(),name:dist,ref:ref,gps:`${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`,addr:gpsFullAddr,date:now.toISOString().slice(0,10),time:timeStr};let cv=document.getElementById('canvas'),ctx=cv.getContext('2d');cv.width=currentImg.width;cv.height=currentImg.height;ctx.drawImage(currentImg,0,0);let h=cv.height,w=cv.width,stampH=Math.floor(h*0.32);ctx.fillStyle="rgba(0,0,0,0.82)";ctx.fillRect(0,h-stampH,w,stampH);let pad=Math.floor(w*0.03),y=h-stampH+Math.floor(stampH*0.20);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.038)}px Arial`;ctx.fillText(timeStr,pad,y);let tw=ctx.measureText(timeStr).width;ctx.fillStyle="#facc15";ctx.fillRect(pad+tw+12,y-Math.floor(h*0.022),3,Math.floor(h*0.035));ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.022)}px Arial`;ctx.fillText(dateStr,pad+tw+22,y-2);y+=Math.floor(h*0.05);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.024)}px Arial`;let ls=gpsFullAddr.split('\n');ls.forEach((ln,i)=>{if(i<2)ctx.fillText(ln.substring(0,68),pad,y+i*Math.floor(h*0.033));});y+=ls.length*Math.floor(h*0.033)+Math.floor(h*0.01);ctx.fillStyle="#e5e7eb";ctx.font=`bold ${Math.floor(h*0.02)}px Arial`;ctx.fillText(`Lat ${gpsLat.toFixed(6)}° Long ${gpsLong.toFixed(6)}°`,pad,y);ctx.fillStyle="#facc15";ctx.font=`bold ${Math.floor(h*0.016)}px Arial`;ctx.fillText(`${dist} | REF: ${ref}`,pad,h-Math.floor(h*0.015));let stamped=cv.toDataURL('image/jpeg',0.90);let recs=JSON.parse(localStorage.getItem('mediland_records_v5')||'[]');let phs=JSON.parse(localStorage.getItem('mediland_photos_v5')||'[]');recs.push(rec);phs.push({id:rec.id,name:dist,ref:ref,data:stamped,[STRIPPED] a=document.createElement('a');a.download=`${dist}_${ref}.jpg`;a.href=stamped;a.click();document.getElementById('msg').innerHTML=`✅ Saved!`;updateOverview();}
 
-// NEW FUNCTIONS - ZOOM / EDIT / DELETE
-function openZoom(src,text){document.getElementById('zoomImg').src=src;document.getElementById('zoomText').innerText=text||'';document.getElementById('zoomOverlay').style.display='flex';}
-function closeZoom(){document.getElementById('zoomOverlay').style.display='none';}
-function deletePhoto(id){if(!confirm('Ye photo delete karni hai?'))return;let recs=JSON.parse(localStorage.getItem('mediland_records_v5')||'[]');let phs=JSON.parse(localStorage.getItem('mediland_photos_v5')||'[]');recs=recs.filter(x=>x.id!==id);phs=phs.filter(x=>x.id!==id);localStorage.setItem('mediland_records_v5',JSON.stringify(recs));localStorage.setItem('mediland_photos_v5',JSON.stringify(phs));loadAdmin();updateOverview();}
-function openEdit(id){let recs=JSON.parse(localStorage.getItem('mediland_records_v5')||'[]');let rec=recs.find(x=>x.id===id);if(!rec)return;editingId=id;document.getElementById('editName').value=rec.name;document.getElementById('editRef').value=rec.ref;document.getElementById('editAddr').value=rec.addr;document.getElementById('editOverlay').style.display='flex';}
-function closeEdit(){document.getElementById('editOverlay').style.display='none';editingId=null;}
-function saveEdit(){if(!editingId)return;let recs=JSON.parse(localStorage.getItem('mediland_records_v5')||'[]');let phs=JSON.parse(localStorage.getItem('mediland_photos_v5')||'[]');let idx=recs.findIndex(x=>x.id===editingId);let pidx=phs.findIndex(x=>x.id===editingId);if(idx==-1)return;recs[idx].name=document.getElementById('editName').value;recs[idx].ref=document.getElementById('editRef').value;recs[idx].addr=document.getElementById('editAddr').value;if(pidx>=0){phs[pidx].name=recs[idx].name;phs[pidx].ref=recs[idx].ref;phs[pidx].addr=recs[idx].addr;}localStorage.setItem('mediland_records_v5',JSON.stringify(recs));localStorage.setItem('mediland_photos_v5',JSON.stringify(phs));closeEdit();loadAdmin();updateOverview();alert('✅ Saved!');}
-function clearFilters(){document.getElementById('filterDate').value='';document.getElementById('filterDist').value='';loadAdmin();}
-function loadAdmin(){let r=JSON.parse(localStorage.getItem('mediland_records_v5')||'[]');let p=JSON.parse(localStorage.getItem('mediland_photos_v5')||'[]');let fDate=document.getElementById('filterDate').value;let fDist=document.getElementById('filterDist').value;let filteredR=r;let filteredP=p;if(fDate){filteredR=filteredR.filter(x=>x.date===fDate);filteredP=filteredP.filter(x=>x.date===fDate);}if(fDist){filteredR=filteredR.filter(x=>x.name===fDist);filteredP=filteredP.filter(x=>x.name===fDist);}document.getElementById('aTotal').innerText=r.length;document.getElementById('aToday').innerText=r.filter(x=>x.date===new Date().toISOString().slice(0,10)).length;document.getElementById('aWorkers').innerText=[...new Set(r.map(x=>x.name))].length;let ow='';let map={};r.forEach(x=>{map[x.name]=(map[x.name]||0)+1;});for(let k in map){ow+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee"><b>${k}</b><span>${map[k]} Bills</span></div>`;}document.getElementById('workersOverview').innerHTML=ow||'<p class="small">No data</p>';let gEl=document.getElementById('galleryList');if(filteredP.length==0){gEl.innerHTML='<p style="grid-column:1/3;text-align:center;padding:12px;color:#666">No photos</p>';}else{let hg='';filteredP.slice().reverse().forEach(ph=>{hg+=`<div class="g-item"><img src="${ph.data}" onclick="openZoom('${ph.data}','${ph.name} | ${ph.ref} | ${ph.addr.replace(/\n/g,' ')}')"><div><b>${ph.name}</b> | ${ph.ref}<br>${ph.date} ${ph.time}<div class="action-bar"><button class="btn-edit" onclick="openEdit(${ph.id})">✏️ Edit</button><button class="btn-save" onclick="openZoom('${ph.data}','${ph.name} | ${ph.ref}')">🔍 Zoom</button><button class="btn-del" onclick="deletePhoto(${ph.id})">🗑️ Delete</button></div></div></div>`;});gEl.innerHTML=hg;}let el=document.getElementById('adminList');if(filteredR.length==0){el.innerHTML='<p style="text-align:center;padding:12px;color:#666">No records</p>';return;}let h='';filteredR.slice().reverse().forEach(rec=>{let ph=p.find(x=>x.id==rec.id);h+=`<div class="record"><b>${rec.name}</b> | REF: ${rec.ref}<br><small>${rec.addr.replace('\n',' | ')}</small><br><small>📍 ${rec.gps} | ${rec.date} ${rec.time}</small>${ph?`<img src="${ph.data}" onclick="openZoom('${ph.data}','${rec.name} | ${rec.ref}')"><div class="action-bar"><button class="btn-edit" onclick="openEdit(${rec.id})">✏️ Edit</button><button class="btn-save" onclick="openZoom('${ph.data}','${rec.name} | ${rec.ref}')">🔍 Zoom</button><button class="btn-del" onclick="deletePhoto(${rec.id})">🗑️ Delete</button></div>`:''}</div>`;});el.innerHTML=h;}
-function exportCSV(){let r=JSON.parse(localStorage.getItem('mediland_records_v5')||'[]');let fDate=document.getElementById('filterDate').value;let fDist=document.getElementById('filterDist').value;if(fDate)r=r.filter(x=>x.date===fDate);if(fDist)r=r.filter(x=>x.name===fDist);if(r.length==0)return alert('No data');let csv="Name,REF,Address,GPS,Date,Time\n";r.forEach(x=>{csv+=`"${x.name}","${x.ref}","${x.addr.replace(/\n/g,' ').replace(/"/g,'""')}","${x.gps}","${x.date}","${x.time}"\n`});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`Mediland_${fDate||'All'}.csv`;a.click();}
-function clearAll(){if(confirm('Clear all?')){localStorage.removeItem('mediland_records_v5');localStorage.removeItem('mediland_photos_v5');loadAdmin();updateOverview();}}
-initSelects();if(!isWorkerUnlocked){document.getElementById('workerPinOverlay').style.display='flex';}else{updateOverview();setTimeout(refreshGPS,800);}document.getElementById('filterDate').addEventListener('change',loadAdmin);
-</script></body></html>
+<script>
+// --- AUTHENTICATION LOGIC ---
+const WORKER_PIN = "1122";
+const ADMIN_PIN = "1234";
+let currentUserRole = "";
+
+function login(role) {
+    let pin = prompt(`Enter ${role.toUpperCase()} PIN:`);
+    if (role === 'worker' && pin === WORKER_PIN) {
+        currentUserRole = 'worker';
+        unlockPortal();
+    } else if (role === 'admin' && pin === ADMIN_PIN) {
+        currentUserRole = 'admin';
+        unlockPortal();
+    } else if (pin !== null) {
+        alert("❌ Incorrect PIN!");
+    }
+}
+
+function unlockPortal() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('mainHeader').style.display = 'flex';
+    document.getElementById('navTabs').style.display = 'flex';
+    
+    if(currentUserRole === 'worker') {
+        document.getElementById('tabAdmin').style.display = 'none';
+        showPage('worker');
+    } else {
+        document.getElementById('tabWorker').style.display = 'none';
+        document.getElementById('tabAdmin').style.display = 'block';
+        showPage('admin');
+    }
+}
+
+function logout() {
+    location.reload();
+}
+
+// --- CORE APP LOGIC ---
+let gpsLat = null, gpsLong = null;
+let detailedStreet = "", detailedCity = "", detailedState = "", fullAddressStr = "";
+let currentImg = null;
+let records = JSON.parse(localStorage.getItem('mediland_records_v6') || '[]');
+let photos = JSON.parse(localStorage.getItem('mediland_photos_v6') || '[]');
+
+document.getElementById('currentDateDisplay').innerText = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+
+function showPage(p) {
+    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+    
+    if(p === 'worker') {
+        document.getElementById('workerPage').classList.add('active');
+        document.getElementById('tabWorker').classList.add('active');
+        fetchDynamicGPS();
+    } else {
+        document.getElementById('adminPage').classList.add('active');
+        document.getElementById('tabAdmin').classList.add('active');
+        populateFilters();
+        loadAdmin();
+    }
+}
+
+// --- DYNAMIC GPS LOCATION FETCHING ---
+function fetchDynamicGPS() {
+    let statusText = document.getElementById('gpsText');
+    let loader = document.getElementById('gpsLoader');
+    let box = document.getElementById('gpsStatus');
+    
+    box.style.background = "#fef3c7"; box.style.borderColor = "#facc15";
+    statusText.innerText = "Fetching Live GPS Location...";
+    loader.style.display = "inline-block";
+    
+    if (!navigator.geolocation) {
+        alert("GPS not supported on this device.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        gpsLat = pos.coords.latitude;
+        gpsLong = pos.coords.longitude;
+        let acc = Math.round(pos.coords.accuracy);
+        
+        statusText.innerText = `GPS Locked (±${acc}m). Resolving Address...`;
+
+        try {
+            let res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json&zoom=18`);
+            let data = await res.json();
+            let a = data.address || {};
+            
+            let street = a.road || a.pedestrian || a.street || a.path || a.suburb || "Local Street";
+            let village_uc = a.village || a.neighbourhood || a.hamlet || a.residential || a.suburb || "";
+            let tehsil = a.county || a.town || a.city_district || "";
+            let district = a.city || a.state_district || "";
+            let state = a.state || "Punjab";
+
+            detailedStreet = street + (village_uc ? `, ${village_uc}` : "");
+            detailedCity = tehsil + (district ? `, ${district}` : "");
+            detailedState = `${state}, Pakistan`;
+
+            fullAddressStr = `${detailedStreet}\n${detailedCity}\n${detailedState}`.replace(/^\n+|\n+$/g, '');
+
+        } catch (e) {
+            try {
+                let res2 = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${gpsLat}&longitude=${gpsLong}&localityLanguage=en`);
+                let data2 = await res2.json();
+                detailedStreet = data2.locality || "Current Location";
+                detailedCity = data2.city || data2.principalSubdivision || "";
+                detailedState = "Punjab, Pakistan";
+                fullAddressStr = `${detailedStreet}, ${detailedCity}, ${detailedState}`;
+            } catch (err) {
+                detailedStreet = "Coordinates Extracted";
+                detailedCity = "Location Found";
+                fullAddressStr = `Lat: ${gpsLat.toFixed(5)}, Lng: ${gpsLong.toFixed(5)}`;
+            }
+        }
+
+        document.getElementById('liveAddr').value = fullAddressStr;
+        loader.style.display = "none";
+        box.style.background = "#d1fae5"; box.style.borderColor = "#10b981";
+        statusText.innerText = `✅ GPS Locked! Acc: ±${acc}m | Lat: ${gpsLat.toFixed(5)}`;
+
+    }, (err) => {
+        loader.style.display = "none";
+        box.style.background = "#fee2e2"; box.style.borderColor = "#ef4444";
+        statusText.innerText = "❌ GPS Error. Please enable Location/GPS and Refresh.";
+    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+}
+
+// --- PHOTO CAPTURE & PREVIEW ---
+document.getElementById('photo').addEventListener('change', e => {
+    let f = e.target.files[0];
+    if(!f) return;
+    let r = new FileReader();
+    r.onload = ev => {
+        currentImg = new Image();
+        currentImg.onload = () => {
+            document.getElementById('imgPreview').src = ev.target.result;
+            document.getElementById('imgPreview').style.display = 'block';
+        };
+        currentImg.src = ev.target.result;
+    };
+    r.readAsDataURL(f);
+});
+
+// --- CANVAS STAMPING (LOCATION ONLY - NO WORKER/REF NAME) ---
+function submitData() {
+    let dist = document.getElementById('distributor').value;
+    let ref = document.getElementById('refNo').value.trim();
+    let btn = document.getElementById('submitBtn');
+
+    if (!dist || !ref) { alert('❌ Please select Worker Name and enter REF No.'); return; }
+    if (!gpsLat) { alert('❌ GPS Location not found. Click Refresh LIVE GPS.'); return; }
+    if (!currentImg) { alert('❌ Please capture the photo.'); return; }
+
+    btn.innerText = "⏳ Saving & Stamping Photo...";
+    btn.disabled = true;
+
+    let now = new Date();
+    let timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    let dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    let dayStr = now.toLocaleDateString('en-US', { weekday: 'long' });
+
+    let cv = document.getElementById('canvas'), ctx = cv.getContext('2d');
+    
+    const MAX_WIDTH = 1280;
+    let width = currentImg.width;
+    let height = currentImg.height;
+    
+    if (width > MAX_WIDTH) {
+        height = Math.round((height * MAX_WIDTH) / width);
+        width = MAX_WIDTH;
+    }
+    cv.width = width;
+    cv.height = height;
+    
+    ctx.drawImage(currentImg, 0, 0, width, height);
+
+    // Bottom Stamp Box
+    let stampHeight = Math.floor(height * 0.22); 
+    if(stampHeight < 180) stampHeight = 180;
+    
+    ctx.fillStyle = "rgba(0,0,0,0.75)";
+    ctx.fillRect(0, height - stampHeight, width, stampHeight);
+
+    let padLeft = Math.floor(width * 0.04);
+    let topY = height - stampHeight + Math.floor(stampHeight * 0.28);
+
+    // 1. Time & Date
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${Math.floor(width * 0.075)}px Arial`;
+    ctx.fillText(timeStr, padLeft, topY);
+    let timeW = ctx.measureText(timeStr).width;
+
+    let lineX = padLeft + timeW + Math.floor(width * 0.03);
+    ctx.fillStyle = "#facc15";
+    ctx.fillRect(lineX, topY - Math.floor(width * 0.065), 4, Math.floor(width * 0.075));
+
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${Math.floor(width * 0.032)}px Arial`;
+    ctx.fillText(dateStr, lineX + Math.floor(width*0.02), topY - Math.floor(width*0.032));
+    ctx.fillStyle = "#d1d5db";
+    ctx.fillText(dayStr, lineX + Math.floor(width*0.02), topY);
+
+    // 2. Street Address (ONLY LOCATION)
+    let addrY = topY + Math.floor(stampHeight * 0.25);
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${Math.floor(width * 0.032)}px Arial`;
+    ctx.fillText(detailedStreet.substring(0, 65), padLeft, addrY);
+
+    // 3. City / District
+    addrY += Math.floor(stampHeight * 0.16);
+    ctx.fillStyle = "#d1d5db";
+    ctx.font = `${Math.floor(width * 0.026)}px Arial`;
+    ctx.fillText(`${detailedCity}, ${detailedState}`, padLeft, addrY);
+
+    // 4. Lat/Long Coordinates
+    let bottomY = height - Math.floor(stampHeight * 0.1);
+    ctx.fillStyle = "#facc15";
+    ctx.font = `bold ${Math.floor(width * 0.028)}px Arial`;
+    ctx.fillText(`Lat ${gpsLat.toFixed(6)}°  Long ${gpsLong.toFixed(6)}°`, padLeft, bottomY);
+
+    // Save Data
+    let stampedDataUrl = cv.toDataURL('image/jpeg', 0.85);
+    
+    let rec = {
+        id: Date.now(), name: dist, ref: ref,
+        lat: gpsLat.toFixed(6), lng: gpsLong.toFixed(6),
+        address: fullAddressStr,
+        date: now.toISOString().slice(0,10), time: timeStr
+    };
+
+    records.push(rec);
+    photos.push({id: rec.id, data: stampedDataUrl});
+
+    try {
+        localStorage.setItem('mediland_records_v6', JSON.stringify(records));
+        localStorage.setItem('mediland_photos_v6', JSON.stringify(photos));
+        
+        document.getElementById('msg').innerHTML = `✅ Successfully Submitted!<br><span style="font-size:12px;color:#444;">${detailedStreet}</span>`;
+        document.getElementById('refNo').value = "";
+        document.getElementById('imgPreview').style.display = "none";
+        document.getElementById('photo').value = "";
+        currentImg = null;
+        
+        // Save image to device
+        saveImageToDevice(stampedDataUrl, `${ref}_${rec.id}.jpg`);
+        
+    } catch(e) {
+        alert("❌ Local Storage Full! Clear old records from Admin panel.");
+    }
+
+    btn.innerText = "📸 Submit Delivery Record";
+    btn.disabled = false;
+}
+
+function saveImageToDevice(url, filename) {
+    let a = document.createElement('a');
+    a.download = filename;
+    a.href = url;
+    a.click();
+}
+
+// --- ADMIN GALLERY & ACTIONS ---
+function populateFilters() {
+    let workers = [...new Set(records.map(r => r.name))];
+    let sel = document.getElementById('filterWorker');
+    sel.innerHTML = '<option value="All">- All Workers -</option>';
+    workers.forEach(w => sel.innerHTML += `<option value="${w}">${w}</option>`);
+}
+
+function loadAdmin() {
+    let fw = document.getElementById('filterWorker').value;
+    let fd = document.getElementById('filterDate').value;
+    let fr = document.getElementById('filterRef').value.toLowerCase();
+
+    let filtered = records.filter(r => {
+        let matchW = (fw === "All" || r.name === fw);
+        let matchD = (!fd || r.date === fd);
+        let matchR = (!fr || r.ref.toLowerCase().includes(fr));
+        return matchW && matchD && matchR;
+    });
+
+    document.getElementById('totalBills').innerText = filtered.length;
+    let activeW = new Set(filtered.map(x => x.name)).size;
+    document.getElementById('activeWorkers').innerText = activeW;
+    document.getElementById('latestTime').innerText = filtered.length > 0 ? filtered[filtered.length-1].time : "--:--";
+    document.getElementById('matchCount').innerText = filtered.length;
+
+    let el = document.getElementById('adminList');
+    if (filtered.length === 0) {
+        el.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:30px; color:#6b7280; font-size:16px;">No gallery records found.</p>';
+        return;
+    }
+
+    let h = "";
+    filtered.slice().reverse().forEach(rec => {
+        let ph = photos.find(x => x.id === rec.id);
+        let imgSrc = ph ? ph.data : '';
+        h += `
+        <div class="card-gallery" id="card-${rec.id}">
+            <img src="${imgSrc}" onclick="openZoom('${imgSrc}')" title="Click to Zoom">
+            <div class="card-meta">
+                <div class="card-ref">Ref: ${rec.ref}</div>
+                <div class="card-user">👤 ${rec.name}</div>
+                <div class="card-date">${rec.date}, ${rec.time}</div>
+            </div>
+            <div class="card-actions">
+                <button class="btn-card-save" onclick="saveSinglePhoto(${rec.id})">💾 Save</button>
+                <button class="btn-card-edit" onclick="editRecord(${rec.id})">✏️</button>
+                <button class="btn-card-delete" onclick="deleteRecord(${rec.id})">🗑️ Delete</button>
+            </div>
+        </div>`;
+    });
+    el.innerHTML = h;
+}
+
+// Card Actions: Save, Edit, Delete
+function saveSinglePhoto(id) {
+    let ph = photos.find(x => x.id === id);
+    let rec = records.find(r => r.id === id);
+    if(ph && rec) {
+        saveImageToDevice(ph.data, `REF_${rec.ref}_${id}.jpg`);
+    }
+}
+
+function editRecord(id) {
+    let rec = records.find(r => r.id === id);
+    if(!rec) return;
+    let newRef = prompt("Edit Reference Number:", rec.ref);
+    if(newRef !== null && newRef.trim() !== "") {
+        rec.ref = newRef.trim();
+        localStorage.setItem('mediland_records_v6', JSON.stringify(records));
+        loadAdmin();
+    }
+}
+
+function deleteRecord(id) {
+    if(confirm("Are you sure you want to delete this record?")) {
+        records = records.filter(r => r.id !== id);
+        photos = photos.filter(p => p.id !== id);
+        localStorage.setItem('mediland_records_v6', JSON.stringify(records));
+        localStorage.setItem('mediland_photos_v6', JSON.stringify(photos));
+        loadAdmin();
+    }
+}
+
+// Modal Zoom
+function openZoom(src) {
+    if(!src) return;
+    document.getElementById('modalImg').src = src;
+    document.getElementById('imageModal').style.display = 'flex';
+}
+function closeZoom() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+// --- EXPORT FEATURES ---
+function exportCSV() {
+    if (records.length === 0) { alert('No records to export.'); return; }
+    let csv = "ID,Worker Name,Reference No,Date,Time,Latitude,Longitude,Full Address\n";
+    records.forEach(x => {
+        let cleanAddr = x.address.replace(/\n/g, ', ').replace(/"/g, '""');
+        csv += `"${x.id}","${x.name}","${x.ref}","${x.date}","${x.time}","${x.lat}","${x.lng}","${cleanAddr}"\n`;
+    });
+    let a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'}));
+    a.download = `Mediland_Records_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+}
+
+async function downloadAllPhotosZIP() {
+    if (photos.length === 0) { alert("No photos to export!"); return; }
+    if (typeof JSZip === 'undefined') { alert("ZIP library loading failed. Check internet."); return; }
+    
+    let btn = document.querySelector('.btn-zip');
+    btn.innerText = "⏳ Preparing ZIP..."; btn.disabled = true;
+
+    try {
+        let zip = new JSZip();
+        let folder = zip.folder("Mediland_Gallery_Photos");
+        
+        photos.forEach((p, index) => {
+            let rec = records.find(r => r.id === p.id);
+            let filename = rec ? `REF_${rec.ref}_${rec.name}_${rec.id}.jpg` : `photo_${index}.jpg`;
+            let base64Data = p.data.split(',')[1]; 
+            folder.file(filename, base64Data, {base64: true});
+        });
+
+        let content = await zip.generateAsync({type: "blob"});
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(content);
+        a.download = `Gallery_Export_${new Date().toISOString().slice(0,10)}.zip`;
+        a.click();
+    } catch(e) {
+        alert("ZIP generation failed.");
+    }
+    
+    btn.innerText = "📁 Download Gallery ZIP"; btn.disabled = false;
+}
+
+function clearAll() {
+    let pin = prompt("Enter Admin PIN to permanently clear all gallery records:");
+    if (pin === ADMIN_PIN) {
+        localStorage.removeItem('mediland_records_v6');
+        localStorage.removeItem('mediland_photos_v6');
+        records = []; photos = [];
+        loadAdmin();
+        alert("✅ All data cleared.");
+    } else if (pin !== null) {
+        alert("❌ Wrong PIN.");
+    }
+}
+</script>
+</body>
+</html>

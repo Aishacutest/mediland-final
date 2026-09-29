@@ -1,99 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEDILAND BILLS DISTRIBUTION</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f4}
-.header{width:100%;height:90px;overflow:hidden;background:#064e3b}
-.header img{width:100%;height:90px;object-fit:cover;object-position:center;display:block}
-.card{max-width:550px;margin:10px auto;background:white;border-radius:12px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
-.label{font-weight:bold;font-size:13px;margin:12px 0 5px;display:block}.label span{color:red}
-.input,.select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:13px}
-.locked{background:#e9ecef}.gps-box{background:#e9ecef;border-radius:8px;padding:10px;font-size:12px;margin-bottom:8px;border:1px solid #ccc}
-.gps-ok{background:#d1fae5;border-color:#10b981}.gps-error{background:#fee2e2;border-color:#ef4444}
-.btn-yellow{width:100%;background:#ffc107;border:none;padding:11px;border-radius:8px;font-weight:bold;font-size:14px;cursor:pointer;margin-bottom:8px}
-.btn-blue{width:100%;background:#0d6efd;border:none;padding:13px;border-radius:8px;color:white;font-weight:bold;font-size:15px;cursor:pointer;margin-top:10px}
-.btn-admin{width:100%;background:#111827;border:none;padding:10px;border-radius:8px;color:white;font-weight:bold;font-size:13px;cursor:pointer;margin-top:15px}
-.upload{border:1px solid #ddd;border-radius:8px;padding:8px}.preview img{max-width:100%;border-radius:8px;margin-top:8px;display:none}
-canvas{display:none}.admin-box{margin-top:15px;border-top:2px solid #eee;padding-top:12px;display:none}
-.admin-table{width:100%;font-size:11px;border-collapse:collapse;margin-top:8px}
-.admin-table th,.admin-table td{border:1px solid #ddd;padding:5px;text-align:left}
-</style>
-</head>
-<body>
-<div class="header"><img src="header_final.jpg" alt="MEDILAND"></div>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MEDILAND - Bills Distribution</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#eef5ee}
+.header-new{display:flex;align-items:center;justify-content:space-between;background:#0a3d2a;padding:10px 8px;gap:8px}
+.logo-box{background:#fff;border-radius:14px;padding:6px;width:120px;height:90px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,0.2)}
+.logo-box img{max-width:100%;max-height:100%;object-fit:contain}
+.center{text-align:center;flex:1;color:#fff}
+.center h1{font-size:24px;color:#ffeb3b;line-height:1.1;font-weight:900;letter-spacing:0.5px}
+.center p{font-size:10.5px;margin:4px 0;color:#e5e7eb}.center h2{font-size:15px;color:#ffeb3b;margin-top:3px}
+.top-tabs{display:flex;background:#fff;border-bottom:2px solid #064e3b;position:sticky;top:0;z-index:10}
+.top-tabs button{flex:1;padding:13px;border:none;background:#f3f4f6;font-weight:700;cursor:pointer;color:#666}
+.top-tabs button.active{background:#fff;color:#111;border-bottom:3px solid #064e3b}
+.card{background:#fff;border-radius:14px;padding:14px;margin:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.label{font-size:12px;font-weight:700;margin:9px 0 4px;display:block}.input,.select{width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;font-size:13px}
+.btn{padding:10px;border-radius:8px;border:1px solid #ddd;font-weight:700;cursor:pointer}.btn-green{background:#064e3b;color:#fff;width:100%;margin-top:10px;padding:13px;font-size:14px}
+.gps-box{padding:9px;border-radius:8px;font-size:12px;border:1px solid #fecaca;background:#fee2e2}.gps-ok{background:#d1fae5;border-color:#10b981}
+.detail{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:7px;font-size:11px;margin-top:6px}
+canvas{display:none}
+</style></head><body>
+<div class="top-tabs"><button class="active">Worker App</button><button onclick="location.href='admin.html'">Admin Portal</button></div>
+
+<div class="header-new">
+<div class="logo-box"><img src="mediland-logo.jpg"></div>
+<div class="center"><h1>BILLS DISTRIBUTION</h1><p>Mediland Pakistan Pvt Ltd - Suthra Punjab Agency - Tehsil Toba Tek Singh</p><h2>بلوں کی تقسیم - ستھرا پنجاب</h2></div>
+<div class="logo-box"><img src="suthra-logo.jpg"></div>
+</div>
+
 <div class="card">
-<label class="label">Select Bill Distributor Name: <span>*</span></label>
-<select id="distributor" class="select">
-<option value="">-- Choose Your Name --</option>
-<option>Mr Hanan</option>
-<option>Mr Zubair</option>
-<option>Ms Anila</option>
-<option>Mr Waris Ali</option>
-<option>Mr Faraz Ahmed</option>
-<option>Mr Samiullah</option>
-<option>Mr Zahid</option>
-<option>Mr Faizan Javed</option>
-<option>Mr Hussnain</option>
-<option>Mr Usman</option>
-</select>
-<label class="label">House Reference / Meter Number: <span>*</span></label>
-<input id="refNo" class="input" placeholder="e.g. METER-98745">
-<label class="label">GPS Status (Live Only):</label>
-<div id="gpsStatus" class="gps-box gps-error">📍 Waiting for LIVE GPS...</div>
-<button class="btn-yellow" onclick="refreshGPS()">🔄 Refresh Location GPS - Live Updated</button>
-<label class="label">Live Address / Location Text (Auto):</label>
-<input id="liveAddr" class="input locked" readonly placeholder="Live location auto...">
-<label class="label">House / Meter Photo: <span>*</span></label>
-<div class="upload"><input type="file" id="photo" accept="image/*" capture="environment"><div class="preview"><img id="imgPreview"></div><div id="photoName" style="font-size:11px;color:#666;margin-top:4px">No file chosen</div></div>
-<button class="btn-blue" onclick="submitData()">Submit Data - Live Location</button>
-<div id="msg" style="margin-top:10px;font-size:12px;text-align:center;font-weight:bold"></div>
-<button class="btn-admin" onclick="toggleAdmin()">🔐 Admin Panel - View Records</button>
-<div id="adminPanel" class="admin-box">
-<input type="password" id="adminPass" class="input" placeholder="Password: 1234">
-<button class="btn-blue" style="padding:8px;font-size:12px" onclick="showRecords()">Login & View All Records</button>
-<table class="admin-table"><thead><tr><th>Name</th><th>Ref</th><th>GPS</th><th>Time</th></tr></thead><tbody id="recordsBody"></tbody></table>
+<label class="label">Select Distributor *</label>
+<select id="distributor" class="select"><option value="">-- Choose Your Name --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris Ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr Hussnain</option><option>Mr Usman</option></select>
+<label class="label">House REF / Meter No *</label><input id="refNo" class="input" placeholder="e.g. METER-98745">
+<label class="label">LIVE GPS *</label><div id="gpsStatus" class="gps-box">📍 Waiting for LIVE GPS...</div>
+<button class="btn" style="width:100%;margin:6px 0;background:#fbbf24" onclick="refreshGPS()">🔄 Refresh LIVE GPS</button>
+<label class="label">Full Address (Auto Detail)</label><textarea id="liveAddr" class="input" style="height:65px" readonly placeholder="Road / Chak / UC / Tehsil auto..."></textarea>
+<div id="addrDetail" class="detail">Full detail after GPS...</div>
+<label class="label">House / Meter Photo *</label><div style="border:1px dashed #aaa;border-radius:8px;padding:8px"><input type="file" id="photo" accept="image/*" capture="environment"><img id="imgPreview" style="display:none;width:100%;border-radius:8px;margin-top:6px"><div id="photoName" style="font-size:11px;color:#666;margin-top:4px">No file chosen</div></div>
+<button class="btn btn-green" onclick="submitData()">Submit Data - Big Font Stamp</button>
+<div id="msg" style="text-align:center;font-weight:700;font-size:12px;margin-top:8px;color:#065f46"></div>
 </div>
 <canvas id="canvas"></canvas>
-</div>
 <script>
-let gpsLat=null,gpsLong=null,gpsAcc=null,currentImg=null;
-let allRecords=JSON.parse(localStorage.getItem('mediland_records')||'[]');
-function refreshGPS(){
-document.getElementById('gpsStatus').innerHTML="⏳ Getting LIVE GPS...";document.getElementById('gpsStatus').className="gps-box";document.getElementById('liveAddr').value="Fetching...";
-navigator.geolocation.getCurrentPosition(pos=>{
-gpsLat=pos.coords.latitude;gpsLong=pos.coords.longitude;gpsAcc=Math.round(pos.coords.accuracy);
-document.getElementById('gpsStatus').innerHTML=`📍 LIVE: Lat: ${gpsLat.toFixed(6)} | Long: ${gpsLong.toFixed(6)} (±${gpsAcc}m) ✅`;
-document.getElementById('gpsStatus').className="gps-box gps-ok";
-fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json`).then(r=>r.json()).then(d=>{document.getElementById('liveAddr').value=d.display_name||`Live: ${gpsLat}, ${gpsLong}`}).catch(()=>{document.getElementById('liveAddr').value=`LIVE GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;});
-},err=>{document.getElementById('gpsStatus').innerHTML="❌ GPS Allow karo";document.getElementById('gpsStatus').className="gps-box gps-error";},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
-}
+let gpsLat=null,gpsLong=null,currentImg=null,records=JSON.parse(localStorage.getItem('mediland_records_v2')||'[]'),photos=JSON.parse(localStorage.getItem('mediland_photos_v2')||'[]');
+function refreshGPS(){let b=document.getElementById('gpsStatus');b.innerHTML="⏳ LIVE GPS + Full Address fetching...";b.className="gps-box";navigator.geolocation.getCurrentPosition(p=>{gpsLat=p.coords.latitude;gpsLong=p.coords.longitude;let acc=Math.round(p.coords.accuracy);b.innerHTML=`✅ LIVE: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)} (±${acc}m)`;b.className="gps-box gps-ok";fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json&addressdetails=1`).then(r=>r.json()).then(d=>{let a=d.address||{};document.getElementById('liveAddr').value=d.display_name||`${gpsLat},${gpsLong}`;document.getElementById('addrDetail').innerHTML=`<b>Road:</b> ${a.road||a.suburb||'N/A'} | <b>Village:</b> ${a.village||a.town||a.city||'Toba'}<br><b>Tehsil:</b> ${a.county||'Toba Tek Singh'} | <b>District:</b> ${a.state_district||'Faisalabad'}`;});},e=>{b.innerHTML="❌ Allow Location - GPS on karo";},{enableHighAccuracy:true,timeout:20000,maximumAge:0});}
 refreshGPS();
-document.getElementById('photo').addEventListener('change',function(e){
-const file=e.target.files[0];if(!file) return;document.getElementById('photoName').innerText=file.name;const r=new FileReader();r.onload=function(ev){currentImg=new Image();currentImg.onload=function(){document.getElementById('imgPreview').src=ev.target.result;document.getElementById('imgPreview').style.display='block';};currentImg.src=ev.target.result;};r.readAsDataURL(file);
-});
-function submitData(){
-const d=document.getElementById('distributor').value;const ref=document.getElementById('refNo').value.trim();const live=document.getElementById('liveAddr').value;
-if(!d){alert('Name select karo');return;}if(!ref){alert('Ref likho');return;}if(!gpsLat){alert('LIVE GPS Required');return;}if(!currentImg){alert('Photo lo');return;}
-const rec={name:d,ref:ref,gps:`${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`,time:new Date().toLocaleString()};
-allRecords.push(rec);localStorage.setItem('mediland_records',JSON.stringify(allRecords));
-const canvas=document.getElementById('canvas');const ctx=canvas.getContext('2d');canvas.width=currentImg.width;canvas.height=currentImg.height;ctx.drawImage(currentImg,0,0);
-const h=canvas.height,w=canvas.width;const bf=Math.max(28,Math.floor(h*0.034));const mf=Math.max(20,Math.floor(h*0.024));const sh=Math.floor(h*0.35);
-ctx.fillStyle="rgba(0,0,0,0.85)";ctx.fillRect(0,h-sh,w,sh);ctx.fillStyle="white";ctx.font=`900 ${bf}px Arial`;ctx.fillText(live.substring(0,90),20,h-sh+bf+12,w-40);
-ctx.fillStyle="#facc15";ctx.font=`bold ${mf}px Arial`;ctx.fillText(`LIVE GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`,20,h-sh+bf+18+mf,w-40);
-ctx.font=`${Math.floor(mf*0.6)}px Arial`;ctx.fillStyle="white";ctx.fillText(`${d} | ${rec.ref} | ${rec.time}`,20,h-12);
-const a=document.createElement('a');a.download=`${d}_${ref}_LIVE.jpg`;a.href=canvas.toDataURL('image/jpeg',0.92);a.click();
-document.getElementById('msg').innerHTML=`✅ Saved! ${d} - ${ref}`;document.getElementById('refNo').value='';
-}
-function toggleAdmin(){const p=document.getElementById('adminPanel');p.style.display=p.style.display=='none'?'block':'none';}
-function showRecords(){
-if(document.getElementById('adminPass').value!=='1234'){alert('Wrong Password! 1234 likho');return;}
-const tbody=document.getElementById('recordsBody');tbody.innerHTML='';
-allRecords.slice().reverse().forEach(r=>{tbody.innerHTML+=`<tr><td>${r.name}</td><td>${r.ref}</td><td>${r.gps}</td><td>${r.time}</td></tr>`});
-if(allRecords.length==0) tbody.innerHTML='<tr><td colspan=4>No records</td></tr>';
-}
-</script>
-</body>
-</html>
+document.getElementById('photo').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;document.getElementById('photoName').innerText=f.name;let r=new FileReader();r.onload=ev=>{currentImg=new Image();currentImg.onload=()=>{document.getElementById('imgPreview').src=ev.target.result;document.getElementById('imgPreview').style.display='block';};currentImg.src=ev.target.result;};r.readAsDataURL(f);});
+function submitData(){let d=document.getElementById('distributor').value,ref=document.getElementById('refNo').value.trim(),addr=document.getElementById('liveAddr').value;if(!d||!ref||!gpsLat||!currentImg){alert('Name, REF, GPS, Photo lazmi!');return;}let rec={id:Date.now(),name:d,ref:ref,gps:`${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`,addr:addr,date:new Date().toISOString().slice(0,10),time:new Date().toLocaleString()};let cv=document.getElementById('canvas'),ctx=cv.getContext('2d');cv.width=currentImg.width;cv.height=currentImg.height;ctx.drawImage(currentImg,0,0);let h=cv.height,w=cv.width,sh=Math.floor(h*0.38),bf=Math.max(28,Math.floor(h*0.034));ctx.fillStyle="rgba(0,0,0,0.88)";ctx.fillRect(0,h-sh,w,sh);ctx.fillStyle="#fff";ctx.font=`900 ${bf}px Arial`;ctx.fillText(rec.name,20,h-sh+bf+10);ctx.fillStyle="#facc15";ctx.font=`bold ${Math.floor(bf*0.8)}px Arial`;let lines=addr.match(/.{1,50}/g)||[addr];lines.slice(0,2).forEach((ln,i)=>{ctx.fillText(ln,20,h-sh+bf+14+Math.floor(bf*0.8)*(i+1));});ctx.fillStyle="#fff";ctx.font=`${Math.floor(bf*0.55)}px Arial`;ctx.fillText(`REF: ${ref} | GPS: ${rec.gps} | ${rec.time}`,20,h-10);let stamped=cv.toDataURL('image/jpeg',0.92);records.push(rec);photos.push({id:rec.id,ref:ref,data:stamped});localStorage.setItem('mediland_records_v2',JSON.stringify(records));localStorage.setItem('mediland_photos_v2',JSON.stringify(photos));let a=document.createElement('a');a.download=`${d}_${ref}_LIVE.jpg`;a.href=stamped;a.click();document.getElementById('msg').innerHTML=`✅ Saved! ${d} - ${ref}`;document.getElementById('refNo').value='';currentImg=null;}
+</script></body></html>

@@ -6,71 +6,93 @@
 <title>MEDILAND BILLS DISTRIBUTION</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f4}
-.header img{width:100%;display:block}
-.card{max-width:550px;margin:12px auto;background:white;border-radius:12px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
-.label{font-weight:bold;font-size:14px;margin:14px 0 6px;display:block}
-.label span{color:red}
-.input,.select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px}
-.locked{background:#e9ecef;color:#222}
-.gps-box{background:#e9ecef;border-radius:8px;padding:12px;font-size:13px;margin-bottom:10px;border:1px solid #ccc}
-.gps-ok{background:#d1fae5;border-color:#10b981}
-.gps-error{background:#fee2e2;border-color:#ef4444;color:#991b1b}
-.btn-yellow{width:100%;background:#ffc107;border:none;padding:13px;border-radius:8px;font-weight:bold;font-size:15px;cursor:pointer;margin-bottom:10px}
-.btn-blue{width:100%;background:#0d6efd;border:none;padding:14px;border-radius:8px;color:white;font-weight:bold;font-size:16px;cursor:pointer;margin-top:12px}
-.upload{border:1px solid #ddd;border-radius:8px;padding:10px}
-.preview img{max-width:100%;border-radius:8px;margin-top:10px;display:none}
-canvas{display:none}
+.header{width:100%;height:90px;overflow:hidden;background:#064e3b}
+.header img{width:100%;height:90px;object-fit:cover;object-position:center;display:block}
+.card{max-width:550px;margin:10px auto;background:white;border-radius:12px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+.label{font-weight:bold;font-size:13px;margin:12px 0 5px;display:block}.label span{color:red}
+.input,.select{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:13px}
+.locked{background:#e9ecef}.gps-box{background:#e9ecef;border-radius:8px;padding:10px;font-size:12px;margin-bottom:8px;border:1px solid #ccc}
+.gps-ok{background:#d1fae5;border-color:#10b981}.gps-error{background:#fee2e2;border-color:#ef4444}
+.btn-yellow{width:100%;background:#ffc107;border:none;padding:11px;border-radius:8px;font-weight:bold;font-size:14px;cursor:pointer;margin-bottom:8px}
+.btn-blue{width:100%;background:#0d6efd;border:none;padding:13px;border-radius:8px;color:white;font-weight:bold;font-size:15px;cursor:pointer;margin-top:10px}
+.btn-admin{width:100%;background:#111827;border:none;padding:10px;border-radius:8px;color:white;font-weight:bold;font-size:13px;cursor:pointer;margin-top:15px}
+.upload{border:1px solid #ddd;border-radius:8px;padding:8px}.preview img{max-width:100%;border-radius:8px;margin-top:8px;display:none}
+canvas{display:none}.admin-box{margin-top:15px;border-top:2px solid #eee;padding-top:12px;display:none}
+.admin-table{width:100%;font-size:11px;border-collapse:collapse;margin-top:8px}
+.admin-table th,.admin-table td{border:1px solid #ddd;padding:5px;text-align:left}
 </style>
 </head>
 <body>
-<div class="header"><img src="header_final.jpg" alt="MEDILAND BILLS DISTRIBUTION"></div>
+<div class="header"><img src="header_final.jpg" alt="MEDILAND"></div>
 <div class="card">
 <label class="label">Select Bill Distributor Name: <span>*</span></label>
-<select id="distributor" class="select"><option value="">-- Choose Your Name --</option><option>Ayesha - UC 26</option><option>Ali - UC 26</option><option>Usman - UC 27</option><option>Khalid - UC 28</option><option>Bilal - Toba Tek Singh</option><option>Sana - Chak 381 JB</option></select>
+<select id="distributor" class="select">
+<option value="">-- Choose Your Name --</option>
+<option>Mr Hanan</option>
+<option>Mr Zubair</option>
+<option>Ms Anila</option>
+<option>Mr Waris Ali</option>
+<option>Mr Faraz Ahmed</option>
+<option>Mr Samiullah</option>
+<option>Mr Zahid</option>
+<option>Mr Faizan Javed</option>
+<option>Mr Hussnain</option>
+<option>Mr Usman</option>
+</select>
 <label class="label">House Reference / Meter Number: <span>*</span></label>
 <input id="refNo" class="input" placeholder="e.g. METER-98745">
-<label class="label">GPS Status (Live Only - No Default):</label>
+<label class="label">GPS Status (Live Only):</label>
 <div id="gpsStatus" class="gps-box gps-error">📍 Waiting for LIVE GPS...</div>
 <button class="btn-yellow" onclick="refreshGPS()">🔄 Refresh Location GPS - Live Updated</button>
-<label class="label">Live Address / Location Text (Auto Road/Chak/UC):</label>
-<input id="liveAddr" class="input locked" readonly placeholder="Live location - Road, Chak, UC auto ayegi...">
+<label class="label">Live Address / Location Text (Auto):</label>
+<input id="liveAddr" class="input locked" readonly placeholder="Live location auto...">
 <label class="label">House / Meter Photo: <span>*</span></label>
-<div class="upload"><input type="file" id="photo" accept="image/*" capture="environment"><div class="preview"><img id="imgPreview"></div><div id="photoName" style="font-size:12px;color:#666;margin-top:6px">No file chosen</div></div>
+<div class="upload"><input type="file" id="photo" accept="image/*" capture="environment"><div class="preview"><img id="imgPreview"></div><div id="photoName" style="font-size:11px;color:#666;margin-top:4px">No file chosen</div></div>
 <button class="btn-blue" onclick="submitData()">Submit Data - Live Location</button>
+<div id="msg" style="margin-top:10px;font-size:12px;text-align:center;font-weight:bold"></div>
+<button class="btn-admin" onclick="toggleAdmin()">🔐 Admin Panel - View Records</button>
+<div id="adminPanel" class="admin-box">
+<input type="password" id="adminPass" class="input" placeholder="Password: 1234">
+<button class="btn-blue" style="padding:8px;font-size:12px" onclick="showRecords()">Login & View All Records</button>
+<table class="admin-table"><thead><tr><th>Name</th><th>Ref</th><th>GPS</th><th>Time</th></tr></thead><tbody id="recordsBody"></tbody></table>
+</div>
 <canvas id="canvas"></canvas>
-<div id="msg" style="margin-top:12px;font-size:13px;text-align:center;font-weight:bold"></div>
 </div>
 <script>
 let gpsLat=null,gpsLong=null,gpsAcc=null,currentImg=null;
+let allRecords=JSON.parse(localStorage.getItem('mediland_records')||'[]');
 function refreshGPS(){
-document.getElementById('gpsStatus').innerHTML="⏳ Getting LIVE GPS...";document.getElementById('gpsStatus').className="gps-box";document.getElementById('liveAddr').value="Fetching live road, chak, UC... (Offline bhi kaam karega)";
+document.getElementById('gpsStatus').innerHTML="⏳ Getting LIVE GPS...";document.getElementById('gpsStatus').className="gps-box";document.getElementById('liveAddr').value="Fetching...";
 navigator.geolocation.getCurrentPosition(pos=>{
 gpsLat=pos.coords.latitude;gpsLong=pos.coords.longitude;gpsAcc=Math.round(pos.coords.accuracy);
 document.getElementById('gpsStatus').innerHTML=`📍 LIVE: Lat: ${gpsLat.toFixed(6)} | Long: ${gpsLong.toFixed(6)} (±${gpsAcc}m) ✅`;
 document.getElementById('gpsStatus').className="gps-box gps-ok";
-if(navigator.onLine){
-fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json&addressdetails=1`).then(r=>r.json()).then(data=>{
-let addr=data.address||{};let road=addr.road||addr.neighbourhood||"";let village=addr.village||addr.hamlet||addr.suburb||"";let county=addr.county||"";let state=addr.state||"Punjab";let detailed="";if(road) detailed+=road+", ";if(village) detailed+=village+", ";let m=data.display_name.match(/UC\s*\d+/i);if(m) detailed+=m[0]+", ";else if(county) detailed+=county+", ";detailed+=state;if(detailed.length<15) detailed=data.display_name;document.getElementById('liveAddr').value=detailed;
-}).catch(e=>{document.getElementById('liveAddr').value=`Live GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)} - Road update needs internet`;});
-}else{document.getElementById('liveAddr').value=`OFFLINE LIVE: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)} - Road/UC needs internet but GPS LIVE`;}
-},err=>{
-let msg=err.code==1?"❌ GPS Permission Denied - Location ON karo":err.code==2?"❌ GPS Signal Not Found - Open area me jao":"❌ GPS Timeout - Refresh dabao";
-document.getElementById('gpsStatus').innerHTML=msg;document.getElementById('gpsStatus').className="gps-box gps-error";document.getElementById('liveAddr').value="";gpsLat=null;
-},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json`).then(r=>r.json()).then(d=>{document.getElementById('liveAddr').value=d.display_name||`Live: ${gpsLat}, ${gpsLong}`}).catch(()=>{document.getElementById('liveAddr').value=`LIVE GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;});
+},err=>{document.getElementById('gpsStatus').innerHTML="❌ GPS Allow karo";document.getElementById('gpsStatus').className="gps-box gps-error";},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
 }
 refreshGPS();
 document.getElementById('photo').addEventListener('change',function(e){
-const file=e.target.files[0];if(!file) return;document.getElementById('photoName').innerText=file.name+" selected";const r=new FileReader();r.onload=function(ev){currentImg=new Image();currentImg.onload=function(){document.getElementById('imgPreview').src=ev.target.result;document.getElementById('imgPreview').style.display='block';};currentImg.src=ev.target.result;};r.readAsDataURL(file);
+const file=e.target.files[0];if(!file) return;document.getElementById('photoName').innerText=file.name;const r=new FileReader();r.onload=function(ev){currentImg=new Image();currentImg.onload=function(){document.getElementById('imgPreview').src=ev.target.result;document.getElementById('imgPreview').style.display='block';};currentImg.src=ev.target.result;};r.readAsDataURL(file);
 });
 function submitData(){
 const d=document.getElementById('distributor').value;const ref=document.getElementById('refNo').value.trim();const live=document.getElementById('liveAddr').value;
-if(!d){alert('Name select karo');return;}if(!ref){alert('Ref likho');return;}if(!gpsLat){alert('LIVE GPS REQUIRED - Refresh dabao. Default khatam hai.');return;}if(!currentImg){alert('Photo select karo');return;}
+if(!d){alert('Name select karo');return;}if(!ref){alert('Ref likho');return;}if(!gpsLat){alert('LIVE GPS Required');return;}if(!currentImg){alert('Photo lo');return;}
+const rec={name:d,ref:ref,gps:`${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`,time:new Date().toLocaleString()};
+allRecords.push(rec);localStorage.setItem('mediland_records',JSON.stringify(allRecords));
 const canvas=document.getElementById('canvas');const ctx=canvas.getContext('2d');canvas.width=currentImg.width;canvas.height=currentImg.height;ctx.drawImage(currentImg,0,0);
-const h=canvas.height,w=canvas.width;const bf=Math.max(30,Math.floor(h*0.036));const mf=Math.max(22,Math.floor(h*0.026));const sh=Math.floor(h*0.38);
-ctx.fillStyle="rgba(0,0,0,0.85)";ctx.fillRect(0,h-sh,w,sh);ctx.fillStyle="white";ctx.font=`900 ${bf}px Arial`;ctx.fillText(live.substring(0,95),20,h-sh+bf+14,w-40);
-ctx.fillStyle="#facc15";ctx.font=`bold ${mf}px Arial`;let l2=live.length>95?live.substring(95,190):`LIVE GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;if(l2) ctx.fillText(l2,20,h-sh+bf+22+mf,w-40);
-ctx.font=`${Math.floor(mf*0.6)}px Arial`;ctx.fillStyle="white";let m=live.match(/UC\s*\d+/i);let uc=m?m[0]:"UC 26";ctx.fillText(`${d} | ${uc} | LIVE ${gpsLat.toFixed(6)},${gpsLong.toFixed(6)} | ${new Date().toLocaleString()}`,20,h-12);
-const a=document.createElement('a');a.download=`UC ${uc.replace(/UC/i,'').trim()||"26"} REF _${ref} LIVE.jpg`;a.href=canvas.toDataURL('image/jpeg',0.92);a.click();
+const h=canvas.height,w=canvas.width;const bf=Math.max(28,Math.floor(h*0.034));const mf=Math.max(20,Math.floor(h*0.024));const sh=Math.floor(h*0.35);
+ctx.fillStyle="rgba(0,0,0,0.85)";ctx.fillRect(0,h-sh,w,sh);ctx.fillStyle="white";ctx.font=`900 ${bf}px Arial`;ctx.fillText(live.substring(0,90),20,h-sh+bf+12,w-40);
+ctx.fillStyle="#facc15";ctx.font=`bold ${mf}px Arial`;ctx.fillText(`LIVE GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`,20,h-sh+bf+18+mf,w-40);
+ctx.font=`${Math.floor(mf*0.6)}px Arial`;ctx.fillStyle="white";ctx.fillText(`${d} | ${rec.ref} | ${rec.time}`,20,h-12);
+const a=document.createElement('a');a.download=`${d}_${ref}_LIVE.jpg`;a.href=canvas.toDataURL('image/jpeg',0.92);a.click();
+document.getElementById('msg').innerHTML=`✅ Saved! ${d} - ${ref}`;document.getElementById('refNo').value='';
+}
+function toggleAdmin(){const p=document.getElementById('adminPanel');p.style.display=p.style.display=='none'?'block':'none';}
+function showRecords(){
+if(document.getElementById('adminPass').value!=='1234'){alert('Wrong Password! 1234 likho');return;}
+const tbody=document.getElementById('recordsBody');tbody.innerHTML='';
+allRecords.slice().reverse().forEach(r=>{tbody.innerHTML+=`<tr><td>${r.name}</td><td>${r.ref}</td><td>${r.gps}</td><td>${r.time}</td></tr>`});
+if(allRecords.length==0) tbody.innerHTML='<tr><td colspan=4>No records</td></tr>';
 }
 </script>
 </body>

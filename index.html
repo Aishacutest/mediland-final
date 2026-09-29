@@ -1,121 +1,77 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MEDILAND FINAL</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<style>:root{--green:#0a4d2e;--green2:#128a47}*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}body{background:#f2f7f3}.header{background:linear-gradient(90deg,var(--green),var(--green2));color:white;padding:10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}.logo{width:70px;height:70px;background:white;color:#0a4d2e;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;text-align:center}.container{max-width:1200px;margin:auto;padding:12px}.card{background:white;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #0001}.tab{flex:1;padding:12px;text-align:center;font-weight:700;color:#666;cursor:pointer;border-bottom:3px solid transparent;background:white}.tab.active{color:var(--green);border-color:var(--green);background:#e8f5ec}.tabs{display:flex}.btn{padding:8px 14px;border-radius:8px;border:1px solid #ddd;background:white;font-weight:700;cursor:pointer;font-size:13px}.btn-green{background:linear-gradient(90deg,#128a47,#0a4d2e);color:white;border:none}.btn-blue{background:#0d8bf2;color:white;border:none;padding:7px 18px;border-radius:6px}.btn-red{background:#e53935;color:white;border:none;padding:7px 18px;border-radius:6px}.hidden{display:none}.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}.g-card{background:white;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px #0001}.g-card img{width:100%;height:200px;object-fit:cover;cursor:pointer}.g-info{padding:10px;text-align:center}.g-ref{color:#0d6efd;font-weight:700;font-size:13px}.g-worker{font-size:12px;color:#333;font-weight:600}.g-date{font-size:11px;color:#888}.g-actions{display:flex;gap:6px;margin-top:8px}.g-actions button{flex:1}.cam{border:2px dashed #0a4d2e;border-radius:12px;padding:14px;text-align:center;background:#f7fdf8;cursor:pointer}#zoomModal{position:fixed;inset:0;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}#zoomModal.show{display:flex}#zoomModal img{max-width:96%;max-height:85%;border-radius:12px}#zoomInfo{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:white;padding:10px 16px;border-radius:20px;font-size:12px;text-align:center;max-width:92%}.closeZoom{position:absolute;top:18px;right:18px;background:white;color:black;border:none;width:42px;height:42px;border-radius:50%;font-size:20px;cursor:pointer;font-weight:700}.worker-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #e0e0e0;border-radius:8px;margin-top:6px}input,select{width:100%;padding:11px;border-radius:10px;border:1px solid #d8e5da;margin-top:4px}</style></head><body>
-<div class="header"><div class="logo">SUTHRA<br>PUNJAB</div><div style="flex:1;text-align:center"><h1>MEDILAND BILLS</h1><p style="font-size:10px">Big Font Detailed Location - No REF on Pic - REF as FileName</p></div><div class="logo">MEDILAND<br>LABS</div></div>
-<div class="tabs"><div class="tab active" id="tW" onclick="switchM('worker')">Worker App</div><div class="tab" id="tA" onclick="switchM('admin')">Admin Portal</div></div>
-<div id="zoomModal" onclick="closeZoom()"><button class="closeZoom" onclick="closeZoom()">X</button><img id="zoomImg"><div id="zoomInfo"></div></div>
-<div id="workerSec" class="container"><div style="max-width:500px;margin:16px auto">
-<div id="wLogin" class="card" style="text-align:center"><h3>Worker Login</h3><p>PIN: <span id="showWPin">1234</span></p><input id="wPin" type="password" placeholder="Worker PIN" style="text-align:center"><button class="btn btn-green" style="width:100%;margin-top:12px" onclick="wUnlock()">Unlock</button></div>
-<div id="wForm" class="card hidden"><h3>Bill Entry</h3><label>Worker</label><select id="wName"></select><label>Ref No (Only filename, not on pic)</label><input id="wRef" placeholder="0133_00123"><label>UC No</label><input id="wUC" placeholder="26"><label>Full Location Bold</label><input id="wFullAddr" value="Chak 381 JB, Toba Tek Singh, Punjab"><label>Detailed Address 2 lines</label><input id="wDetailAddr" value="Tahli - Kahlawan Road, Chak 381 JB, Tehsil Toba Tek Singh, District Toba Tek Singh, Punjab, Pakistan"><div class="cam" onclick="document.getElementById('wPic').click()" style="margin-top:10px"><div id="wCamT">Click - Big Font Sample Jaisa Stamp</div><img id="wPrev" class="hidden" style="max-width:100%;border-radius:8px;margin-top:8px"><canvas id="wCanvas" class="hidden"></canvas><input type="file" id="wPic" accept="image/*" capture="environment" class="hidden"></div><div id="wLoc" style="font-size:11px;color:#0a4d2e;margin-top:6px">Locating...</div><button class="btn btn-green" style="width:100%;margin-top:12px;padding:12px" onclick="wSubmit()">Submit - REF as Filename</button><div id="wMy" style="margin-top:14px"></div></div>
-</div></div>
-<div id="adminSec" class="container hidden">
-<div id="aLogin" class="card" style="max-width:400px;margin:20px auto;text-align:center"><h3>Admin Login</h3><p>Admin PIN: <span id="showAPin">9999</span></p><input id="aPin" type="password" placeholder="Admin PIN" style="text-align:center"><button class="btn btn-green" style="width:100%;margin-top:12px" onclick="aUnlock()">Login</button></div>
-<div id="aMain" class="hidden">
-<div class="card" style="background:#0a2e1b;color:white"><h2 style="font-size:14px">Admin - Big Font Stamp <button class="btn" style="float:right;background:white;color:#0a4d2e;padding:5px 10px" onclick="aLock()">Lock</button></h2></div>
-<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><div class="tab active" style="flex:none;border-radius:20px" onclick="setATab('overview')">Overview</div><div class="tab" style="flex:none;border-radius:20px" onclick="setATab('gallery')">Gallery</div><div class="tab" style="flex:none;border-radius:20px" onclick="setATab('settings')">Settings</div></div>
-<div id="vOverview"><div class="card"><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div><label>Worker</label><select id="fW" onchange="apply()"></select></div><div><label>Date</label><input type="date" id="fD" onchange="apply()"></div><div><label>Search REF</label><input id="fR" placeholder="0133..." oninput="apply()"></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn" onclick="resetF()">Reset</button><button class="btn btn-green" id="bZip" onclick="downZip()">ZIP REF WISE (0)</button><button class="btn" id="bEx" onclick="expExcel()">Excel (0)</button></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div class="card" style="background:#0a4d2e;color:white"><small>Total</small><b style="font-size:28px;display:block" id="sTot">0</b></div><div class="card"><small>Active</small><b style="font-size:28px;display:block" id="sAct">0</b></div><div class="card"><small>Top</small><b style="font-size:28px;display:block" id="sTop">0</b><small id="sTopN"></small></div></div>
-<div class="card"><h3>Worker Activity</h3><div id="sumList"></div></div>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEDILAND BILLS DISTRIBUTION</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f4}
+.header img{width:100%;display:block}
+.card{max-width:550px;margin:12px auto;background:white;border-radius:12px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+.label{font-weight:bold;font-size:14px;margin:14px 0 6px;display:block}
+.label span{color:red}
+.input,.select{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+.locked{background:#e9ecef;color:#222}
+.gps-box{background:#e9ecef;border-radius:8px;padding:12px;font-size:13px;margin-bottom:10px;border:1px solid #ccc}
+.gps-ok{background:#d1fae5;border-color:#10b981}
+.gps-error{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.btn-yellow{width:100%;background:#ffc107;border:none;padding:13px;border-radius:8px;font-weight:bold;font-size:15px;cursor:pointer;margin-bottom:10px}
+.btn-blue{width:100%;background:#0d6efd;border:none;padding:14px;border-radius:8px;color:white;font-weight:bold;font-size:16px;cursor:pointer;margin-top:12px}
+.upload{border:1px solid #ddd;border-radius:8px;padding:10px}
+.preview img{max-width:100%;border-radius:8px;margin-top:10px;display:none}
+canvas{display:none}
+</style>
+</head>
+<body>
+<div class="header"><img src="header_final.jpg" alt="MEDILAND BILLS DISTRIBUTION"></div>
+<div class="card">
+<label class="label">Select Bill Distributor Name: <span>*</span></label>
+<select id="distributor" class="select"><option value="">-- Choose Your Name --</option><option>Ayesha - UC 26</option><option>Ali - UC 26</option><option>Usman - UC 27</option><option>Khalid - UC 28</option><option>Bilal - Toba Tek Singh</option><option>Sana - Chak 381 JB</option></select>
+<label class="label">House Reference / Meter Number: <span>*</span></label>
+<input id="refNo" class="input" placeholder="e.g. METER-98745">
+<label class="label">GPS Status (Live Only - No Default):</label>
+<div id="gpsStatus" class="gps-box gps-error">📍 Waiting for LIVE GPS...</div>
+<button class="btn-yellow" onclick="refreshGPS()">🔄 Refresh Location GPS - Live Updated</button>
+<label class="label">Live Address / Location Text (Auto Road/Chak/UC):</label>
+<input id="liveAddr" class="input locked" readonly placeholder="Live location - Road, Chak, UC auto ayegi...">
+<label class="label">House / Meter Photo: <span>*</span></label>
+<div class="upload"><input type="file" id="photo" accept="image/*" capture="environment"><div class="preview"><img id="imgPreview"></div><div id="photoName" style="font-size:12px;color:#666;margin-top:6px">No file chosen</div></div>
+<button class="btn-blue" onclick="submitData()">Submit Data - Live Location</button>
+<canvas id="canvas"></canvas>
+<div id="msg" style="margin-top:12px;font-size:13px;text-align:center;font-weight:bold"></div>
 </div>
-<div id="vGallery" class="hidden"><div class="card"><h3>Gallery - Big Font Stamp</h3><div id="gal" class="gallery" style="margin-top:12px"></div><div style="text-align:center;margin-top:12px"><button class="btn" id="loadMoreBtn" onclick="loadMore()">Load More 50</button><p style="font-size:11px"><span id="showCount">0</span> / <span id="totalCount">0</span></p></div></div></div>
-<div id="vSettings" class="hidden"><div class="card" style="background:#fff3cd"><h3>Settings</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px"><div><label>New Worker</label><input id="newWorkerName" placeholder="11 - Mr Ali"><button class="btn btn-green" style="width:100%;margin-top:8px" onclick="addWorker()">Add</button></div><div><label>PIN Change</label><input id="newWPin" placeholder="Worker PIN"><input id="newAPin" placeholder="Admin PIN" style="margin-top:6px"><button class="btn btn-green" style="width:100%;margin-top:8px" onclick="savePins()">Save PINs</button><p style="font-size:11px">W: <b id="curWPin"></b> | A: <b id="curAPin"></b></p></div></div></div><div class="card"><h3>Workers</h3><div id="workersList"></div></div><div class="card" style="background:#ffebee"><button class="btn btn-red" style="width:100%" onclick="clearAllData()">Delete All</button></div></div>
-</div></div>
 <script>
-let defaultWorkers=["1 - Mr Hanan","2 - Mr Zubair","3 - Ms Anila","4 - Mr Waris ali","5 - Mr Faraz Ahmed","6 - Mr Samiullah","7 - Mr Zahid","8 - Mr Faizan Javed","9 - Mr Hussnain","10 - Mr A"];
-function getWorkers(){return JSON.parse(localStorage.getItem('mediland_workers_list')||JSON.stringify(defaultWorkers));}
-function saveWorkers(list){localStorage.setItem('mediland_workers_list',JSON.stringify(list)); populate(); renderList();}
-function getWPin(){return localStorage.getItem('mediland_w_pin')||'1234';} function getAPin(){return localStorage.getItem('mediland_a_pin')||'9999';}
-function populate(){let w=getWorkers(); let o='<option value="">-- Select --</option>'+w.map(x=>'<option>'+x+'</option>').join(''); document.getElementById('wName').innerHTML=o; document.getElementById('fW').innerHTML='<option value="">All ('+w.length+')</option>'+w.map(x=>'<option>'+x+'</option>').join('');}
-function renderList(){let w=getWorkers(); let h=''; w.forEach((x,i)=>{h+='<div class="worker-item"><span><b>'+(i+1)+'</b> '+x+'</span><div style="display:flex;gap:6px"><button class="btn" style="padding:4px 8px" onclick="editWorker('+i+')">Edit</button><button class="btn btn-red" style="padding:4px 8px" onclick="deleteWorker('+i+')">Delete</button></div></div>';}); document.getElementById('workersList').innerHTML=h; document.getElementById('curWPin').innerText=getWPin(); document.getElementById('curAPin').innerText=getAPin(); document.getElementById('showWPin').innerText=getWPin(); document.getElementById('showAPin').innerText=getAPin();}
-function addWorker(){let n=document.getElementById('newWorkerName').value.trim(); if(!n) return alert('Name'); let l=getWorkers(); l.push(n); saveWorkers(l); document.getElementById('newWorkerName').value='';}
-function deleteWorker(i){if(!confirm('Delete?')) return; let l=getWorkers(); l.splice(i,1); saveWorkers(l);}
-function editWorker(i){let l=getWorkers(); let nn=prompt('New name:',l[i]); if(nn){l[i]=nn.trim(); saveWorkers(l);}}
-function savePins(){let w=document.getElementById('newWPin').value.trim(); let a=document.getElementById('newAPin').value.trim(); if(w) localStorage.setItem('mediland_w_pin',w); if(a) localStorage.setItem('mediland_a_pin',a); renderList(); alert('PIN Saved');}
-let lat=31.038327,lng=72.488750,addr="Chak 381 JB, Toba Tek Singh, Punjab",detailAddr="Tahli - Kahlawan Road, Chak 381 JB, Tehsil Toba Tek Singh, District Toba Tek Singh, Punjab, Pakistan",stamped="",all=[],filtered=[],displayCount=50;
-document.getElementById('fD').valueAsDate=new Date();
-function switchM(m){document.getElementById('tW').classList.toggle('active',m==='worker');document.getElementById('tA').classList.toggle('active',m==='admin');document.getElementById('workerSec').classList.toggle('hidden',m==='admin');document.getElementById('adminSec').classList.toggle('hidden',m==='worker');}
-function wUnlock(){if(document.getElementById('wPin').value===getWPin()){localStorage.setItem('ml_w','1');document.getElementById('wLogin').classList.add('hidden');document.getElementById('wForm').classList.remove('hidden');getLoc();loadMy();load();} else alert('Wrong');}
-function getLoc(){if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{lat=p.coords.latitude.toFixed(6);lng=p.coords.longitude.toFixed(6);document.getElementById('wLoc').innerText='📍 '+lat+','+lng+' | '+addr;});}}
-document.getElementById('wPic').addEventListener('change',e=>{
- let file=e.target.files[0]; if(!file) return;
- let r=new FileReader(); r.onload=ev=>{
-  let img=new Image(); img.onload=()=>{
-   let c=document.getElementById('wCanvas'); let ctx=c.getContext('2d');
-   let maxW=1280; let sc=Math.min(1,maxW/img.width); let w=img.width*sc; let h=img.height*sc;
-   c.width=w; c.height=h; ctx.drawImage(img,0,0,w,h);
-   let now=new Date();
-   let timeStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-   let dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
-   let dayStr=now.toLocaleDateString('en-US',{weekday:'long'});
-   let fullAddr=document.getElementById('wFullAddr').value.trim()||addr;
-   let detAddr=document.getElementById('wDetailAddr').value.trim()||detailAddr;
-   let ucV=document.getElementById('wUC').value.trim();
-   let stampH = h * 0.48; let y = h - stampH - 12; let x = 8; let sw = w - 16;
-   ctx.fillStyle='rgba(30,30,30,0.82)'; ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x,y,sw,stampH,18); else ctx.rect(x,y,sw,stampH); ctx.fill();
-   let fs = Math.max(20, w*0.028); let bigTime = Math.max(36, w*0.065); let pad = 18;
-   ctx.fillStyle='white'; ctx.font='bold '+bigTime+'px system-ui, sans-serif'; ctx.fillText(timeStr, x+pad, y+bigTime+8);
-   let timeWidth = ctx.measureText(timeStr).width; ctx.fillStyle='#FFD400'; ctx.fillRect(x+pad+timeWidth+12, y+10, 4, bigTime*0.9);
-   ctx.fillStyle='white'; ctx.font='700 '+(fs*1.15)+'px system-ui'; ctx.fillText(dateStr, x+pad+timeWidth+28, y+fs*1.2+8);
-   ctx.fillStyle='#CCCCCC'; ctx.font='500 '+(fs*0.9)+'px system-ui'; ctx.fillText(dayStr, x+pad+timeWidth+28, y+fs*2.5+8);
-   let lineY = y + bigTime + 22 + fs*2.5; ctx.fillStyle='white'; ctx.font='bold '+(fs*1.15)+'px system-ui'; ctx.fillText((ucV? 'UC '+ucV+' - ' : '') + fullAddr, x+pad, lineY);
-   lineY += fs*1.5; ctx.fillStyle='#E8E8E8'; ctx.font='500 '+(fs*0.82)+'px system-ui';
-   let words = detAddr.split(' '); let line1='', line2=''; let maxChars = Math.floor(sw / (fs*0.5));
-   for(let i=0;i<words.length;i++){ if((line1+words[i]).length < maxChars-10){ line1+=words[i]+' '; } else { line2+=words[i]+' '; } }
-   if(!line2) { line2=line1.substring(Math.floor(line1.length/2)); line1=line1.substring(0,Math.floor(line1.length/2)); }
-   ctx.fillText(line1.trim(), x+pad, lineY); lineY += fs*1.1; ctx.fillText(line2.trim(), x+pad, lineY); lineY += fs*1.4;
-   ctx.fillStyle='white'; ctx.font='bold '+(fs*0.95)+'px system-ui'; ctx.fillText('Lat '+lat+'° Long '+lng+'°', x+pad, lineY);
-   stamped=c.toDataURL('image/jpeg',0.78); document.getElementById('wPrev').src=stamped; document.getElementById('wPrev').classList.remove('hidden');
-   document.getElementById('wCamT').innerText='✅ Big Font Stamp Ready - '+Math.round(stamped.length/1024)+'KB';
-  }; img.src=ev.target.result;
- }; r.readAsDataURL(file);
+let gpsLat=null,gpsLong=null,gpsAcc=null,currentImg=null;
+function refreshGPS(){
+document.getElementById('gpsStatus').innerHTML="⏳ Getting LIVE GPS...";document.getElementById('gpsStatus').className="gps-box";document.getElementById('liveAddr').value="Fetching live road, chak, UC... (Offline bhi kaam karega)";
+navigator.geolocation.getCurrentPosition(pos=>{
+gpsLat=pos.coords.latitude;gpsLong=pos.coords.longitude;gpsAcc=Math.round(pos.coords.accuracy);
+document.getElementById('gpsStatus').innerHTML=`📍 LIVE: Lat: ${gpsLat.toFixed(6)} | Long: ${gpsLong.toFixed(6)} (±${gpsAcc}m) ✅`;
+document.getElementById('gpsStatus').className="gps-box gps-ok";
+if(navigator.onLine){
+fetch(`https://nominatim.openstreetmap.org/reverse?lat=${gpsLat}&lon=${gpsLong}&format=json&addressdetails=1`).then(r=>r.json()).then(data=>{
+let addr=data.address||{};let road=addr.road||addr.neighbourhood||"";let village=addr.village||addr.hamlet||addr.suburb||"";let county=addr.county||"";let state=addr.state||"Punjab";let detailed="";if(road) detailed+=road+", ";if(village) detailed+=village+", ";let m=data.display_name.match(/UC\s*\d+/i);if(m) detailed+=m[0]+", ";else if(county) detailed+=county+", ";detailed+=state;if(detailed.length<15) detailed=data.display_name;document.getElementById('liveAddr').value=detailed;
+}).catch(e=>{document.getElementById('liveAddr').value=`Live GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)} - Road update needs internet`;});
+}else{document.getElementById('liveAddr').value=`OFFLINE LIVE: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)} - Road/UC needs internet but GPS LIVE`;}
+},err=>{
+let msg=err.code==1?"❌ GPS Permission Denied - Location ON karo":err.code==2?"❌ GPS Signal Not Found - Open area me jao":"❌ GPS Timeout - Refresh dabao";
+document.getElementById('gpsStatus').innerHTML=msg;document.getElementById('gpsStatus').className="gps-box gps-error";document.getElementById('liveAddr').value="";gpsLat=null;
+},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+}
+refreshGPS();
+document.getElementById('photo').addEventListener('change',function(e){
+const file=e.target.files[0];if(!file) return;document.getElementById('photoName').innerText=file.name+" selected";const r=new FileReader();r.onload=function(ev){currentImg=new Image();currentImg.onload=function(){document.getElementById('imgPreview').src=ev.target.result;document.getElementById('imgPreview').style.display='block';};currentImg.src=ev.target.result;};r.readAsDataURL(file);
 });
-async function wSubmit(){
- let w=document.getElementById('wName').value, ref=document.getElementById('wRef').value.trim(), uc=document.getElementById('wUC').value.trim();
- if(!w||!ref||!uc||!stamped) return alert('All required');
- let rec={id:Date.now(),worker:w,ref:ref,uc:uc,img:stamped,lat:lat,lng:lng,addr:document.getElementById('wFullAddr').value,detailAddr:document.getElementById('wDetailAddr').value,date:new Date().toISOString().slice(0,10),timeStr:new Date().toLocaleString()};
- let data=JSON.parse(localStorage.getItem('mediland_10')||'[]'); data.unshift(rec); localStorage.setItem('mediland_10',JSON.stringify(data));
- alert('✅ Saved - UC '+uc+' REF _'+ref+'.jpg');
- stamped=''; document.getElementById('wPrev').classList.add('hidden'); document.getElementById('wRef').value=''; document.getElementById('wUC').value=''; loadMy(); load();
+function submitData(){
+const d=document.getElementById('distributor').value;const ref=document.getElementById('refNo').value.trim();const live=document.getElementById('liveAddr').value;
+if(!d){alert('Name select karo');return;}if(!ref){alert('Ref likho');return;}if(!gpsLat){alert('LIVE GPS REQUIRED - Refresh dabao. Default khatam hai.');return;}if(!currentImg){alert('Photo select karo');return;}
+const canvas=document.getElementById('canvas');const ctx=canvas.getContext('2d');canvas.width=currentImg.width;canvas.height=currentImg.height;ctx.drawImage(currentImg,0,0);
+const h=canvas.height,w=canvas.width;const bf=Math.max(30,Math.floor(h*0.036));const mf=Math.max(22,Math.floor(h*0.026));const sh=Math.floor(h*0.38);
+ctx.fillStyle="rgba(0,0,0,0.85)";ctx.fillRect(0,h-sh,w,sh);ctx.fillStyle="white";ctx.font=`900 ${bf}px Arial`;ctx.fillText(live.substring(0,95),20,h-sh+bf+14,w-40);
+ctx.fillStyle="#facc15";ctx.font=`bold ${mf}px Arial`;let l2=live.length>95?live.substring(95,190):`LIVE GPS: ${gpsLat.toFixed(6)}, ${gpsLong.toFixed(6)}`;if(l2) ctx.fillText(l2,20,h-sh+bf+22+mf,w-40);
+ctx.font=`${Math.floor(mf*0.6)}px Arial`;ctx.fillStyle="white";let m=live.match(/UC\s*\d+/i);let uc=m?m[0]:"UC 26";ctx.fillText(`${d} | ${uc} | LIVE ${gpsLat.toFixed(6)},${gpsLong.toFixed(6)} | ${new Date().toLocaleString()}`,20,h-12);
+const a=document.createElement('a');a.download=`UC ${uc.replace(/UC/i,'').trim()||"26"} REF _${ref} LIVE.jpg`;a.href=canvas.toDataURL('image/jpeg',0.92);a.click();
 }
-function loadMy(){let d=JSON.parse(localStorage.getItem('mediland_10')||'[]'); let h=''; d.slice(0,6).forEach(r=>{h+='<div style="border:1px solid #e0e0e0;border-radius:8px;padding:8px;margin-top:6px;display:flex;gap:8px"><img src="'+r.img+'" style="width:60px;height:60px;border-radius:6px;object-fit:cover"><div style="flex:1;font-size:11px"><b>UC '+r.uc+' REF '+r.ref+'</b><br>'+r.worker+'<br><small>'+r.timeStr+'</small></div></div>';}); document.getElementById('wMy').innerHTML=h;}
-function aUnlock(){if(document.getElementById('aPin').value===getAPin()){document.getElementById('aLogin').classList.add('hidden');document.getElementById('aMain').classList.remove('hidden');load();} else alert('Wrong');}
-function aLock(){document.getElementById('aMain').classList.add('hidden');document.getElementById('aLogin').classList.remove('hidden');}
-function load(){all=JSON.parse(localStorage.getItem('mediland_10')||'[]'); apply();}
-function apply(){
- let fw=document.getElementById('fW').value, fd=document.getElementById('fD').value, fr=document.getElementById('fR').value.toLowerCase();
- filtered=all.filter(r=>{ if(fw&&r.worker!==fw) return false; if(fd&&r.date!==fd) return false; if(fr&&!(r.ref.toLowerCase().includes(fr)||r.uc.includes(fr))) return false; return true;});
- displayCount=50; renderGallery();
- document.getElementById('bZip').innerText='ZIP REF WISE ('+filtered.length+')'; document.getElementById('bEx').innerText='Excel ('+filtered.length+')';
- document.getElementById('sTot').innerText=all.length;
- document.getElementById('sAct').innerText=new Set(all.map(x=>x.worker)).size;
- let counts={}; all.forEach(r=>counts[r.worker]=(counts[r.worker]||0)+1);
- let top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]; document.getElementById('sTop').innerText=top?top[1]:0; document.getElementById('sTopN').innerText=top?top[0]:'';
- let sumHtml=''; Object.entries(counts).sort((a,b)=>b[1]-a[1]).forEach(p=>{sumHtml+='<div style="display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #eee"><span>'+p[0]+'</span><b>'+p[1]+'</b></div>';});
- document.getElementById('sumList').innerHTML=sumHtml||'<p>No data</p>';
-}
-function renderGallery(){
- let toShow=filtered.slice(0,displayCount);
- let gHtml=''; toShow.forEach(r=>{
-  gHtml+='<div class="g-card"><img src="'+r.img+'" loading="lazy" onclick="openZoom(\''+r.img+'\',\'UC '+r.uc+' REF '+r.ref+'\')"><div class="g-info"><div class="g-ref">Ref: '+(r.uc? 'Ward '+r.uc+' REFF #'+r.ref : 'Ref# '+r.ref)+'</div><div class="g-worker">'+r.worker+'</div><div class="g-date">'+r.timeStr+'</div><div class="g-actions"><button class="btn-blue" onclick="saveSingle('+r.id+')">Save</button><button class="btn-red" onclick="deleteSingle('+r.id+')">Delete</button></div></div></div>';
- });
- document.getElementById('gal').innerHTML=gHtml||'<p>No photos</p>';
- document.getElementById('showCount').innerText=toShow.length; document.getElementById('totalCount').innerText=filtered.length;
- document.getElementById('loadMoreBtn').style.display = displayCount >= filtered.length? 'none' : 'inline-block';
-}
-function loadMore(){displayCount+=50; renderGallery();}
-function openZoom(src, info){document.getElementById('zoomImg').src=src; document.getElementById('zoomInfo').innerText=info; document.getElementById('zoomModal').classList.add('show');}
-function closeZoom(){document.getElementById('zoomModal').classList.remove('show');}
-function resetF(){document.getElementById('fW').value=''; document.getElementById('fD').valueAsDate=new Date(); document.getElementById('fR').value=''; apply();}
-function setATab(n){document.getElementById('vOverview').classList.toggle('hidden',n!=='overview');document.getElementById('vGallery').classList.toggle('hidden',n!=='gallery');document.getElementById('vSettings').classList.toggle('hidden',n!=='settings');}
-function saveSingle(id){ let r=all.find(x=>x.id===id); if(!r) return; let fileName = ('UC '+r.uc+' REF _'+r.ref).replace(/[^a-zA-Z0-9 _-]/g,'_')+'.jpg'; let a=document.createElement('a'); a.href=r.img; a.download=fileName; a.click(); }
-function deleteSingle(id){ if(!confirm('Delete?')) return; let data=JSON.parse(localStorage.getItem('mediland_10')||'[]'); data=data.filter(x=>x.id!==id); localStorage.setItem('mediland_10',JSON.stringify(data)); load(); }
-async function downZip(){ if(filtered.length===0) return alert('No data'); let zip=new JSZip(); let folder=zip.folder("Bills_REF_WISE"); let used={}; filtered.forEach((r)=>{ let fileName = ('UC '+r.uc+' REF _'+r.ref).replace(/[^a-zA-Z0-9 _-]/g,'_'); if(used[fileName]){ used[fileName]++; fileName = fileName + '_' + used[fileName]; } else { used[fileName]=1; } let b64=r.img.split(',')[1]; folder.file(fileName + '.jpg', b64, {base64:true}); }); let content=await zip.generateAsync({type:"blob"}); let a=document.createElement('a'); a.href=URL.createObjectURL(content); a.download="UC_REF_WISE_"+filtered.length+"_Pics.zip"; a.click(); }
-function expExcel(){ let data=[["UC","REF No","Worker","Date","Time","Location","FileName"]]; filtered.forEach(r=>{ data.push([r.uc, r.ref, r.worker, r.date, r.timeStr, r.addr, 'UC '+r.uc+' REF _'+r.ref+'.jpg']); }); let ws=XLSX.utils.aoa_to_sheet(data); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Bills"); XLSX.writeFile(wb,"Bills_REF_WISE_"+filtered.length+".xlsx"); }
-function clearAllData(){if(!confirm('Delete all?')) return; localStorage.removeItem('mediland_10'); all=[]; filtered=[]; apply();}
-populate(); renderList();
-if(localStorage.getItem('ml_w')==='1'){document.getElementById('wLogin').classList.add('hidden');document.getElementById('wForm').classList.remove('hidden');getLoc();loadMy();}
-load();
-</script></body></html>
+</script>
+</body>
+</html>

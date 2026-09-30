@@ -1,113 +1,142 @@
-<!DOCTYPE html><html lang="ur"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BILLS DISTRIBUTION - MEDILAND</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BILLS DISTRIBUTION - MEDILAND PRIVATE LIMITED</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 const firebaseConfig = {
   apiKey: "AIzaSyCeZZ3EUkuKC0tfVdGatyIyxFfNo2ktZW4",
   authDomain: "mediland-app.firebaseapp.com",
   projectId: "mediland-app",
   storageBucket: "mediland-app.firebasestorage.app",
   messagingSenderId: "401966804808",
-  appId: "1:401966804808:web:c866b3750e826bbf3fcd7d",
-  measurementId: "G-PQK4BMDZEK"
+  appId: "1:401966804808:web:c866b3750e826bbf3fcd7d"
 };
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 window.db = getFirestore(app);
-window.fb = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, setDoc, getDoc };
+window.fb = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, updateDoc, setDoc, getDoc };
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
-<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#eef2ee}
-.header{display:flex;align-items:center;justify-content:space-between;background:#0a3d2a;padding:6px 8px;gap:6px;border-bottom:4px solid #ffeb3b}
-.logo{width:105px;min-width:105px;height:76px;background:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2px}
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}body{background:#f1f5f1}
+.header{display:flex;align-items:center;justify-content:space-between;background:#0a3d2a;padding:7px 10px;border-bottom:4px solid #ffeb3b}
+.logo{width:106px;height:76px;background:#fff;border-radius:14px;overflow:hidden;padding:2px;display:flex;align-items:center;justify-content:center}
 .logo img{width:100%;height:100%;object-fit:contain}
-.center{flex:1;text-align:center;color:#fff;line-height:1.1}.center h1{font-size:21px;font-weight:900}.center h2{font-size:12px;color:#ffeb3b;margin-top:3px;font-weight:800}
+.center{flex:1;text-align:center;color:#fff}.center h1{font-size:20px;font-weight:900}.center h2{font-size:11px;color:#ffeb3b}
 .tabs{display:flex;position:sticky;top:0;z-index:20;background:#fff;border-bottom:3px solid #0a3d2a}.tabs button{flex:1;padding:14px;border:none;background:#f1f5f1;font-weight:900;cursor:pointer}.tabs button.active{background:#fff;color:#0a3d2a;border-bottom:3px solid #0a3d2a}
-.card{background:#fff;border-radius:14px;padding:14px;margin:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.label{font-size:13px;font-weight:800;color:#0a3d2a;margin:12px 0 5px;display:block}
-.input,.select{width:100%;padding:13px;border:1.5px solid #bbb;border-radius:10px}
-.gps{padding:12px;background:#d1fae5;border:2px solid #10b981;border-radius:10px;font-weight:700;font-size:11px;min-height:58px;white-space:pre-line}
-.btn{padding:13px;border:none;border-radius:10px;font-weight:800;cursor:pointer}.btn-g{background:#0a3d2a;color:#fff;width:100%;margin-top:12px;font-size:16px}.btn-y{background:#ffeb3b;color:#000;width:100%;margin-top:8px}
+.card{background:#fff;border-radius:14px;padding:14px;margin:10px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.label{font-size:13px;font-weight:800;color:#0a3d2a;margin:10px 0 5px;display:block}
+.input,.select{width:100%;padding:12px;border:1.5px solid #cbd5cb;border-radius:10px;font-size:14px}
+.gps{padding:12px;background:#e0f8d8;border:2px solid #16a34a;border-radius:12px;font-weight:700;font-size:12px;min-height:75px;white-space:pre-line;line-height:1.35}
+.btn{padding:12px;border:none;border-radius:10px;font-weight:800;cursor:pointer}.btn-g{background:#0a3d2a;color:#fff;width:100%;margin-top:10px;font-size:16px}.btn-y{background:#ffeb3b;color:#000;width:100%;margin-top:8px}
 .page{display:none}.page.active{display:block}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.stat{background:#0a3d2a;color:#fff;padding:14px;border-radius:12px;text-align:center}.stat b{display:block;font-size:22px;color:#ffeb3b}.stat.pending{background:#b45309}.stat.done{background:#065f46}
-.gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g{border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff}.g img{width:100%;height:170px;object-fit:cover;cursor:zoom-in}
-.pin{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99;display:none;align-items:center;justify-content:center;padding:20px}.pin-box{background:#fff;padding:24px;border-radius:16px;width:100%;max-width:330px;text-align:center}.pin-box input{width:100%;padding:13px;margin:10px 0;border:2px solid #0a3d2a;border-radius:10px;text-align:center;font-size:18px;font-weight:700}
-.zoom{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;padding:10px}.zoom img{max-width:98%;max-height:82vh;border-radius:12px}
-.bar{height:18px;background:#0a3d2a;border-radius:10px;transition:width.5s}
-.progress{width:100%;background:#e5e7eb;border-radius:10px;height:20px;overflow:hidden;margin-top:8px}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g{border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff}.g img{width:100%;height:165px;object-fit:cover;cursor:zoom-in}
+.pin{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99;display:none;align-items:center;justify-content:center;padding:20px}.pin-box{background:#fff;padding:22px;border-radius:16px;width:100%;max-width:340px;text-align:center}.pin-box input{width:100%;padding:12px;margin:10px 0;border:2px solid #0a3d2a;border-radius:10px;text-align:center;font-size:17px}
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:100;display:none;align-items:center;justify-content:center;flex-direction:column;padding:10px}.zoom img{max-width:98%;max-height:80vh;border-radius:12px}
+.bar{height:14px;background:#16a34a;border-radius:10px}
+.editBox{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:101;display:none;align-items:center;justify-content:center;padding:15px}.editInner{background:#fff;padding:18px;border-radius:14px;width:100%;max-width:380px}
 </style></head><body>
 <div class="header"><div class="logo"><img src="suthra-logo.jpg"></div><div class="center"><h1>BILLS DISTRIBUTION</h1><h2>MEDILAND PRIVATE LIMITED</h2></div><div class="logo"><img src="mediland-logo.jpg"></div></div>
-<div class="tabs"><button id="tW" class="active" onclick="go('worker')">👷 ورکر</button><button id="tA" onclick="go('admin')">🔐 ایڈمن</button></div>
+<div class="tabs"><button id="tW" class="active" onclick="go('worker')">Worker Panel</button><button id="tA" onclick="go('admin')">Admin Panel</button></div>
 
 <div id="workerPage" class="page active"><div class="card">
-<label class="label">ڈسٹری بیوٹر کا نام *</label>
-<select id="dist" class="select"><option value="">-- منتخب کریں --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Mr Usman</option></select>
-<label class="label">ہاؤس ریفرنس نمبر *</label><input id="ref" class="input" placeholder="REFF #">
-<label class="label">LIVE GPS - 5 لائنز Exact *</label><div id="gpsTxt" class="gps">📍 Allow دبائیں + GPS ON</div><button class="btn btn-y" onclick="getGPS()">🔄 ریفریش GPS</button><textarea id="addr" class="input" style="height:125px;background:#fffde7;font-weight:700;font-size:11px;margin-top:8px" readonly></textarea>
-<label class="label">بل کی فوٹو * (صرف لوکیشن اسٹیمپ)</label><input type="file" id="photoFile" accept="image/*" capture="environment" style="margin-top:6px"><img id="prev" style="display:none;width:100%;border-radius:12px;margin-top:12px;border:3px solid #0a3d2a"><button class="btn btn-g" onclick="saveData()">📸 سبمٹ کریں - Firebase پر</button><div id="msg" style="text-align:center;font-weight:800;margin-top:12px"></div></div></div>
+<label class="label">1. Select Distributor Name *</label><select id="dist" class="select" onchange="loadMyData()"><option value="">-- Select Your Name --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select>
+<label class="label">2. House Reference Number *</label><input id="ref" class="input" placeholder="e.g. HR-2024-0381 / Ward 23-30 REFF">
+<label class="label">3. LIVE GPS - Exact Location (Auto) *</label><div id="gpsTxt" class="gps">📍 Getting GPS... Please Allow Location
+Tap Refresh GPS for fast lock</div><button class="btn btn-y" onclick="getGPS()">🔄 Refresh GPS - Fast Location</button><textarea id="addr" class="input" style="height:115px;background:#fffde7;font-size:11px;margin-top:8px;font-weight:700" readonly placeholder="Detailed location like sample will appear here:
+Main Road, Chak 381 JB / UC Toba Tek Singh
+Tehsil Toba, District Toba
+Lat: 30.97° N, 72.48° E - Date Time"></textarea>
+<label class="label">4. Capture Bill Photo *</label><input type="file" id="photoFile" accept="image/*" capture="environment"><img id="prev" style="display:none;width:100%;border-radius:12px;margin-top:10px;border:2px solid #0a3d2a"><button class="btn btn-g" onclick="saveData()">Submit Photo - Location will be Stamped Automatically</button><div id="msg" style="text-align:center;font-weight:800;margin-top:10px"></div>
+</div>
+<div class="card"><div style="display:flex;justify-content:space-between"><h4>My Submitted Bills</h4><span id="myCount" style="background:#e0f2f1;padding:4px 10px;border-radius:20px;font-size:11px">0</span></div><p style="font-size:11px;color:#666;margin-top:4px">Select your name to see your bills. You can Edit / Delete your own data.</p><div id="myGal" class="gallery" style="margin-top:10px"></div></div>
+</div>
 
 <div id="adminPage" class="page">
-<div class="card" style="background:#0a3d2a;color:#fff">
-<h3>📊 ایڈمن کنٹرول - Total Bills Admin لکھے گا</h3>
-<div style="display:flex;gap:8px;margin-top:10px;align-items:center"><input id="totalInput" type="number" class="input" placeholder="Total Bills Target لکھیں (مثلاً 5000)" style="flex:1"><button class="btn" style="background:#ffeb3b;color:#000;width:auto;padding:13px 20px" onclick="saveTotal()">💾 Save</button></div>
-<div class="stats" style="margin-top:12px"><div class="stat"><b id="aTotal">0</b>🎯 Total Target<br><small style="font-size:9px">Admin نے لکھا</small></div><div class="stat done"><b id="aDistributed">0</b>✅ Distributed<br><small style="font-size:9px">Auto Update</small></div><div class="stat pending"><b id="aPending">0</b>⏳ Pending<br><small style="font-size:9px">باقی</small></div></div>
-<div class="progress"><div id="progBar" class="bar" style="width:0%"></div></div>
-<div id="progText" style="text-align:center;font-size:11px;margin-top:4px;color:#a7f3d0">0% مکمل</div>
+<div class="card" style="background:#fff7ed;border:2px solid #f59e0b"><h3>🔐 Security Settings - Change PINs</h3><div style="display:flex;gap:6px;margin-top:8px"><input id="newWPin" class="input" placeholder="New Worker PIN" style="flex:1"><button class="btn" style="background:#0a3d2a;color:#fff;width:auto" onclick="updateWPIN()">Save Worker PIN</button></div><div style="display:flex;gap:6px;margin-top:8px"><input id="newAPin" class="input" placeholder="New Admin PIN" style="flex:1"><button class="btn" style="background:#b45309;color:#fff;width:auto" onclick="updateAPIN()">Save Admin PIN</button></div><div id="pinMsg" style="text-align:center;font-weight:700;margin-top:8px;font-size:12px;color:green"></div></div>
+<div class="card"><h4>Worker Working Status</h4><div id="overList" style="margin-top:10px"></div></div>
+<div class="card"><h4>Filter Bills</h4><div style="display:flex;gap:6px;margin-top:8px"><select id="fDist" class="select" style="flex:1" onchange="loadAdmin()"><option value="">All 10 Workers</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select><input id="fRef" class="input" style="flex:1" placeholder="Search Ref" oninput="loadAdmin()"></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between"><h4>Gallery - All Bills Photos</h4><span id="galCount" style="background:#e0f2f1;padding:4px 10px;border-radius:20px;font-size:11px">0 photos</span></div><p style="font-size:11px;color:#666;margin-top:4px">All pictures from Firebase appear here automatically. Download daily and delete.</p><div id="gal" class="gallery" style="margin-top:10px"></div></div>
+<div class="card" style="background:#e7f1ff"><button class="btn btn-g" style="background:#198754" onclick="exportAll()">Download All ZIP by Ref Number</button><button class="btn btn-g" style="background:#0d6efd;margin-top:8px" onclick="exportCSV()">Download CSV Report</button></div>
 </div>
 
-<div class="card"><h4>👥 Worker Overview - ہر ورکر نے کتنے بلز بانٹے</h4><div id="overList" style="margin-top:10px"></div></div>
-
-<div class="card"><h4>🔍 فلٹر - ورکر + ریفرنس</h4><div style="display:flex;gap:6px;margin-top:8px"><select id="fDist" class="select" style="flex:1" onchange="loadAdmin()"><option value="">تمام 10 ورکرز</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Mr Usman</option></select><input id="fRef" class="input" style="flex:1" placeholder="Ref No Search" oninput="loadAdmin()"></div></div>
-
-<div class="card"><div style="display:flex;justify-content:space-between"><h4>🖼️ Gallery - تمام بلز کی تصویریں</h4><span id="galCount" style="background:#e0f2f1;padding:4px 10px;border-radius:20px;font-size:11px">0 pics</span></div><div id="gal" class="gallery" style="margin-top:10px"></div></div>
-
-<div class="card" style="background:#e7f1ff"><button class="btn btn-g" style="background:#198754" onclick="exportAll()">📥 تمام فوٹوز ZIP - Ref کے نام سے</button><button class="btn btn-g" style="background:#0d6efd;margin-top:8px" onclick="exportCSV()">📄 CSV ایکسل رپورٹ</button></div>
-</div>
-
-<div id="wPin" class="pin"><div class="pin-box"><h3>🔒 ورکر پن</h3><p>ڈیفالٹ: 1111</p><input id="wPinIn" type="password" placeholder="1111"><button class="btn btn-g" onclick="checkW()">انلاک</button></div></div>
-<div id="aPin" class="pin"><div class="pin-box"><h3>🔐 ایڈمن پن</h3><p>ڈیفالٹ: 381381</p><input id="aPinIn" type="password" placeholder="381381"><button class="btn btn-g" onclick="checkA()">انلاک</button><button class="btn" style="background:#eee;width:100%;margin-top:8px" onclick="forceOpen()">ایمرجنسی اوپن</button></div></div>
-<div id="zBox" class="zoom" onclick="this.style.display='none'"><img id="zImg"><p id="zTxt" style="color:#fff;margin-top:10px;text-align:center;font-size:12px"></p></div>
+<div id="wPin" class="pin"><div class="pin-box"><h3>Worker Panel Locked</h3><input id="wPinIn" type="password" placeholder="Worker PIN"><button class="btn btn-g" onclick="checkW()">Unlock</button></div></div>
+<div id="aPin" class="pin"><div class="pin-box"><h3>Admin Panel Locked</h3><input id="aPinIn" type="password" placeholder="Admin PIN"><button class="btn btn-g" onclick="checkA()">Unlock</button></div></div>
+<div id="zBox" class="zoom" onclick="this.style.display='none'"><img id="zImg"><p id="zTxt" style="color:#fff;margin-top:8px;text-align:center;font-size:12px"></p></div>
+<div id="editBox" class="editBox"><div class="editInner"><h4>Edit Bill Details</h4><label class="label">Ref Number</label><input id="eRef" class="input"><label class="label">Worker Name</label><select id="eName" class="select"><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select><label class="label">Address</label><textarea id="eAddr" class="input" style="height:70px"></textarea><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="background:#eee;flex:1" onclick="closeEdit()">Cancel</button><button class="btn btn-g" style="flex:1" onclick="saveEdit()">Save</button></div></div></div>
 <canvas id="can" style="display:none"></canvas>
 <script>
-let WPIN="1111",APIN="381381",lat=null,lon=null,fullAddr="",curImg=null,wUnlock=localStorage.getItem('w_un')==='yes',aUnlock=false,fbReady=false,totalTarget=parseInt(localStorage.getItem('totalTarget')||"0");
-window.addEventListener('firebase-ready',async()=>{fbReady=true;await loadTotalFromFirebase();loadAdmin();if(wUnlock)getGPS();});
-function go(p){if(p==='worker'&&!wUnlock){document.getElementById('wPin').style.display='flex';return;}if(p==='admin'&&!aUnlock){document.getElementById('aPin').style.display='flex';return;}document.getElementById('workerPage').classList.remove('active');document.getElementById('adminPage').classList.remove('active');document.getElementById('tW').classList.remove('active');document.getElementById('tA').classList.remove('active');if(p==='worker'){document.getElementById('workerPage').classList.add('active');document.getElementById('tW').classList.add('active');if(!lat)getGPS();}else{document.getElementById('adminPage').classList.add('active');document.getElementById('tA').classList.add('active');loadAdmin();}}
-function checkW(){if(document.getElementById('wPinIn').value===WPIN){wUnlock=true;localStorage.setItem('w_un','yes');document.getElementById('wPin').style.display='none';go('worker');}else alert('غلط');}
-function checkA(){if(document.getElementById('aPinIn').value===APIN){aUnlock=true;document.getElementById('aPin').style.display='none';go('admin');}else alert('غلط');}
-function forceOpen(){aUnlock=true;wUnlock=true;localStorage.setItem('w_un','yes');document.getElementById('wPin').style.display='none';document.getElementById('aPin').style.display='none';go('admin');}
-async function loadTotalFromFirebase(){try{let d=await fb.getDoc(fb.doc(window.db,"settings","totalBills"));if(d.exists()){totalTarget=d.data().total||0;localStorage.setItem('totalTarget',totalTarget);document.getElementById('totalInput').value=totalTarget;}else{document.getElementById('totalInput').value=totalTarget;}}catch(e){document.getElementById('totalInput').value=totalTarget;}}
-async function saveTotal(){let v=parseInt(document.getElementById('totalInput').value||"0");if(v<=0)return alert('Total Bills لکھیں');totalTarget=v;localStorage.setItem('totalTarget',v);try{await fb.setDoc(fb.doc(window.db,"settings","totalBills"),{total:v,updated:Date.now()});alert('✅ Total Target Save ہو گیا: '+v);}catch(e){alert('Local Save ہو گیا: '+v); }loadAdmin();}
-function getGPS(){let b=document.getElementById('gpsTxt');b.style.background="#fff3cd";b.innerHTML="⏳ Exact لوکیشن...";navigator.geolocation.getCurrentPosition(async p=>{lat=p.coords.latitude;lon=p.coords.longitude;let acc=Math.round(p.coords.accuracy);b.style.background="#d1fae5";b.innerHTML=`✅ ${lat.toFixed(6)},${lon.toFixed(6)} ±${acc}m`;try{let r1=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);let d1=await r1.json();let r2=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18`);let d2=await r2.json();let a2=d2.address||{};let village=a2.village||d1.locality||"Chak 381 JB";let road=a2.road||"Tahli Road";let uc=a2.county||"UC Toba";let postcode=a2.postcode||"36050";fullAddr=`${road}, ${village}\n${uc}, ${village}\nTehsil Toba Tek Singh, District Toba, Punjab - ${postcode}\nLat: ${lat.toFixed(6)}° Long: ${lon.toFixed(6)}° ±${acc}m\n${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;}catch(e){fullAddr=`Lat: ${lat.toFixed(6)} Long: ${lon.toFixed(6)}\nChak 381 JB, Toba`; }document.getElementById('addr').value=fullAddr;},{},{enableHighAccuracy:true,timeout:25000});}
+let WPIN=localStorage.getItem('wpin')||"1111",APIN=localStorage.getItem('apin')||"381381";
+let lat=null,lon=null,fullAddr="",curImg=null,wUnlock=localStorage.getItem('w_un')==='yes',aUnlock=false,fbReady=false,editId=null;
+window.addEventListener('firebase-ready',async()=>{fbReady=true;try{let d=await fb.getDoc(fb.doc(window.db,"settings","pins"));if(d.exists()){WPIN=d.data().wPin||WPIN;APIN=d.data().aPin||APIN;localStorage.setItem('wpin',WPIN);localStorage.setItem('apin',APIN);}}catch(e){} loadAdmin(); if(wUnlock)getGPS();});
+function go(p){if(p==='worker'&&!wUnlock){document.getElementById('wPin').style.display='flex';return;}if(p==='admin'&&!aUnlock){document.getElementById('aPin').style.display='flex';return;}document.getElementById('workerPage').classList.remove('active');document.getElementById('adminPage').classList.remove('active');document.getElementById('tW').classList.remove('active');document.getElementById('tA').classList.remove('active');if(p==='worker'){document.getElementById('workerPage').classList.add('active');document.getElementById('tW').classList.add('active');setTimeout(getGPS,400);loadMyData();}else{document.getElementById('adminPage').classList.add('active');document.getElementById('tA').classList.add('active');loadAdmin();}}
+function checkW(){if(document.getElementById('wPinIn').value===WPIN){wUnlock=true;localStorage.setItem('w_un','yes');document.getElementById('wPin').style.display='none';go('worker');}else alert('Wrong PIN');}
+function checkA(){if(document.getElementById('aPinIn').value===APIN){aUnlock=true;document.getElementById('aPin').style.display='none';go('admin');}else alert('Wrong PIN');}
+async function updateWPIN(){let v=document.getElementById('newWPin').value.trim();if(!v)return alert('Enter PIN');WPIN=v;localStorage.setItem('wpin',v);document.getElementById('pinMsg').innerText='Worker PIN Updated: '+v;try{await fb.setDoc(fb.doc(window.db,"settings","pins"),{wPin:WPIN,aPin:APIN},{merge:true});}catch(e){}}
+async function updateAPIN(){let v=document.getElementById('newAPin').value.trim();if(!v)return alert('Enter PIN');APIN=v;localStorage.setItem('apin',v);document.getElementById('pinMsg').innerText='Admin PIN Updated: '+v;try{await fb.setDoc(fb.doc(window.db,"settings","pins"),{wPin:WPIN,aPin:APIN},{merge:true});}catch(e){}}
+function getGPS(){
+ let b=document.getElementById('gpsTxt');b.innerHTML="⏳ Getting Fast GPS... Please Allow Location\nFetching exact address...";
+ navigator.geolocation.getCurrentPosition(async p=>{
+  lat=p.coords.latitude;lon=p.coords.longitude;let acc=Math.round(p.coords.accuracy);
+  try{
+   let r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18`);
+   let d=await r.json();let a=d.address||{};
+   let road=a.road||a.street||a.residential||"Main Road";
+   let chak=a.village||a.hamlet||a.suburb||a.neighbourhood||a.town||"Chak 381 JB";
+   let uc=a.county||a.municipality||"UC Toba Tek Singh";
+   let teh="Tehsil Toba Tek Singh";
+   let dist="District Toba Tek Singh";
+   let post=a.postcode||"36050";
+   // Exact like sample: Main Road, Chak 381 JB / UC Toba Tek Singh / Tehsil Toba, District Toba / Lat Long DateTime
+   fullAddr=`${road}, ${chak} / \n${uc}\n${teh}, ${dist} - ${post}\nLat: ${lat.toFixed(6)}° N, ${lon.toFixed(6)}° E ±${acc}m • ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+   b.innerHTML=`✅ ${road}, ${chak} / \n${uc}\n${teh}, ${dist}\nLat: ${lat.toFixed(6)}, ${lon.toFixed(6)} ±${acc}m • ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+  }catch(e){
+   fullAddr=`Lat: ${lat.toFixed(6)}° N, ${lon.toFixed(6)}° E\nToba Tek Singh, Punjab\n${new Date().toLocaleString()}`;
+   b.innerHTML=`✅ GPS Locked: ${lat.toFixed(6)}, ${lon.toFixed(6)} ±${acc}m`;
+  }
+  document.getElementById('addr').value=fullAddr;
+ },err=>{b.innerHTML="❌ Please Turn ON Location + Allow Permission\nThen tap Refresh GPS again";},{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+}
 document.getElementById('photoFile').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=ev=>{curImg=new Image();curImg.onload=()=>{document.getElementById('prev').src=ev.target.result;document.getElementById('prev').style.display='block';};curImg.src=ev.target.result;};r.readAsDataURL(f);});
-async function saveData(){let d=document.getElementById('dist').value,ref=document.getElementById('ref').value.trim();if(!d||!ref)return alert('نام اور REF لکھیں');if(!lat)return alert('GPS کریں');if(!curImg)return alert('فوٹو لیں');if(!fbReady)return alert('Firebase load');let now=new Date();let rec={workerName:d,refNumber:ref,ref:ref,name:d,address:fullAddr,addr:fullAddr,lat:lat,lng:lon,gps:`${lat},${lon}`,date:now.toISOString().slice(0,10),formattedDate:now.toLocaleDateString(),time:now.toLocaleTimeString(),formattedTime:now.toLocaleTimeString(),timestamp:now.toISOString(),timestampNum:Date.now()};let cv=document.getElementById('can'),ctx=cv.getContext('2d');let scale=1;if(curImg.width>1100)scale=1100/curImg.width;cv.width=curImg.width*scale;cv.height=curImg.height*scale;ctx.drawImage(curImg,0,0,cv.width,cv.height);let h=cv.height,w=cv.width,stampH=Math.floor(h*0.42);ctx.fillStyle="rgba(0,0,0,0.86)";ctx.fillRect(0,h-stampH,w,stampH);let pad=Math.floor(w*0.03),y=h-stampH+Math.floor(h*0.16);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.030)}px Arial`;fullAddr.split('\n').slice(0,5).forEach((ln,i)=>{ctx.fillText(ln.substring(0,78),pad,y+i*Math.floor(h*0.068));});let stamped=cv.toDataURL('image/jpeg',0.62);rec.imageUrl=stamped;rec.photo=stamped;document.getElementById('msg').style.color="green";document.getElementById('msg').innerHTML="⏳ Firebase پر جا رہا ہے...";try{await fb.addDoc(fb.collection(window.db,"bill_records"), rec);document.getElementById('msg').innerHTML=`✅ محفوظ! Ref: ${ref}`;let a=document.createElement('a');a.download=`${ref}.jpg`;a.href=stamped;a.click();loadAdmin();}catch(e){alert("Error: "+e.message);}}
-function openZoom(src,txt){document.getElementById('zImg').src=src;document.getElementById('zTxt').innerText=txt||'';document.getElementById('zBox').style.display='flex';}
-async function delDoc(id){if(!confirm('Delete?'))return;await fb.deleteDoc(fb.doc(window.db,"bill_records",id));loadAdmin();}
+async function saveData(){
+ let d=document.getElementById('dist').value,ref=document.getElementById('ref').value.trim();
+ if(!d)return alert('Select Distributor Name');if(!ref)return alert('Enter Ref Number');
+ if(!lat){getGPS();document.getElementById('msg').style.color="red";document.getElementById('msg').innerText="GPS locking... wait 3 sec and submit again";return;}
+ if(!curImg)return alert('Capture Photo');if(!fbReady)return alert('Firebase loading');
+ let now=new Date();let rec={workerName:d,refNumber:ref,ref:ref,name:d,address:fullAddr,addr:fullAddr,lat:lat,lng:lon,date:now.toISOString().slice(0,10),formattedDate:now.toLocaleDateString(),time:now.toLocaleTimeString(),formattedTime:now.toLocaleTimeString(),timestamp:now.toISOString(),timestampNum:Date.now()};
+ let cv=document.getElementById('can'),ctx=cv.getContext('2d');let sc=curImg.width>1200?1200/curImg.width:1;cv.width=curImg.width*sc;cv.height=curImg.height*sc;ctx.drawImage(curImg,0,0,cv.width,cv.height);
+ let h=cv.height,w=cv.width,sh=Math.floor(h*0.40);ctx.fillStyle="rgba(0,0,0,0.86)";ctx.fillRect(0,h-sh,w,sh);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.028)}px Arial`;let lines=fullAddr.split('\n');lines.forEach((ln,i)=>{ctx.fillText(ln.substring(0,78),Math.floor(w*0.03),h-sh+Math.floor(h*0.09)+i*Math.floor(h*0.07));});
+ let stamped=cv.toDataURL('image/jpeg',0.68);rec.imageUrl=stamped;rec.photo=stamped;
+ document.getElementById('msg').style.color="green";document.getElementById('msg').innerText="Uploading to Firebase...";
+ try{await fb.addDoc(fb.collection(window.db,"bill_records"),rec);document.getElementById('msg').innerText="Saved Successfully! Ref: "+ref+" | "+d;document.getElementById('ref').value='';loadAdmin();loadMyData();let a=document.createElement('a');a.download=ref+'.jpg';a.href=stamped;a.click();}catch(e){alert(e.message);}
+}
+function openZoom(s,t){document.getElementById('zImg').src=s;document.getElementById('zTxt').innerText=t||'';document.getElementById('zBox').style.display='flex';}
+function openEdit(id,ref,name,addr){editId=id;document.getElementById('eRef').value=ref;document.getElementById('eName').value=name;document.getElementById('eAddr').value=addr;document.getElementById('editBox').style.display='flex';}
+function closeEdit(){document.getElementById('editBox').style.display='none';editId=null;}
+async function saveEdit(){if(!editId)return;let ref=document.getElementById('eRef').value.trim(),name=document.getElementById('eName').value,addr=document.getElementById('eAddr').value;try{await fb.updateDoc(fb.doc(window.db,"bill_records",editId),{refNumber:ref,ref:ref,workerName:name,name:name,address:addr,addr:addr});closeEdit();loadAdmin();loadMyData();alert('Updated');}catch(e){alert(e.message);}}
+async function delDoc(id){if(!confirm('Delete this photo?'))return;await fb.deleteDoc(fb.doc(window.db,"bill_records",id));loadAdmin();loadMyData();}
 async function loadAdmin(){
  if(!fbReady)return;
  let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));
  let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push({id:d.id,...d.data()});});
- let distributed=all.length;
- let pending=Math.max(0,totalTarget-distributed);
- let perc=totalTarget>0?Math.min(100,Math.round((distributed/totalTarget)*100)):0;
- document.getElementById('aTotal').innerText=totalTarget||0;
- document.getElementById('aDistributed').innerText=distributed;
- document.getElementById('aPending').innerText=pending;
- document.getElementById('progBar').style.width=perc+'%';
- document.getElementById('progText').innerText=perc+'% مکمل - '+distributed+'/'+totalTarget;
- document.getElementById('aTotal').innerText=totalTarget||0;
  let fDist=document.getElementById('fDist').value,fRef=(document.getElementById('fRef').value||'').toLowerCase();
  let filtered=all;if(fDist)filtered=filtered.filter(x=>(x.workerName||x.name)===fDist);if(fRef)filtered=filtered.filter(x=>((x.refNumber||x.ref||'')+'').toLowerCase().includes(fRef));
- document.getElementById('galCount').innerText=filtered.length+' pics';
+ document.getElementById('galCount').innerText=filtered.length+' photos';
  let map={};all.forEach(x=>{let n=x.workerName||x.name||'Unknown';map[n]=(map[n]||0)+1;});let max=Math.max(...Object.values(map),1);
- let html='';for(let k in map){let p=(map[k]/max)*100;html+=`<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><b>👤 ${k}</b><span>${map[k]} bills</span></div><div style="background:#e5e7eb;border-radius:10px;height:14px;margin-top:4px"><div class="bar" style="width:${p}%"></div></div></div>`;}
- document.getElementById('overList').innerHTML=html||'No data - ابھی کوئی بل نہیں';
+ let html='';for(let k in map){let p=(map[k]/max)*100;html+=`<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><b>${k}</b><span>${map[k]} bills</span></div><div style="background:#e5e7eb;height:14px;border-radius:10px;margin-top:4px"><div class="bar" style="width:${p}%"></div></div></div>`;}
+ document.getElementById('overList').innerHTML=html||'No bills yet';
  let gal=document.getElementById('gal');
- if(filtered.length==0)gal.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:25px;color:#666">📷 Gallery خالی ہے - Worker سے بلز بھیجیں تو یہاں سب pics آئیں گی</p>';
- else{let h='';filtered.forEach(ph=>{let img=ph.imageUrl||ph.photo||'';let r=ph.refNumber||ph.ref||'';let n=ph.workerName||ph.name||'';let dt=(ph.formattedDate||ph.date||'')+' '+ (ph.formattedTime||ph.time||'');h+=`<div class="g"><img src="${img}" loading="lazy" onclick="openZoom('${img}','Ref: ${r} | ${n} | ${dt} | ${ph.address||''}')"><div style="padding:8px;font-size:11px"><div style="color:#0a3d2a;font-weight:900">Ref: ${r}</div><div>👤 ${n}</div><div style="font-size:9px;color:#555">${dt}</div><div style="display:flex;gap:4px;margin-top:6px"><button onclick="openZoom('${img}','Ref: ${r} | ${n}')" style="flex:1;padding:6px;background:#d1fae5;border:1px solid #a7f3d0;border-radius:6px;font-size:11px">🔍 Zoom</button><button onclick="delDoc('${ph.id}')" style="flex:1;padding:6px;background:#fee2e2;border-radius:6px;font-size:11px">🗑️</button></div></div></div>`;});gal.innerHTML=h;}
+ if(filtered.length==0)gal.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:20px;color:#666">Gallery Empty - All Firebase pictures will appear here automatically</p>';
+ else{let h='';filtered.forEach(ph=>{let img=ph.imageUrl||ph.photo||'';let r=(ph.refNumber||ph.ref||'').replace(/'/g,'');let n=(ph.workerName||ph.name||'').replace(/'/g,'');h+=`<div class="g"><img src="${img}" onclick="openZoom('${img}','Ref: ${r} | ${n}')"><div style="padding:8px;font-size:11px"><b>Ref: ${ph.refNumber||ph.ref}</b><br>${ph.workerName||ph.name}<br><small>${ph.formattedDate||ph.date}</small><div style="display:flex;gap:4px;margin-top:6px"><button onclick="openZoom('${img}','Ref: ${r}')" style="flex:1;padding:5px;background:#d1fae5;border-radius:6px">Zoom</button><button onclick="openEdit('${ph.id}','${r}','${n}','${(ph.address||'').replace(/\n/g,' ')}')" style="flex:1;padding:5px;background:#fef3c7;border-radius:6px">Edit</button><button onclick="delDoc('${ph.id}')" style="flex:1;padding:5px;background:#fee2e2;border-radius:6px">Delete</button></div></div></div>`;});gal.innerHTML=h;}
 }
-async function exportAll(){let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push(d.data());});if(all.length==0)return alert('کوئی فوٹو نہیں');let zip=new JSZip(),folder=zip.folder("Mediland_Gallery_By_Ref");all.forEach((ph,i)=>{let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(b64){let r=ph.refNumber||ph.ref||'NoRef';folder.file(`${r}_${i+1}.jpg`,b64,{base64:true});}});let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Mediland_Gallery_'+new Date().toISOString().slice(0,10)+'.zip';a.click();}
-async function exportCSV(){let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push(d.data());});if(all.length==0)return alert('کوئی ڈیٹا نہیں');let csv="WorkerName,RefNumber,Address,Lat,Lng,Date,Time\n";all.forEach(x=>{let addr=(x.address||'').replace(/\n/g,' ').replace(/"/g,'""');csv+=`"${x.workerName}","${x.refNumber}","${addr}","${x.lat}","${x.lng}","${x.formattedDate}","${x.formattedTime}"\n`;});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Mediland_Report.csv';a.click();}
-(function(){if(!wUnlock)document.getElementById('wPin').style.display='flex';else{fbReady?getGPS():setTimeout(()=>{if(!lat)getGPS();},1500);}if(fbReady)loadAdmin();})();
+async function loadMyData(){
+ if(!fbReady)return;let sel=document.getElementById('dist').value;if(!sel){document.getElementById('myGal').innerHTML='<p style="grid-column:1/-1;text-align:center;padding:15px;color:#888;font-size:12px">Select your name to see your submitted bills here</p>';document.getElementById('myCount').innerText='0';return;}
+ let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));
+ let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{let data=d.data();if((data.workerName||data.name)===sel)all.push({id:d.id,...data});});
+ document.getElementById('myCount').innerText=all.length;
+ let gal=document.getElementById('myGal');
+ if(all.length==0)gal.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:15px;color:#888">No bills submitted yet</p>';
+ else{let h='';all.forEach(ph=>{let img=ph.imageUrl||ph.photo||'';let r=(ph.refNumber||ph.ref||'').replace(/'/g,'');let n=(ph.workerName||ph.name||'').replace(/'/g,'');h+=`<div class="g"><img src="${img}" onclick="openZoom('${img}','Ref: ${r}')"><div style="padding:8px;font-size:11px"><b>Ref: ${ph.refNumber||ph.ref}</b><br><small>${ph.formattedDate||ph.date}</small><div style="display:flex;gap:4px;margin-top:6px"><button onclick="openEdit('${ph.id}','${r}','${n}','${(ph.address||'').replace(/\n/g,' ')}')" style="flex:1;padding:5px;background:#fef3c7;border-radius:6px">Edit</button><button onclick="delDoc('${ph.id}')" style="flex:1;padding:5px;background:#fee2e2;border-radius:6px">Delete</button></div></div></div>`;});gal.innerHTML=h;}
+}
+async function exportAll(){let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push(d.data());});if(all.length==0)return alert('No photos');let zip=new JSZip(),f=zip.folder("Bills_Gallery");all.forEach((ph,i)=>{let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(b64){let r=ph.refNumber||ph.ref||'NoRef';f.file(`${r}_${i+1}.jpg`,b64,{base64:true});}});let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Bills_Gallery_'+new Date().toISOString().slice(0,10)+'.zip';a.click();}
+async function exportCSV(){let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push(d.data());});if(all.length==0)return alert('No data');let csv="WorkerName,RefNumber,Address,Lat,Lng,Date,Time\n";all.forEach(x=>{let addr=(x.address||'').replace(/\n/g,' ').replace(/"/g,'""');csv+=`"${x.workerName}","${x.refNumber}","${addr}","${x.lat}","${x.lng}","${x.formattedDate}","${x.formattedTime}"\n`;});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Report_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
+(function(){if(!wUnlock)document.getElementById('wPin').style.display='flex';else setTimeout(getGPS,600);})();
 </script></body></html>

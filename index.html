@@ -63,7 +63,7 @@ window.dispatchEvent(new Event('firebase-ready'));
 <div class="tabs"><button id="tW" class="active" onclick="go('worker')">Worker Panel</button><button id="tA" onclick="go('admin')">Admin Panel</button></div>
 <div id="workerPage" class="page active"><div class="card">
 <label class="label">1. Select Distributor Name *</label><select id="dist" class="select" onchange="loadMyData()"><option value="">-- Select --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select>
-<label class="label">2. House Caption * (REF No likhen)</label><input id="ref" class="input" placeholder="Example: REF 5566 ya 5566" oninput="checkDuplicateLive(this.value)"><div id="refError" class="ref-error"></div><div id="refOk" class="ref-ok">✅ Ye Reference theek hai</div>
+<label class="label">2. House Caption * (REF No likhen)</label><input id="ref" class="input" placeholder="Example: ward 13 to 15 Ref # 2255" oninput="checkDuplicateLive(this.value)"><div id="refError" class="ref-error"></div><div id="refOk" class="ref-ok">✅ Ye Reference theek hai</div>
 <label class="label">3. LIVE GPS *</label><div id="gpsTxt" class="gps">📍 Tap Refresh GPS</div><button class="btn btn-y" onclick="getGPS()">🔄 Refresh GPS</button><textarea id="addr" class="input" style="height:130px;background:#fffde7;font-size:10.5px;margin-top:8px;font-weight:700" readonly></textarea>
 <label class="label">4. Capture Bill Photo *</label><input type="file" id="photoFile" accept="image/*" capture="environment"><img id="prev" style="display:none;width:100%;border-radius:12px;margin-top:10px;border:2px solid #0a3d2a"><button class="btn btn-g" onclick="saveData()">Submit Photo - GPS Camera Stamp</button><div id="msg" style="text-align:center;font-weight:800;margin-top:10px"></div>
 </div><div class="card"><div style="display:flex;justify-content:space-between"><h4>My Submitted Bills</h4><span id="myCount" style="background:#e0f2f1;padding:4px 10px;border-radius:20px;font-size:11px">0</span></div><div id="myGal" class="gallery" style="margin-top:10px"></div></div></div>
@@ -108,7 +108,7 @@ async function getGPS(){
   try{
    try{ plusCode = OpenLocationCode.encode(lat, lon, 10); }catch(e){ plusCode=""; }
    let r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1`);
-   let d=await r.json();let a=d.address||{};let road=a.road||a.street||"";let suburb=a.suburb||a.neighbourhood||a.village||"";let city=a.city||a.town||a.county||"Toba Tek Singh";let state=a.state||"Punjab";let country=a.country||"Pakistan";let display=d.display_name||"";
+   let d=await r.json();let a=d.address||{};let city=a.city||a.town||a.county||"Toba Tek Singh";let state=a.state||"Punjab";let country=a.country||"Pakistan";let display=d.display_name||"";
    let now=new Date();let dayName=now.toLocaleDateString('en-US',{weekday:'long'});let dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});let timeStr=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
    lastDetails={timeStr:timeStr,dateStr:dateStr,dayName:dayName,cityLine:`${city}, ${state}, ${country}`,plusLine:`${display}`.substring(0,220),latLong:`Lat ${lat.toFixed(5)}° Long ${lon.toFixed(5)}° ±${acc}m`};
    fullAddr=`${timeStr} | ${dateStr}\n${dayName}\n${lastDetails.cityLine}\n${lastDetails.plusLine}\n${lastDetails.latLong}`;
@@ -212,12 +212,25 @@ async function saveEdit(){
  }catch(e){alert(e.message);}
 }
 async function delDoc(id){if(!confirm('Delete this?'))return;await fb.deleteDoc(fb.doc(window.db,"bill_records",id));loadAdmin();loadMyData();}
-async function saveSingle(imgData,ref){let a=document.createElement('a');a.href=imgData;a.download=ref+'.jpg';a.click();}
+
+// === FIXED EXPORT - NO UNDERSCORE FOR SPACE ===
+async function saveSingle(imgData,ref){
+  let base = ref.toString().trim();
+  base = base.replace(/[\\\/:*?"<>|]/g,'').trim(); // space ko rehne dega
+  if(base=="") base="NoRef";
+  let a=document.createElement('a');a.href=imgData;a.download=base+'.jpg';a.click();
+}
 async function getAllDocs(){let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push({id:d.id,...d.data()});});allCache=all;return all;}
 async function exportAll(){
  let all=await getAllDocs();if(all.length==0)return alert('No photos');
  let zip=new JSZip(),f=zip.folder("Bills");
- all.forEach((ph)=>{let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(!b64) return;let base=(ph.refNumber||ph.ref||'NoRef').toString().trim().replace(/[^a-zA-Z0-9_-]/g,'_');f.file(base+'.jpg',b64,{base64:true});});
+ all.forEach((ph)=>{
+   let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(!b64) return;
+   let base=(ph.refNumber||ph.ref||'NoRef').toString().trim();
+   base = base.replace(/[\\\/:*?"<>|]/g,'').trim(); // space same rahega
+   if(base=="") base="NoRef";
+   f.file(base+'.jpg',b64,{base64:true});
+ });
  let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ALL_'+new Date().toISOString().slice(0,10)+'.zip';a.click();
 }
 async function exportSpecific(){
@@ -225,7 +238,13 @@ async function exportSpecific(){
  if(w)filtered=filtered.filter(x=>(x.workerName||x.name)===w);if(d)filtered=filtered.filter(x=>x.date===d);
  if(filtered.length==0)return alert('No photos for filter');
  let zip=new JSZip(),f=zip.folder("Filtered");
- filtered.forEach((ph)=>{let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(!b64) return;let base=(ph.refNumber||ph.ref||'NoRef').toString().trim().replace(/[^a-zA-Z0-9_-]/g,'_');f.file(base+'.jpg',b64,{base64:true});});
+ filtered.forEach((ph)=>{
+   let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(!b64) return;
+   let base=(ph.refNumber||ph.ref||'NoRef').toString().trim();
+   base = base.replace(/[\\\/:*?"<>|]/g,'').trim();
+   if(base=="") base="NoRef";
+   f.file(base+'.jpg',b64,{base64:true});
+ });
  let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Bills_${w||'All'}_${d||'All'}.zip`;a.click();
 }
 async function deleteByDate(){let d=document.getElementById('delDate').value;if(!d)return alert('Select Date');if(!confirm(`${d} ki sari photos delete?`))return;let all=await getAllDocs();let toDel=all.filter(x=>x.date===d);if(toDel.length==0)return alert('No photos on this date');for(let ph of toDel){await fb.deleteDoc(fb.doc(window.db,"bill_records",ph.id));}alert(`${toDel.length} deleted`);loadAdmin();}

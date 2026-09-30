@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mediland App - Bill Distribution Portal</title>
+  <title>Mediland Portal - Bill Distribution</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -33,25 +33,37 @@
   </script>
 
   <style>
-    .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
 
-  <!-- Header Navigation Tabs -->
-  <header class="border-b border-slate-800 bg-slate-950/80 sticky top-0 z-50 p-4 shadow-md">
+  <!-- Header Navigation Bar -->
+  <header class="border-b border-emerald-900/50 bg-slate-900/90 sticky top-0 z-50 p-4 shadow-xl backdrop-blur-md">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <!-- Brand Logo & Title -->
       <div class="flex items-center space-x-3">
-        <div class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-lg text-lg">M</div>
-        <h1 class="font-bold text-xl tracking-wide text-indigo-400">Mediland Portal</h1>
+        <div class="bg-emerald-500 text-slate-950 font-black px-3.5 py-1.5 rounded-xl text-xl shadow-lg shadow-emerald-500/20">
+          ➕
+        </div>
+        <div>
+          <h1 class="font-extrabold text-xl tracking-tight text-white flex items-center gap-2">
+            Mediland <span class="text-emerald-400 font-semibold text-sm bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800">Portal</span>
+          </h1>
+        </div>
       </div>
-      <!-- Persistent Tabs (No Logout Needed) -->
-      <div class="flex space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
-        <button id="btnWorkerTab" onclick="accessTab('worker')" class="px-4 py-2 rounded-lg font-medium bg-indigo-600 text-white text-sm transition flex items-center space-x-1">
+
+      <!-- Navigation Tabs -->
+      <div class="flex space-x-2 bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800">
+        <button id="btnWorkerTab" onclick="accessTab('worker')" class="px-5 py-2 rounded-xl font-medium bg-emerald-600 text-white text-sm shadow-md transition flex items-center space-x-2">
           <span>👷 Worker Portal</span>
         </button>
-        <button id="btnAdminTab" onclick="accessTab('admin')" class="px-4 py-2 rounded-lg font-medium bg-slate-800 text-slate-400 text-sm transition hover:bg-slate-700 flex items-center space-x-1">
-          <span>🔒 Admin Portal</span>
+        <button id="btnAdminTab" onclick="accessTab('admin')" class="px-5 py-2 rounded-xl font-medium bg-slate-900 text-slate-400 text-sm transition hover:text-white hover:bg-slate-800 flex items-center space-x-2">
+          <span>🔒 Admin Dashboard</span>
         </button>
       </div>
     </div>
@@ -59,59 +71,66 @@
 
   <main class="max-w-6xl mx-auto p-4 md:p-6">
 
-    <!-- WORKER SECTION -->
+    <!-- WORKER PORTAL SECTION -->
     <section id="workerSection" class="space-y-6">
-      <div class="bg-slate-800/80 p-6 rounded-2xl border border-slate-700 shadow-xl max-w-xl mx-auto">
-        <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
-          <span class="mr-2">📸</span> Submit New Record
-        </h2>
+      <div class="glass-card p-6 md:p-8 rounded-3xl shadow-2xl max-w-xl mx-auto border border-emerald-500/20">
+        <div class="flex items-center space-x-3 mb-6">
+          <span class="text-2xl bg-emerald-500/10 p-2.5 rounded-2xl border border-emerald-500/20">📸</span>
+          <div>
+            <h2 class="text-xl font-bold text-white">Submit Field Record</h2>
+            <p class="text-xs text-emerald-400/80">Capture bill photo with automatic GPS stamping</p>
+          </div>
+        </div>
         
-        <form id="uploadForm" class="space-y-4">
+        <form id="uploadForm" class="space-y-5">
           <div>
-            <label class="block text-sm font-medium text-slate-400 mb-1">Worker Name / ID</label>
-            <input type="text" id="workerName" required placeholder="Enter your name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Worker Name / ID</label>
+            <input type="text" id="workerName" required placeholder="Enter worker full name" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-2xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-slate-400 mb-1">Bill / Field Photo</label>
-            <input type="file" id="imageInput" accept="image/*" capture="environment" required class="w-full text-slate-400 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Bill / Field Photo</label>
+            <input type="file" id="imageInput" accept="image/*" capture="environment" required class="w-full text-slate-400 text-sm file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 cursor-pointer bg-slate-900/60 p-2 rounded-2xl border border-slate-800">
           </div>
 
-          <div id="locationStatus" class="p-3 rounded-xl bg-slate-900/60 border border-slate-700/60 text-xs text-slate-400">
-            📍 Location status: Pending image capture...
+          <div id="locationStatus" class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-slate-400 flex items-center space-x-2">
+            <span>📍</span> <span>Location status: Waiting for image capture...</span>
           </div>
 
-          <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+          <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-emerald-600/30 transition duration-200 flex items-center justify-center space-x-2">
             <span>Upload Stamped Record</span>
           </button>
         </form>
       </div>
     </section>
 
-    <!-- ADMIN SECTION -->
+    <!-- ADMIN DASHBOARD SECTION -->
     <section id="adminSection" class="hidden space-y-6">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-800/40 p-4 rounded-xl border border-slate-700">
+      <!-- Admin Header Control -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/80 p-5 rounded-2xl border border-emerald-900/40">
         <div>
-          <h2 class="text-xl font-bold text-white">Central Admin Dashboard</h2>
-          <p class="text-xs text-slate-400">Real-time synchronized record gallery</p>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <span>📊 Central Admin Dashboard</span>
+          </h2>
+          <p class="text-xs text-slate-400">Live synchronized distribution records</p>
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button onclick="exportCSV()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow">Export CSV</button>
-          <button onclick="exportZIP()" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg shadow">Export ZIP (Photos)</button>
+          <button onclick="exportCSV()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow transition">Export CSV</button>
+          <button onclick="exportZIP()" class="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl shadow transition">Export ZIP (Photos)</button>
         </div>
       </div>
 
       <!-- Filters -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <input type="text" id="searchWorker" oninput="filterRecords()" placeholder="Filter by worker name..." class="bg-slate-800 border border-slate-700 text-sm rounded-xl px-4 py-2 text-white focus:outline-none">
-        <input type="date" id="filterDate" onchange="filterRecords()" class="bg-slate-800 border border-slate-700 text-sm rounded-xl px-4 py-2 text-white focus:outline-none">
-        <button onclick="clearFilters()" class="bg-slate-700 hover:bg-slate-600 text-xs rounded-xl px-4 py-2 text-slate-300">Clear Filters</button>
+        <input type="text" id="searchWorker" oninput="filterRecords()" placeholder="🔍 Filter by worker name..." class="bg-slate-900 border border-slate-800 text-sm rounded-2xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+        <input type="date" id="filterDate" onchange="filterRecords()" class="bg-slate-900 border border-slate-800 text-sm rounded-2xl px-4 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+        <button onclick="clearFilters()" class="bg-slate-800 hover:bg-slate-700 text-xs rounded-2xl px-4 py-2.5 text-slate-300 font-semibold border border-slate-700">Clear Filters</button>
       </div>
 
       <!-- Gallery Grid -->
-      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div class="col-span-full text-center py-10 text-slate-500">Loading live records...</div>
+      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="col-span-full text-center py-12 text-slate-500">Loading live records from database...</div>
       </div>
     </section>
 
@@ -122,7 +141,7 @@
 
     // PIN Configuration
     const ADMIN_PIN = "1234";  // Default Admin PIN
-    const WORKER_PIN = "0000"; // Default Worker PIN (Keep empty "" if no PIN needed for Worker)
+    const WORKER_PIN = "";      // Keep empty "" so worker portal opens directly
 
     function accessTab(tab) {
       if (tab === 'admin') {
@@ -155,17 +174,17 @@
       if (tab === 'worker') {
         workerSec.classList.remove('hidden');
         adminSec.classList.add('hidden');
-        btnWorker.className = "px-4 py-2 rounded-lg font-medium bg-indigo-600 text-white text-sm transition flex items-center space-x-1";
-        btnAdmin.className = "px-4 py-2 rounded-lg font-medium bg-slate-800 text-slate-400 text-sm transition hover:bg-slate-700 flex items-center space-x-1";
+        btnWorker.className = "px-5 py-2 rounded-xl font-medium bg-emerald-600 text-white text-sm shadow-md transition flex items-center space-x-2";
+        btnAdmin.className = "px-5 py-2 rounded-xl font-medium bg-slate-900 text-slate-400 text-sm transition hover:text-white hover:bg-slate-800 flex items-center space-x-2";
       } else {
         workerSec.classList.add('hidden');
         adminSec.classList.remove('hidden');
-        btnAdmin.className = "px-4 py-2 rounded-lg font-medium bg-indigo-600 text-white text-sm transition flex items-center space-x-1";
-        btnWorker.className = "px-4 py-2 rounded-lg font-medium bg-slate-800 text-slate-400 text-sm transition hover:bg-slate-700 flex items-center space-x-1";
+        btnAdmin.className = "px-5 py-2 rounded-xl font-medium bg-emerald-600 text-white text-sm shadow-md transition flex items-center space-x-2";
+        btnWorker.className = "px-5 py-2 rounded-xl font-medium bg-slate-900 text-slate-400 text-sm transition hover:text-white hover:bg-slate-800 flex items-center space-x-2";
       }
     }
 
-    // Reverse Geocoding for Detailed Location
+    // Reverse Geocoding
     async function getAddressFromGPS(lat, lng) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
@@ -186,7 +205,7 @@
       return `GPS Loc: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     }
 
-    // Stamp ONLY GPS Location, Date & Time onto Photo (NO Worker Name or Ref No)
+    // Stamp Location, Date & Time on Image
     const createGPSStampedImage = (file, address, lat, lng) => new Promise((resolve) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -205,11 +224,11 @@
 
           // Overlay Box at bottom
           const boxHeight = 120;
-          ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+          ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
           ctx.fillRect(0, canvas.height - boxHeight, canvas.width, boxHeight);
 
-          // Accent side-bar
-          ctx.fillStyle = "#6366f1";
+          // Accent side-bar (Emerald)
+          ctx.fillStyle = "#10b981";
           ctx.fillRect(0, canvas.height - boxHeight, 10, boxHeight);
 
           // Text Formatting
@@ -220,29 +239,29 @@
           const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
           const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-          // 1. Full Detailed Address
+          // 1. Detailed Address
           ctx.fillText(`📍 ${address}`, 22, canvas.height - boxHeight + 40);
           
           // 2. Latitude & Longitude
           ctx.font = "18px sans-serif";
-          ctx.fillStyle = "#cbd5e1";
+          ctx.fillStyle = "#a7f3d0";
           ctx.fillText(`Lat: ${lat.toFixed(6)}°  |  Long: ${lng.toFixed(6)}°`, 22, canvas.height - boxHeight + 75);
           
           // 3. Date & Time
           ctx.fillText(`📅 ${dateStr} ${timeStr}`, 22, canvas.height - boxHeight + 105);
 
-          resolve(canvas.toDataURL('image/jpeg', 0.65));
+          resolve(canvas.toDataURL('image/jpeg', 0.70));
         };
       };
     });
 
-    // Form Submit
+    // Form Submission
     document.getElementById('uploadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = document.getElementById('submitBtn');
       const statusDiv = document.getElementById('locationStatus');
       submitBtn.disabled = true;
-      submitBtn.innerText = "Fetching location & stamping photo...";
+      submitBtn.innerText = "Fetching location & processing image...";
 
       const workerName = document.getElementById('workerName').value.trim();
       const fileInput = document.getElementById('imageInput');
@@ -258,17 +277,16 @@
         async (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          statusDiv.innerText = `📍 Fetching road & area name...`;
+          statusDiv.innerText = `📍 Fetching road & area location...`;
 
           try {
             const address = await getAddressFromGPS(lat, lng);
             statusDiv.innerText = `📍 Address: ${address}`;
 
-            // Create stamped image without Worker Name or Ref No
             const stampedBase64 = await createGPSStampedImage(fileInput.files[0], address, lat, lng);
             
             const recordData = {
-              workerName: workerName, // Saved in database for admin filtering only
+              workerName: workerName,
               imageUrl: stampedBase64,
               address: address,
               lat: lat,
@@ -281,9 +299,9 @@
             const { collection, addDoc } = window.dbOps;
             await addDoc(collection(window.db, "bill_records"), recordData);
 
-            alert("GPS Stamped photo successfully uploaded!");
+            alert("✅ GPS Stamped record uploaded successfully!");
             document.getElementById('uploadForm').reset();
-            statusDiv.innerText = "📍 Location status: Pending image capture...";
+            statusDiv.innerText = "📍 Location status: Waiting for image capture...";
           } catch (err) {
             alert("Error saving record: " + err.message);
           } finally {
@@ -292,8 +310,8 @@
           }
         },
         (error) => {
-          alert("GPS Permission required to submit records!");
-          statusDiv.innerText = "❌ GPS Permission Denied. Access required.";
+          alert("GPS Permission is required to submit records!");
+          statusDiv.innerText = "❌ GPS Access Denied. Permission required.";
           submitBtn.disabled = false;
           submitBtn.innerText = "Upload Stamped Record";
         },
@@ -301,7 +319,7 @@
       );
     });
 
-    // Firestore Sync
+    // Firebase Sync
     window.addEventListener('DOMContentLoaded', () => {
       const checkFirebase = setInterval(() => {
         if (window.db && window.dbOps) {
@@ -327,25 +345,33 @@
     function renderGallery(records) {
       const gallery = document.getElementById('galleryGrid');
       if(records.length === 0) {
-        gallery.innerHTML = `<div class="col-span-full text-center py-10 text-slate-500">No records found.</div>`;
+        gallery.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500">No distribution records found.</div>`;
         return;
       }
 
       gallery.innerHTML = records.map(rec => `
-        <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
-          <img src="${rec.imageUrl}" class="w-full h-52 object-cover bg-slate-900" alt="Bill Record">
-          <div class="p-4 space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-indigo-400 text-sm">Submitted By: ${rec.workerName}</span>
-              <span class="text-xs text-slate-400">${rec.formattedDate} ${rec.formattedTime}</span>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl hover:border-emerald-500/40 transition">
+          <img src="${rec.imageUrl}" class="w-full h-56 object-cover bg-slate-950" alt="Bill Record">
+          <div class="p-4 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+              <span class="font-bold text-emerald-400 text-sm flex items-center gap-1.5">
+                👤 ${rec.workerName || 'Unknown Worker'}
+              </span>
+              <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">${rec.formattedDate || ''}</span>
             </div>
-            <p class="text-xs text-slate-300 font-medium truncate">🏠 ${rec.address || 'Address recorded on image'}</p>
-            <div class="text-xs text-slate-300">
-              📍 <a href="https://maps.google.com/?q=${rec.lat},${rec.lng}" target="_blank" class="underline text-indigo-300">View Map (${rec.lat.toFixed(4)}, ${rec.lng.toFixed(4)})</a>
+            
+            <p class="text-xs text-slate-300 font-medium line-clamp-2">📍 ${rec.address || 'Location recorded'}</p>
+            
+            <div class="text-xs text-slate-400 flex items-center justify-between">
+              <a href="https://maps.google.com/?q=${rec.lat},${rec.lng}" target="_blank" class="underline text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                🌐 View on Map
+              </a>
+              <span class="text-[11px] text-slate-500">${rec.formattedTime || ''}</span>
             </div>
-            <div class="flex space-x-2 pt-2 border-t border-slate-700">
-              <button onclick="editRecord('${rec.id}', '${rec.workerName}')" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded text-slate-200">Edit</button>
-              <button onclick="deleteRecord('${rec.id}')" class="text-xs bg-red-600/80 hover:bg-red-500 px-2.5 py-1 rounded text-white">Delete</button>
+
+            <div class="flex space-x-2 pt-2 border-t border-slate-800/80">
+              <button onclick="editRecord('${rec.id}', '${rec.workerName}')" class="flex-1 text-xs bg-slate-800 hover:bg-slate-700 py-1.5 rounded-xl text-slate-200 transition">Edit</button>
+              <button onclick="deleteRecord('${rec.id}')" class="flex-1 text-xs bg-red-950/60 hover:bg-red-900/80 border border-red-800/50 py-1.5 rounded-xl text-red-300 transition">Delete</button>
             </div>
           </div>
         </div>
@@ -357,9 +383,9 @@
       const date = document.getElementById('filterDate').value;
 
       const filtered = allRecords.filter(rec => {
-        const matchesName = rec.workerName.toLowerCase().includes(search);
-        const matchesDate = !date || rec.timestamp.startsWith(date);
-        return matchesName && matchesDate;
+        const nameMatch = (rec.workerName || '').toLowerCase().includes(search);
+        const dateMatch = !date || (rec.timestamp && rec.timestamp.startsWith(date));
+        return nameMatch && dateMatch;
       });
 
       renderGallery(filtered);
@@ -390,7 +416,7 @@
       if(allRecords.length === 0) return alert("No data to export!");
       let csv = "ID,Worker Name,Detailed Address,Date,Time,Latitude,Longitude\n";
       allRecords.forEach(r => {
-        csv += `"${r.id}","${r.workerName}","${r.address || ''}","${r.formattedDate}","${r.formattedTime}","${r.lat}","${r.lng}"\n`;
+        csv += `"${r.id}","${r.workerName || ''}","${r.address || ''}","${r.formattedDate || ''}","${r.formattedTime || ''}","${r.lat || ''}","${r.lng || ''}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv' });
       saveAs(blob, `mediland_records_${new Date().toISOString().slice(0,10)}.csv`);
@@ -402,8 +428,10 @@
       const imgFolder = zip.folder("mediland_photos");
 
       allRecords.forEach((r, idx) => {
-        const base64Data = r.imageUrl.split(',')[1];
-        imgFolder.file(`${r.workerName}_${idx+1}.jpg`, base64Data, {base64: true});
+        if (r.imageUrl) {
+          const base64Data = r.imageUrl.split(',')[1];
+          imgFolder.file(`${r.workerName || 'worker'}_${idx+1}.jpg`, base64Data, {base64: true});
+        }
       });
 
       zip.generateAsync({type:"blob"}).then(content => {

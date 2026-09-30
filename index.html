@@ -1,111 +1,196 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEDILAND - Final Fixed</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MEDILAND - Bills Distribution - Admin Panel Final</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}
-body{background:#eef2ee}
-.header{background:#0a3d2a;color:#fff;padding:10px;text-align:center}
-.header h1{color:#ffeb3b}
-.tabs{display:flex;position:sticky;top:0;z-index:10;background:#fff;border-bottom:2px solid #064e3b}
-.tabs button{flex:1;padding:14px;border:none;font-weight:900;background:#eee;cursor:pointer}
-.tabs button.active{background:#fff;color:#064e3b;border-bottom:3px solid #064e3b}
-.card{background:#fff;margin:10px;padding:14px;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.1)}
-.label{font-size:12px;font-weight:800;color:#064e3b;margin:10px 0 4px;display:block}
-.input,.select{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px}
-.gps{padding:12px;background:#d1fae5;border:2px solid #10b981;border-radius:8px;font-weight:700;font-size:13px}
-.btn{padding:12px;border-radius:8px;border:none;font-weight:800;cursor:pointer}
-.btn-green{background:#064e3b;color:#fff;width:100%;margin-top:10px}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
+body{background:#f1f3f6}
+.tabs{display:flex;position:sticky;top:0;z-index:30;background:#fff;border-bottom:3px solid #0d6efd;box-shadow:0 2px 4px rgba(0,0,0,.05)}
+.tabs button{flex:1;padding:15px;border:none;background:#f8f9fa;font-weight:900;cursor:pointer;font-size:14px}
+.tabs button.active{background:#fff;color:#0d6efd;border-bottom:3px solid #0d6efd}
+.blue-banner{background:#0d6efd;color:#fff;padding:18px;text-align:center;font-size:20px;font-weight:900;border-radius:12px;margin:12px;box-shadow:0 2px 6px rgba(13,110,253,.3)}
+.card{background:#fff;padding:16px;margin:12px;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);border:1px solid #e9ecef}
+.label{font-size:12px;font-weight:800;color:#0d6efd;margin:10px 0 5px;display:block}
+.input,.select{width:100%;padding:12px;border:1px solid #ced4da;border-radius:8px;background:#fff;font-size:14px}
+.gps{padding:12px;background:#d1fae5;border:2px solid #10b981;border-radius:10px;font-weight:700;font-size:12px;min-height:48px}
+.btn{padding:12px;border-radius:8px;border:none;font-weight:800;cursor:pointer;font-size:14px}
+.btn-blue{background:#0d6efd;color:#fff;width:100%;margin-top:10px}
 .page{display:none}.page.active{display:block}
-.gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.g-item{border:1px solid #ddd;border-radius:10px;overflow:hidden;background:#fff}
-.g-item img{width:100%;height:130px;object-fit:cover;cursor:zoom-in}
-.g-item div{padding:6px;font-size:11px}
-.action{display:flex;gap:4px;margin-top:5px}
-.action button{flex:1;padding:6px;font-size:10px;border-radius:6px;border:1px solid #ddd;font-weight:700;cursor:pointer}
-.edit{background:#fef3c7}.del{background:#fee2e2;color:#b91c1c}.zoom{background:#d1fae5}
-.pin{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
-.pin-box{background:#fff;padding:20px;border-radius:14px;width:100%;max-width:320px;text-align:center}
-.pin-box input{width:100%;padding:12px;margin:10px 0;border:2px solid #064e3b;border-radius:8px;text-align:center;font-size:18px}
-.zoomBox{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:60;display:none;align-items:center;justify-content:center;padding:10px;flex-direction:column}
-.zoomBox img{max-width:100%;max-height:80vh;border-radius:10px}
-.zoomBox p{color:#fff;margin-top:10px}
-.editBox{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:55;display:none;align-items:center;justify-content:center;padding:20px}
-.editInner{background:#fff;padding:20px;border-radius:14px;width:100%;max-width:380px}
-.record{border:1px solid #eee;padding:10px;margin:6px 0;border-radius:10px;background:#fafafa}
-.record img{width:100%;border-radius:8px;margin-top:6px;cursor:zoom-in}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0}
-.stat{background:#064e3b;color:#fff;padding:8px;border-radius:8px;text-align:center}
-.stat b{display:block;font-size:18px}
-</style>
-</head>
-<body>
-<div class="header"><h1>BILLS DISTRIBUTION</h1><p>Mediland Pakistan - Suthra Punjab - Tehsil Toba Tek Singh</p></div>
-<div class="tabs"><button id="tW" class="active" onclick="go('worker')">👷 Worker App</button><button id="tA" onclick="go('admin')">🔐 Admin Portal</button></div>
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}.stat{background:#0d6efd;color:#fff;padding:12px;border-radius:10px;text-align:center}.stat b{display:block;font-size:22px}
+.worker-list{border-left:4px solid #0d6efd;padding-left:12px;margin:10px 0}.worker-list div{padding:7px 0;border-bottom:1px solid #f1f3f5;font-size:13px;display:flex;justify-content:space-between}
+.manage-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid #e9ecef;border-radius:10px;margin:7px 0;background:#fff}
+.manage-item button{background:#dc3545;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;font-size:12px}
+/* EXACT SCREENSHOT GALLERY */
+.gallery-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media(max-width:1400px){.gallery-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:900px){.gallery-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.gallery-grid{grid-template-columns:repeat(2,1fr)}}
+.photo-card{border:1px solid #dee2e6;border-radius:10px;overflow:hidden;background:#fff;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:0.2s}
+.photo-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.photo-card img{width:100%;height:160px;object-fit:cover;cursor:zoom-in;display:block;background:#f8f9fa}
+.photo-card.check{position:absolute;top:6px;left:6px;width:18px;height:18px;z-index:2;background:#fff}
+.photo-card.info{padding:10px 8px;text-align:center;background:#fff}
+.photo-card.ref{color:#0d6efd;font-weight:800;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.photo-card.name{font-size:11px;margin:4px 0;color:#212529}
+.photo-card.date{font-size:10px;color:#6c757d}
+.photo-card.btns{display:flex;gap:6px;padding:8px}
+.photo-card.btns button{flex:1;padding:8px;font-size:11px;border-radius:6px;border:none;font-weight:700;cursor:pointer}
+.btn-down{background:#17a2b8;color:#fff}.btn-del{background:#dc3545;color:#fff}
+.yellow-box{background:#fff8e1;border:1px solid #ffe082;padding:16px;border-radius:12px;margin:12px}
+.light-blue{background:#e8f4fd;border:1px solid #b6d4fe;padding:16px;border-radius:12px;margin:12px}
+.light-red{background:#fde8e8;border:1px solid #f5c2c7;padding:16px;border-radius:12px;margin:12px}
+.grey-bar{background:#e9ecef;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin:12px;border-radius:8px}
+.red-full{background:#dc3545;color:#fff;text-align:center;padding:16px;border-radius:0;margin:12px 0;font-weight:900;cursor:pointer;border:none;width:calc(100% - 24px);margin-left:12px;border-radius:8px;font-size:14px}
+.pin{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.pin-box{background:#fff;padding:26px;border-radius:16px;width:100%;max-width:340px;text-align:center}
+.pin-box input{width:100%;padding:13px;margin:12px 0;border:2px solid #0d6efd;border-radius:10px;text-align:center;font-size:18px}
+.zoomBox{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:70;display:none;align-items:center;justify-content:center;padding:12px;flex-direction:column}
+.zoomBox img{max-width:95%;max-height:75vh;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,.5)}
+.zoomBox p{color:#fff;margin-top:10px;text-align:center;font-size:13px}
+.editBox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:65;display:none;align-items:center;justify-content:center;padding:20px}
+.editInner{background:#fff;padding:22px;border-radius:16px;width:100%;max-width:420px}
+.small-edit{display:flex;gap:6px;margin-top:8px}.small-edit button{flex:1;padding:7px;font-size:11px;border-radius:6px;border:1px solid #ddd;font-weight:700;cursor:pointer}
+</style></head><body>
 
+<div class="tabs"><button id="tW" class="active" onclick="go('worker')">📱 Worker App</button><button id="tA" onclick="go('admin')">🔐 Admin Panel</button></div>
+
+<!-- WORKER APP -->
 <div id="worker" class="page active">
-<div class="card"><div class="stats"><div class="stat"><b id="wTot">0</b>Total</div><div class="stat"><b id="wTod">0</b>Today</div><div class="stat"><b id="wMy">0</b>My</div></div><p id="wInfo" style="font-size:11px;margin-top:5px"></p></div>
+<div class="card"><div class="stats"><div class="stat"><b id="wTot">0</b>Total Bills</div><div class="stat" style="background:#198754"><b id="wTod">0</b>Today</div><div class="stat" style="background:#6f42c1"><b id="wMy">0</b>My Bills</div></div><p id="wInfo" style="font-size:11px;color:#6c757d;margin-top:6px"></p></div>
 <div class="card">
-<label class="label">Select Distributor</label><select id="dist" class="select" onchange="updMy()"></select>
-<label class="label">House REF</label><input id="ref" class="input" placeholder="381 JB">
-<label class="label">LIVE GPS - Exact UC Detail</label><div id="gpsTxt" class="gps">📍 Allow location... waiting</div>
-<button class="btn" style="width:100%;margin:6px 0;background:#fde68a" onclick="getGPS()">🔄 Refresh LIVE GPS</button>
-<textarea id="addr" class="input" style="height:80px;background:#fffbeb;font-size:11px;font-weight:600" readonly placeholder="Exact UC / Chak / Road single detail"></textarea>
-<label class="label">Photo</label><input type="file" id="photoFile" accept="image/*" capture="environment">
-<img id="prev" style="display:none;width:100%;border-radius:10px;margin-top:8px;border:2px solid #064e3b;cursor:zoom-in" onclick="zoom(this.src)">
-<button class="btn btn-green" onclick="saveData()">📸 Submit - Save with Stamp</button>
-<div id="msg" style="text-align:center;font-weight:800;margin-top:8px;color:#065f46"></div>
+<label class="label">Select Distributor *</label><select id="dist" class="select" onchange="upd()"></select>
+<label class="label">House REF / Ward REFF *</label><input id="ref" class="input" placeholder="e.g. Ward 23-30 REFF #012126">
+<label class="label">LIVE GPS - Exact UC Single Detail *</label><div id="gpsTxt" class="gps">📍 Location Allow + GPS ON rakhein - Refresh dabayen</div>
+<button class="btn" style="width:100%;margin:7px 0;background:#ffeb3b;color:#000;border:1px solid #ffc107" onclick="getGPS()">🔄 Refresh LIVE GPS - Har UC ki exact location single detail</button>
+<textarea id="addr" class="input" style="height:90px;background:#fffde7;font-weight:700;font-size:11px" readonly placeholder="Exact UC / Chak / Road auto ayega..."></textarea>
+<label class="label">House / Meter Photo *</label><input type="file" id="photoFile" accept="image/*" capture="environment">
+<img id="prev" style="display:none;width:100%;border-radius:12px;margin-top:10px;border:2px solid #0d6efd;cursor:zoom-in" onclick="zoom(this.src,'Preview')">
+<button class="btn btn-blue" style="padding:15px;font-size:16px" onclick="saveData()">📸 Submit - Single Location Stamp</button>
+<div id="msg" style="text-align:center;font-weight:800;margin-top:10px;color:#198754"></div>
 </div>
 </div>
 
+<!-- ADMIN PANEL - EXACT AS SCREENSHOT -->
 <div id="admin" class="page">
-<div class="card"><h3 style="color:#064e3b">📊 Overview - All Workers</h3><div class="stats"><div class="stat"><b id="aTot">0</b>Total</div><div class="stat"><b id="aTod">0</b>Today</div><div class="stat"><b id="aWor">0</b>Workers</div></div><div id="overList" style="margin-top:8px"></div></div>
-<div class="card"><h3>👥 Add / Delete Workers</h3><div style="display:flex;gap:6px"><input id="newW" class="input" placeholder="New worker name"><button class="btn" style="background:#064e3b;color:#fff" onclick="addW()">Add</button></div><div id="manageW" style="margin-top:8px"></div></div>
-<div class="card"><h3>🔑 Change PINs</h3><div style="display:flex;gap:6px;margin-top:6px"><input id="setWPIN" class="input" placeholder="Worker PIN"><button class="btn" style="background:#f59e0b" onclick="saveWPIN()">Save Worker PIN</button></div><div style="display:flex;gap:6px;margin-top:6px"><input id="setAPIN" class="input" placeholder="Admin PIN"><button class="btn" style="background:#dc2626;color:#fff" onclick="saveAPIN()">Save Admin PIN</button></div></div>
-<div class="card"><h3>🖼️ Gallery - Edit / Delete / Zoom + Date Filter</h3><div style="display:flex;gap:6px;flex-wrap:wrap"><input type="date" id="fDate" class="input" style="flex:1"><select id="fDist" class="select" style="flex:1" onchange="loadAdmin()"><option value="">All Workers</option></select><button class="btn" style="background:#eee" onclick="clearF()">Clear</button></div><div id="gal" class="gallery" style="margin-top:10px"></div><div id="list" style="margin-top:10px"></div><button class="btn btn-green" onclick="downCSV()">📥 Download Excel CSV</button><button class="btn" style="width:100%;margin-top:6px;background:#fee2e2;color:#b91c1c" onclick="clearAll()">🗑️ Clear All</button></div>
+<div class="blue-banner">📦 Total Bills Received: <span id="aTotalMain">0</span></div>
+
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h4>🗓️ Worker Counting Date Filter:</h4><button class="btn" style="background:#6c757d;color:#fff;padding:7px 14px;width:auto;font-size:11px" onclick="clearDate()">Reset Filter</button></div><input type="date" id="fDate" class="input" style="margin-top:10px" onchange="loadAdmin()"></div>
+
+<div class="card"><h4>Worker Counting Breakdown (Overall All Dates):</h4><div id="overList" class="worker-list" style="margin-top:12px"></div></div>
+
+<div class="card"><h4 style="color:#0d6efd">👥 Manage Workers / Distributors:</h4><div style="display:flex;gap:8px;margin-top:12px"><input id="newW" class="input" placeholder="Enter new worker name"><button class="btn" style="background:#0d6efd;color:#fff;width:auto;padding:10px 22px" onclick="addW()">+ Add</button></div><div id="manageW" style="margin-top:14px"></div></div>
+
+<div class="card"><h4>👁️ View Worker Photos On Screen:</h4><select id="fDist" class="select" style="margin-top:12px" onchange="loadAdmin()"><option value="">-- All Workers --</option></select><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><input id="fRef" class="input" style="flex:1" placeholder="Search Ref Num... (e.g. 012126)" oninput="loadAdmin()"><input type="date" id="fDate2" class="input" style="flex:1" onchange="loadAdmin()"></div><div style="text-align:right;margin-top:10px"><button class="btn" style="background:#6c757d;color:#fff;width:auto;padding:7px 14px;font-size:11px" onclick="clearF()">🔄 Reset View Filter</button></div></div>
+
+<div class="card" style="background:#f8f9fa;padding:12px"><div id="gal" class="gallery-grid"></div></div>
+
+<!-- EXACT SECTION FROM YOUR SCREENSHOT -->
+<div class="light-blue">
+<h4 style="color:#0d6efd">💾 Save / Export Backup ZIP:</h4>
+<button class="btn" style="background:#198754;color:#fff;margin-top:12px;padding:14px;font-size:15px" onclick="exportZIPAll()">📥 Export ALL Database Photos (ZIP)</button>
+<div style="margin-top:18px;border-top:1px solid #b6d4fe;padding-top:14px">
+<h4 style="font-size:14px">Export specific Worker or Date ZIP:</h4>
+<select id="expWorker" class="select" style="margin-top:10px"><option value="">-- All Workers --</option></select>
+<div style="display:flex;gap:8px;margin-top:10px"><input type="date" id="expDate" class="input" style="flex:1" placeholder="mm/dd/yyyy"><button class="btn" style="background:#17a2b8;color:#fff;flex:1" onclick="exportZIPSpecific()">📥 Save ZIP</button></div>
+</div>
 </div>
 
-<div id="wPin" class="pin"><div class="pin-box"><h3>🔒 Worker PIN</h3><p style="font-size:11px">Default: 1111</p><input id="wPinIn" type="password" placeholder="PIN"><button class="btn btn-green" onclick="chkW()">Unlock Worker</button></div></div>
-<div id="aPin" class="pin"><div class="pin-box"><h3>🔐 Admin PIN</h3><p style="font-size:11px">Default: 381381</p><input id="aPinIn" type="password" placeholder="PIN"><button class="btn btn-green" onclick="chkA()">Unlock Admin</button></div></div>
+<div class="light-red">
+<h4 style="color:#842029">🗑️ Delete All Photos / Data of Specific Date:</h4>
+<div style="display:flex;gap:8px;margin-top:12px"><input type="date" id="delDate" class="input" style="flex:1" placeholder="mm/dd/yyyy"><button class="btn" style="background:#dc3545;color:#fff;flex:1" onclick="deleteDatePhotos()">🗑️ Delete Date Photos</button></div>
+<p style="font-size:11px;margin-top:10px;color:#6c757d">Jis date ki photos delete karni hon us date ko select karke delete button dabaen.</p>
+</div>
 
-<div id="zBox" class="zoomBox" onclick="closeZ()"><img id="zImg" src=""><p id="zTxt"></p><p style="font-size:10px;color:#aaa">Click to close</p></div>
-<div id="eBox" class="editBox"><div class="editInner"><h3>Edit Record</h3><label class="label">Worker</label><select id="eName" class="select"></select><label class="label">REF</label><input id="eRef" class="input"><label class="label">Address</label><textarea id="eAddr" class="input" style="height:60px"></textarea><div style="display:flex;gap:6px;margin-top:10px"><button class="btn" style="flex:1;background:#eee" onclick="closeE()">Cancel</button><button class="btn btn-green" style="flex:1" onclick="saveE()">Save</button></div></div></div>
+<div class="grey-bar"><label style="font-weight:800;font-size:13px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="selAll" onchange="toggleSelectAll(this)"> Select All Visible</label><button class="btn" style="background:#dc3545;color:#fff;width:auto;padding:8px 16px;font-size:12px" onclick="deleteSelected()">🗑️ Delete Selected</button></div>
+
+<div class="yellow-box"><h4>🔑 Admin Password Settings:</h4><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><input id="setWPIN" class="input" style="flex:1" placeholder="Worker PIN (1111)"><input id="setAPIN" class="input" style="flex:1" placeholder="Admin PIN (381381)"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" style="background:#ffc107;flex:1" onclick="saveWPIN()">Update Worker PIN</button><button class="btn" style="background:#dc3545;color:#fff;flex:1" onclick="saveAPIN()">Update Admin PIN</button></div><p style="font-size:11px;margin-top:8px;color:#856404">Yahan se aap admin panel ka password change kar sakte hain jo cloud par save ho jayega.</p></div>
+
+<button class="red-full" onclick="clearAll()">⚠️ RESET WORKER COUNTING & ALL DATA</button>
+<div style="height:30px"></div>
+</div>
+
+<!-- PIN OVERLAYS -->
+<div id="wPin" class="pin"><div class="pin-box"><h3>🔒 Worker PIN</h3><p style="font-size:11px;color:#6c757d">Default: 1111</p><input id="wPinIn" type="password" placeholder="Enter PIN"><button class="btn btn-blue" onclick="chkW()">Unlock Worker App</button></div></div>
+<div id="aPin" class="pin"><div class="pin-box"><h3>🔐 Admin PIN</h3><p style="font-size:11px;color:#6c757d">Default: 381381</p><input id="aPinIn" type="password" placeholder="Enter PIN"><button class="btn btn-blue" onclick="chkA()">Unlock Admin Panel</button></div></div>
+
+<!-- ZOOM -->
+<div id="zBox" class="zoomBox" onclick="closeZ()"><img id="zImg" src=""><p id="zTxt"></p><div style="display:flex;gap:10px;margin-top:14px"><button class="btn" style="background:#ffc107;padding:9px 22px;width:auto" onclick="editFromZoom()">✏️ Edit</button><button class="btn" style="background:#17a2b8;color:#fff;padding:9px 22px;width:auto" onclick="downloadFromZoom()">📥 Download</button><button class="btn" style="background:#dc3545;color:#fff;padding:9px 22px;width:auto" onclick="delFromZoom()">🗑️ Delete</button></div><p style="font-size:11px;color:#aaa;margin-top:10px">Click outside to close - Photo Zoom with Edit / Save / Delete</p></div>
+
+<!-- EDIT -->
+<div id="eBox" class="editBox"><div class="editInner"><h3>✏️ Edit Record - Save / Delete / Zoom</h3><label class="label">Worker Name</label><select id="eName" class="select"></select><label class="label">REF No / Ward REFF</label><input id="eRef" class="input" placeholder="Ward 23-30 REFF #012126"><label class="label">Address (Exact UC Single Detail)</label><textarea id="eAddr" class="input" style="height:80px"></textarea><div style="display:flex;gap:8px;margin-top:14px"><button class="btn" style="flex:1;background:#e9ecef;color:#000" onclick="closeE()">Cancel</button><button class="btn btn-blue" style="flex:1" onclick="saveE()">💾 Save Changes</button></div></div></div>
+
 <canvas id="can" style="display:none"></canvas>
 
 <script>
-let defW=["Mr Hanan","Mr Zubair","Ms Anila","Mr Waris Ali","Mr Faraz Ahmed","Mr Samiullah","Mr Zahid","Mr Faizan Javed","Mr Hussnain","Mr Usman"];
+function getAllRecords(){let keys=['mediland_records_v5','mediland_records_v4','mediland_records','med_rec','records','bills','data'];let best=[];keys.forEach(k=>{try{let v=JSON.parse(localStorage.getItem(k)||'[]');if(Array.isArray(v)&&v.length>best.length)best=v;}catch(e){}});return best;}
+function getAllPhotos(){let keys=['mediland_photos_v5','mediland_photos_v4','mediland_photos','med_pho','photos','images'];let best=[];keys.forEach(k=>{try{let v=JSON.parse(localStorage.getItem(k)||'[]');if(Array.isArray(v)&&v.length>best.length)best=v;}catch(e){}});return best;}
+function saveRecords(r){localStorage.setItem('mediland_records_v5',JSON.stringify(r));localStorage.setItem('med_rec',JSON.stringify(r));localStorage.setItem('records',JSON.stringify(r));}
+function savePhotos(p){localStorage.setItem('mediland_photos_v5',JSON.stringify(p));localStorage.setItem('med_pho',JSON.stringify(p));localStorage.setItem('photos',JSON.stringify(p));}
+let defW=["Faizan","Zahid","Anila","Muhammad Hannan ismail","Usman","Faraz","Husnain","Samiullah","Zubair","Distributer Officer 3","Distributer Officer 1","Mr Hanan","Mr Zubair","Ms Anila","Mr Waris Ali","Mr Faraz Ahmed","Mr Samiullah","Mr Zahid","Mr Faizan Javed","Mr Hussnain","Mr Usman"];
 let workers=JSON.parse(localStorage.getItem('med_workers')||'null')||defW;
-let WPIN=localStorage.getItem('med_wpin')||"1111";
-let APIN=localStorage.getItem('med_apin')||"381381";
-let lat=null,lon=null,fullAddr="",curImg=null,editId=null;
+let WPIN=localStorage.getItem('med_wpin')||"1111";let APIN=localStorage.getItem('med_apin')||"381381";
+let lat=null,lon=null,fullAddr="",curImg=null,editId=null,zoomId=null;
 let wUnlock=localStorage.getItem('w_un')==='yes',aUnlock=false;
-function init(){let o='<option value="">-- Choose --</option>';workers.forEach(w=>o+=`<option>${w}</option>`);document.getElementById('dist').innerHTML=o;document.getElementById('fDist').innerHTML='<option value="">All Workers</option>'+workers.map(w=>`<option>${w}</option>`).join('');document.getElementById('eName').innerHTML=workers.map(w=>`<option>${w}</option>`).join('');document.getElementById('setWPIN').value=WPIN;document.getElementById('setAPIN').value=APIN;renderManage();}
+
+function init(){let o='<option value="">-- Choose Your Name --</option>';workers.forEach(w=>o+=`<option>${w}</option>`);document.getElementById('dist').innerHTML=o;document.getElementById('fDist').innerHTML='<option value="">-- All Workers --</option>'+workers.map(w=>`<option>${w}</option>`).join('');document.getElementById('expWorker').innerHTML='<option value="">-- All Workers --</option>'+workers.map(w=>`<option>${w}</option>`).join('');document.getElementById('eName').innerHTML=workers.map(w=>`<option>${w}</option>`).join('');document.getElementById('setWPIN').value=WPIN;document.getElementById('setAPIN').value=APIN;renderManage();}
 function go(p){if(p==='worker'&&!wUnlock){document.getElementById('wPin').style.display='flex';return;}if(p==='admin'&&!aUnlock){document.getElementById('aPin').style.display='flex';return;}document.getElementById('worker').classList.remove('active');document.getElementById('admin').classList.remove('active');document.getElementById('tW').classList.remove('active');document.getElementById('tA').classList.remove('active');if(p==='worker'){document.getElementById('worker').classList.add('active');document.getElementById('tW').classList.add('active');upd();if(!lat)getGPS();}else{document.getElementById('admin').classList.add('active');document.getElementById('tA').classList.add('active');loadAdmin();}}
-function chkW(){if(document.getElementById('wPinIn').value===WPIN){wUnlock=true;localStorage.setItem('w_un','yes');document.getElementById('wPin').style.display='none';go('worker');}else alert('Wrong PIN');}
-function chkA(){if(document.getElementById('aPinIn').value===APIN){aUnlock=true;document.getElementById('aPin').style.display='none';go('admin');}else alert('Wrong PIN');}
-function addW(){let n=document.getElementById('newW').value.trim();if(!n)return alert('Name');if(workers.includes(n))return alert('Exists');workers.push(n);localStorage.setItem('med_workers',JSON.stringify(workers));document.getElementById('newW').value='';init();loadAdmin();upd();}
-function delW(name){if(!confirm(name+' delete?'))return;workers=workers.filter(w=>w!==name);localStorage.setItem('med_workers',JSON.stringify(workers));init();loadAdmin();}
-function renderManage(){let h='';workers.forEach(w=>{h+=`<div style="display:flex;justify-content:space-between;padding:6px;border-bottom:1px solid #eee"><span>${w}</span><button onclick="delW('${w.replace(/'/g,"\\'")}')" style="background:#fee2e2;border:1px solid #fecaca;padding:4px 8px;border-radius:6px">Delete</button></div>`;});document.getElementById('manageW').innerHTML=h;}
+function chkW(){if(document.getElementById('wPinIn').value===WPIN){wUnlock=true;localStorage.setItem('w_un','yes');document.getElementById('wPin').style.display='none';go('worker');}else alert('Wrong Worker PIN');}
+function chkA(){if(document.getElementById('aPinIn').value===APIN){aUnlock=true;document.getElementById('aPin').style.display='none';go('admin');}else alert('Wrong Admin PIN');}
+function addW(){let n=document.getElementById('newW').value.trim();if(!n)return alert('Name likhen');if(workers.includes(n))return alert('Already exists');workers.push(n);localStorage.setItem('med_workers',JSON.stringify(workers));document.getElementById('newW').value='';init();loadAdmin();upd();}
+function delW(name){if(!confirm(name+' ko delete karna hai?'))return;workers=workers.filter(w=>w!==name);localStorage.setItem('med_workers',JSON.stringify(workers));init();loadAdmin();}
+function renderManage(){let h='';workers.forEach(w=>{h+=`<div class="manage-item"><span>👤 ${w}</span><button onclick="delW('${w.replace(/'/g,"\\'")}')">🗑️ Delete</button></div>`;});document.getElementById('manageW').innerHTML=h;}
 function saveWPIN(){let v=document.getElementById('setWPIN').value.trim();if(v.length<3)return alert('Min 3');WPIN=v;localStorage.setItem('med_wpin',v);alert('Worker PIN saved: '+v);}
 function saveAPIN(){let v=document.getElementById('setAPIN').value.trim();if(v.length<3)return alert('Min 3');APIN=v;localStorage.setItem('med_apin',v);alert('Admin PIN saved: '+v);}
-function upd(){let r=JSON.parse(localStorage.getItem('med_rec')||'[]');let today=new Date().toISOString().slice(0,10);document.getElementById('wTot').innerText=r.length;document.getElementById('wTod').innerText=r.filter(x=>x.date===today).length;let name=document.getElementById('dist').value;if(name){let my=r.filter(x=>x.name===name);document.getElementById('wMy').innerText=my.length;document.getElementById('wInfo').innerText=name+': Total '+my.length+' Today '+my.filter(x=>x.date===today).length;}else document.getElementById('wMy').innerText=0;}
-function updMy(){upd();}
-function getGPS(){let b=document.getElementById('gpsTxt');b.style.background="#fef3c7";b.innerHTML="⏳ Exact UC location finding... Allow + GPS ON rakhein";if(!navigator.geolocation){b.innerHTML="❌ GPS not supported";return;}navigator.geolocation.getCurrentPosition(async p=>{lat=p.coords.latitude;lon=p.coords.longitude;let acc=Math.round(p.coords.accuracy);b.style.background="#d1fae5";b.innerHTML="✅ Locked "+lat.toFixed(6)+","+lon.toFixed(6)+" ±"+acc+"m - Address...";try{let r1=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);let d1=await r1.json();let village=d1.locality||d1.village||"Chak 381 JB";let district=d1.city||"Toba Tek Singh";let r2=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18`);let d2=await r2.json();let a2=d2.address||{};let disp=d2.display_name||"";let m=disp.match(/Chak\s*\d+\s*[A-Z]*/i);if(m)village=m[0];let road=a2.road||"Tahli - Kahlawan Road";fullAddr=village+", Toba Tek Singh, Punjab\n"+road+", "+village+", Tehsil Toba Tek Singh, District "+district+", Punjab, Pakistan";}catch(e){fullAddr="Lat "+lat.toFixed(5)+" Long "+lon.toFixed(5)+" Near Chak 381 JB\nTahli - Kahlawan Road, Tehsil Toba Tek Singh, District Toba Tek Singh";}document.getElementById('addr').value=fullAddr;b.innerHTML="✅ LIVE UC: "+fullAddr.split('\n')[0]+" | "+lat.toFixed(5)+","+lon.toFixed(5)+" ±"+acc+"m";},err=>{b.innerHTML=err.code==1?"❌ BLOCK! Chrome 🔒 > Location Allow karein":"❌ GPS OFF! GPS ON karein";b.style.background="#fee2e2";},{enableHighAccuracy:true,timeout:20000,maximumAge:0});}
+function upd(){let r=getAllRecords();let today=new Date().toISOString().slice(0,10);document.getElementById('wTot').innerText=r.length;document.getElementById('wTod').innerText=r.filter(x=>x.date===today).length;let name=document.getElementById('dist').value;if(name){let my=r.filter(x=>(x.name||x.distributor)===name);document.getElementById('wMy').innerText=my.length;document.getElementById('wInfo').innerText=name+': Total '+my.length+' | Today '+my.filter(x=>x.date===today).length;}else document.getElementById('wMy').innerText=0;}
+function getGPS(){let b=document.getElementById('gpsTxt');b.style.background="#fff3cd";b.innerHTML="⏳ Exact UC Location finding... Allow + GPS ON rakhein";if(!navigator.geolocation){b.innerHTML="❌ GPS not supported";return;}navigator.geolocation.getCurrentPosition(async p=>{lat=p.coords.latitude;lon=p.coords.longitude;let acc=Math.round(p.coords.accuracy);b.style.background="#d1fae5";b.innerHTML="✅ Locked "+lat.toFixed(6)+","+lon.toFixed(6)+" ±"+acc+"m - Address...";try{let r1=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);let d1=await r1.json();let village=d1.locality||d1.village||"Chak 381 JB";let district=d1.city||"Toba Tek Singh";let r2=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18`);let d2=await r2.json();let a2=d2.address||{};let disp=d2.display_name||"";let m=disp.match(/Chak\s*\d+\s*[A-Z]*/i);if(m)village=m[0];let road=a2.road||"Tahli - Kahlawan Road";fullAddr=village+", Toba Tek Singh, Punjab\n"+road+", "+village+", Tehsil Toba Tek Singh, District "+district+", Punjab, Pakistan";}catch(e){fullAddr="Lat "+lat.toFixed(5)+" Long "+lon.toFixed(5)+" Near Chak 381 JB\nTahli - Kahlawan Road, Tehsil Toba Tek Singh, District Toba Tek Singh";}document.getElementById('addr').value=fullAddr;b.innerHTML="✅ LIVE UC: "+fullAddr.split('\n')[0]+" | "+lat.toFixed(5)+","+lon.toFixed(5)+" ±"+acc+"m";},err=>{b.innerHTML=err.code==1?"❌ BLOCKED! 🔒 Chrome me Location Allow karein":"❌ GPS OFF! GPS ON karein";b.style.background="#f8d7da";},{enableHighAccuracy:true,timeout:25000,maximumAge:0});}
 document.getElementById('photoFile').addEventListener('change',e=>{let f=e.target.files[0];let r=new FileReader();r.onload=ev=>{curImg=new Image();curImg.onload=()=>{document.getElementById('prev').src=ev.target.result;document.getElementById('prev').style.display='block';};curImg.src=ev.target.result;};r.readAsDataURL(f);});
-function saveData(){let dist=document.getElementById('dist').value,refV=document.getElementById('ref').value.trim();if(!dist||!refV)return alert('Name & REF');if(!lat)return alert('GPS lock nahi - Refresh');if(!curImg)return alert('Photo');let now=new Date();let tStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});let dStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})+" - "+now.toLocaleDateString('en-US',{weekday:'long'});let rec={id:Date.now(),name:dist,ref:refV,gps:lat.toFixed(6)+","+lon.toFixed(6),addr:fullAddr,date:now.toISOString().slice(0,10),time:tStr};let cv=document.getElementById('can'),ctx=cv.getContext('2d');cv.width=curImg.width;cv.height=curImg.height;ctx.drawImage(curImg,0,0);let h=cv.height,w=cv.width,sh=Math.floor(h*0.32);ctx.fillStyle="rgba(0,0,0,0.82)";ctx.fillRect(0,h-sh,w,sh);let pad=Math.floor(w*0.03),y=h-sh+Math.floor(sh*0.20);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.038)}px Arial`;ctx.fillText(tStr,pad,y);let tw=ctx.measureText(tStr).width;ctx.fillStyle="#facc15";ctx.fillRect(pad+tw+12,y-Math.floor(h*0.022),3,Math.floor(h*0.035));ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.022)}px Arial`;ctx.fillText(dStr,pad+tw+22,y-2);y+=Math.floor(h*0.05);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.024)}px Arial`;let ls=fullAddr.split('\n');ls.forEach((ln,i)=>{if(i<2)ctx.fillText(ln.substring(0,68),pad,y+i*Math.floor(h*0.033));});y+=ls.length*Math.floor(h*0.033)+8;ctx.fillStyle="#e5e7eb";ctx.font=`bold ${Math.floor(h*0.02)}px Arial`;ctx.fillText(`Lat ${lat.toFixed(6)} Long ${lon.toFixed(6)}`,pad,y);ctx.fillStyle="#facc15";ctx.font=`bold ${Math.floor(h*0.016)}px Arial`;ctx.fillText(`${dist} | REF: ${refV}`,pad,h-12);let stamped=cv.toDataURL('image/jpeg',0.9);let recs=JSON.parse(localStorage.getItem('med_rec')||'[]');let phs=JSON.parse(localStorage.getItem('med_pho')||'[]');recs.push(rec);phs.push({id:rec.id,name:dist,ref:refV,data:stamped,date:rec.date,time:rec.time,gps:rec.gps,addr:rec.addr});localStorage.setItem('med_rec',JSON.stringify(recs));localStorage.setItem('med_pho',JSON.stringify(phs));let a=document.createElement('a');a.download=dist+'_'+refV+'.jpg';a.href=stamped;a.click();document.getElementById('msg').innerText='✅ Saved! '+dist;upd();}
-function zoom(src,txt){document.getElementById('zImg').src=src;document.getElementById('zTxt').innerText=txt||'';document.getElementById('zBox').style.display='flex';}
+function saveData(){let dist=document.getElementById('dist').value,refV=document.getElementById('ref').value.trim();if(!dist||!refV)return alert('Name & REF likhen');if(!lat)return alert('GPS lock nahi - Refresh LIVE GPS dabayen');if(!curImg)return alert('Photo len');let now=new Date();let tStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});let dStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})+" - "+now.toLocaleDateString('en-US',{weekday:'long'});let rec={id:Date.now(),name:dist,distributor:dist,ref:refV,gps:lat.toFixed(6)+","+lon.toFixed(6),addr:fullAddr,address:fullAddr,date:now.toISOString().slice(0,10),time:tStr};let cv=document.getElementById('can'),ctx=cv.getContext('2d');cv.width=curImg.width;cv.height=curImg.height;ctx.drawImage(curImg,0,0);let h=cv.height,w=cv.width,sh=Math.floor(h*0.32);ctx.fillStyle="rgba(0,0,0,0.82)";ctx.fillRect(0,h-sh,w,sh);let pad=Math.floor(w*0.03),y=h-sh+Math.floor(sh*0.20);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.038)}px Arial`;ctx.fillText(tStr,pad,y);let tw=ctx.measureText(tStr).width;ctx.fillStyle="#ffeb3b";ctx.fillRect(pad+tw+12,y-Math.floor(h*0.022),3,Math.floor(h*0.035));ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.022)}px Arial`;ctx.fillText(dStr,pad+tw+22,y-2);y+=Math.floor(h*0.05);ctx.fillStyle="#fff";ctx.font=`bold ${Math.floor(h*0.024)}px Arial`;let ls=fullAddr.split('\n');ls.forEach((ln,i)=>{if(i<2)ctx.fillText(ln.substring(0,68),pad,y+i*Math.floor(h*0.033));});y+=ls.length*Math.floor(h*0.033)+8;ctx.fillStyle="#e5e7eb";ctx.font=`bold ${Math.floor(h*0.02)}px Arial`;ctx.fillText(`Lat ${lat.toFixed(6)}° Long ${lon.toFixed(6)}°`,pad,y);ctx.fillStyle="#ffeb3b";ctx.font=`bold ${Math.floor(h*0.016)}px Arial`;ctx.fillText(`${dist} | REF: ${refV}`,pad,h-12);let stamped=cv.toDataURL('image/jpeg',0.9);let recs=getAllRecords();let phs=getAllPhotos();recs.push(rec);phs.push({id:rec.id,name:dist,distributor:dist,ref:refV,data:stamped,[STRIPPED] a=document.createElement('a');a.download=dist+'_'+refV+'.jpg';a.href=stamped;a.click();document.getElementById('msg').innerText='✅ Saved! '+dist+' - '+fullAddr.split('\n')[0];upd();}
+function zoom(src,txt,id){document.getElementById('zImg').src=src;document.getElementById('zTxt').innerText=txt||'';zoomId=id||null;document.getElementById('zBox').style.display='flex';}
 function closeZ(){document.getElementById('zBox').style.display='none';}
-function delPhoto(id){if(!confirm('Delete photo?'))return;let recs=JSON.parse(localStorage.getItem('med_rec')||'[]');let phs=JSON.parse(localStorage.getItem('med_pho')||'[]');recs=recs.filter(x=>x.id!==id);phs=phs.filter(x=>x.id!==id);localStorage.setItem('med_rec',JSON.stringify(recs));localStorage.setItem('med_pho',JSON.stringify(phs));loadAdmin();upd();}
-function openE(id){let recs=JSON.parse(localStorage.getItem('med_rec')||'[]');let rec=recs.find(x=>x.id===id);if(!rec)return;editId=id;document.getElementById('eName').value=rec.name;document.getElementById('eRef').value=rec.ref;document.getElementById('eAddr').value=rec.addr;document.getElementById('eBox').style.display='flex';}
+function editFromZoom(){if(zoomId){openE(zoomId);}closeZ();}
+function downloadFromZoom(){let src=document.getElementById('zImg').src;let a=document.createElement('a');a.download='Mediland_'+Date.now()+'.jpg';a.href=src;a.click();}
+function delFromZoom(){if(zoomId){closeZ();delPhoto(zoomId);} }
+function delPhoto(id){if(!confirm('Ye photo delete karni hai?'))return;let recs=getAllRecords();let phs=getAllPhotos();recs=recs.filter(x=>x.id!==id);phs=phs.filter(x=>x.id!==id);saveRecords(recs);savePhotos(phs);loadAdmin();upd();}
+function openE(id){let recs=getAllRecords();let rec=recs.find(x=>x.id===id);if(!rec)return;editId=id;document.getElementById('eName').value=rec.name||rec.distributor;document.getElementById('eRef').value=rec.ref;document.getElementById('eAddr').value=rec.addr||rec.address;document.getElementById('eBox').style.display='flex';}
 function closeE(){document.getElementById('eBox').style.display='none';editId=null;}
-function saveE(){if(!editId)return;let recs=JSON.parse(localStorage.getItem('med_rec')||'[]');let phs=JSON.parse(localStorage.getItem('med_pho')||'[]');let idx=recs.findIndex(x=>x.id===editId);let pidx=phs.findIndex(x=>x.id===editId);if(idx==-1)return;recs[idx].name=document.getElementById('eName').value;recs[idx].ref=document.getElementById('eRef').value;recs[idx].addr=document.getElementById('eAddr').value;if(pidx>=0){phs[pidx].name=recs[idx].name;phs[pidx].ref=recs[idx].ref;phs[pidx].addr=recs[idx].addr;}localStorage.setItem('med_rec',JSON.stringify(recs));localStorage.setItem('med_pho',JSON.stringify(phs));closeE();loadAdmin();upd();alert('Saved');}
-function clearF(){document.getElementById('fDate').value='';document.getElementById('fDist').value='';loadAdmin();}
-function loadAdmin(){let r=JSON.parse(localStorage.getItem('med_rec')||'[]');let p=JSON.parse(localStorage.getItem('med_pho')||'[]');let fDate=document.getElementById('fDate').value;let fDist=document.getElementById('fDist').value;let fr=r,fp=p;if(fDate){fr=fr.filter(x=>x.date===fDate);fp=fp.filter(x=>x.date===fDate);}if(fDist){fr=fr.filter(x=>x.name===fDist);fp=fp.filter(x=>x.name===fDist);}document.getElementById('aTot').innerText=r.length;document.getElementById('aTod').innerText=r.filter(x=>x.date===new Date().toISOString().slice(0,10)).length;document.getElementById('aWor').innerText=[...new Set(r.map(x=>x.name))].length;let ow='',map={};r.forEach(x=>map[x.name]=(map[x.name]||0)+1);for(let k in map)ow+=`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee"><b>${k}</b><span>${map[k]} Bills</span></div>`;document.getElementById('overList').innerHTML=ow||'No data';let gEl=document.getElementById('gal');if(fp.length==0){gEl.innerHTML='<p style="grid-column:1/3;text-align:center;padding:12px;color:#666">No photos</p>';}else{let hg='';fp.slice().reverse().forEach(ph=>{hg+=`<div class="g-item"><img src="${ph.data}" onclick="zoom('${ph.data}','${ph.name} | ${ph.ref}')"><div><b>${ph.name}</b> | ${ph.ref}<br>${ph.date} ${ph.time}<div class="action"><button class="edit" onclick="openE(${ph.id})">✏️ Edit</button><button class="zoom" onclick="zoom('${ph.data}','${ph.name}')">🔍 Zoom</button><button class="del" onclick="delPhoto(${ph.id})">🗑️ Delete</button></div></div></div>`;});gEl.innerHTML=hg;}let el=document.getElementById('list');if(fr.length==0){el.innerHTML='<p style="text-align:center;padding:12px;color:#666">No records</p>';return;}let h='';fr.slice().reverse().forEach(rec=>{let ph=p.find(x=>x.id==rec.id);h+=`<div class="record"><b>${rec.name}</b> | REF: ${rec.ref}<br><small>${rec.addr.replace('\n',' | ')}</small><br><small>📍 ${rec.gps} | ${rec.date} ${rec.time}</small>${ph?`<img src="${ph.data}" onclick="zoom('${ph.data}','${rec.name} | ${rec.ref}')"><div class="action"><button class="edit" onclick="openE(${rec.id})">✏️ Edit</button><button class="zoom" onclick="zoom('${ph.data}','${rec.name}')">🔍 Zoom</button><button class="del" onclick="delPhoto(${rec.id})">🗑️ Delete</button></div>`:''}</div>`;});el.innerHTML=h;}
-function downCSV(){let r=JSON.parse(localStorage.getItem('med_rec')||'[]');let fDate=document.getElementById('fDate').value;let fDist=document.getElementById('fDist').value;if(fDate)r=r.filter(x=>x.date===fDate);if(fDist)r=r.filter(x=>x.name===fDist);if(r.length==0)return alert('No data');let csv="Name,REF,Address,GPS,Date,Time\n";r.forEach(x=>{csv+=`"${x.name}","${x.ref}","${x.addr.replace(/\n/g,' ').replace(/"/g,'""')}","${x.gps}","${x.date}","${x.time}"\n`});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Mediland_'+(fDate||'All')+'.csv';a.click();}
-function clearAll(){if(confirm('Clear all?')){localStorage.removeItem('med_rec');localStorage.removeItem('med_pho');loadAdmin();upd();}}
+function saveE(){if(!editId)return;let recs=getAllRecords();let phs=getAllPhotos();let idx=recs.findIndex(x=>x.id===editId);let pidx=phs.findIndex(x=>x.id===editId);if(idx==-1)return;recs[idx].name=document.getElementById('eName').value;recs[idx].distributor=recs[idx].name;recs[idx].ref=document.getElementById('eRef').value;recs[idx].addr=document.getElementById('eAddr').value;recs[idx].address=recs[idx].addr;if(pidx>=0){phs[pidx].name=recs[idx].name;phs[pidx].distributor=recs[idx].name;phs[pidx].ref=recs[idx].ref;phs[pidx].addr=recs[idx].addr;phs[pidx].address=recs[idx].addr;}saveRecords(recs);savePhotos(phs);closeE();loadAdmin();upd();alert('✅ Saved! Changes ho gaye');}
+function clearDate(){document.getElementById('fDate').value='';document.getElementById('fDate2').value='';loadAdmin();}
+function clearF(){document.getElementById('fDate').value='';document.getElementById('fDate2').value='';document.getElementById('fDist').value='';document.getElementById('fRef').value='';loadAdmin();}
+function downloadSingle(id){let ph=getAllPhotos().find(x=>x.id===id);if(!ph)return;let src=ph.data||ph.image;let a=document.createElement('a');a.download=(ph.name||'Mediland')+'_'+(ph.ref||id)+'.jpg';a.href=src;a.click();}
+function toggleSelectAll(el){let checks=document.querySelectorAll('.selCheck');checks.forEach(c=>c.checked=el.checked);}
+function deleteSelected(){let checks=document.querySelectorAll('.selCheck:checked');if(checks.length==0)return alert('Pehle photos select karen - checkbox tick karen');if(!confirm(checks.length+' photos delete karni hain?'))return;let ids=Array.from(checks).map(c=>parseInt(c.value));let recs=getAllRecords();let phs=getAllPhotos();recs=recs.filter(x=>!ids.includes(x.id));phs=phs.filter(x=>!ids.includes(x.id));saveRecords(recs);savePhotos(phs);loadAdmin();upd();alert(ids.length+' deleted');}
+function deleteDatePhotos(){let d=document.getElementById('delDate').value;if(!d)return alert('Date select karen - mm/dd/yyyy');if(!confirm('Date '+d+' ki SARI photos delete karni hain?'))return;let recs=getAllRecords();let phs=getAllPhotos();let before=recs.length;recs=recs.filter(x=>x.date!==d);phs=phs.filter(x=>x.date!==d);saveRecords(recs);savePhotos(phs);loadAdmin();upd();alert((before-recs.length)+' photos deleted for date '+d);}
+function loadAdmin(){
+let r=getAllRecords();let p=getAllPhotos();
+let fDate=document.getElementById('fDate').value||document.getElementById('fDate2').value;
+let fDist=document.getElementById('fDist').value;
+let fRef=(document.getElementById('fRef').value||'').toLowerCase();
+document.getElementById('aTotalMain').innerText=r.length;
+let filtered=r;if(fDate)filtered=filtered.filter(x=>x.date===fDate);
+let map={};filtered.forEach(x=>{let n=x.name||x.distributor||'Unknown';map[n]=(map[n]||0)+1;});
+let ow='';for(let k in map)ow+=`<div><span>👤 ${k}</span><b>${map[k]} Bills</b></div>`;
+document.getElementById('overList').innerHTML=ow||'<p style="color:#6c757d">No data</p>';
+let fr=r,fp=p;
+if(fDate){fr=fr.filter(x=>x.date===fDate);fp=fp.filter(x=>x.date===fDate);}
+if(fDist){fr=fr.filter(x=>(x.name||x.distributor)===fDist);fp=fp.filter(x=>(x.name||x.distributor)===fDist);}
+if(fRef){fr=fr.filter(x=>(x.ref||'').toLowerCase().includes(fRef));fp=fp.filter(x=>(x.ref||'').toLowerCase().includes(fRef));}
+let gEl=document.getElementById('gal');
+if(fp.length==0){gEl.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:30px;color:#6c757d">No photos - Worker se submit karen ya Filter clear karen</p>';}
+else{
+let hg='';fp.slice().reverse().forEach(ph=>{
+let nm=ph.name||ph.distributor||'Unknown';let src=ph.data||ph.image;let refTxt=ph.ref||'No Ref';
+hg+=`<div class="photo-card">
+<input type="checkbox" value="${ph.id}" class="check selCheck">
+<img src="${src}" onclick="zoom('${src}','Ref: ${refTxt} | ${nm} | ${ph.date} ${ph.time} | ${(ph.addr||ph.address||'').replace(/\n/g,' ')}',${ph.id})">
+<div class="info"><div class="ref">Ref: ${refTxt}</div><div class="name">👤 ${nm}</div><div class="date">${ph.date||''}, ${ph.time||''}</div></div>
+<div class="btns"><button class="btn-down" onclick="downloadSingle(${ph.id})">📥 Download</button><button class="btn-del" onclick="delPhoto(${ph.id})">🗑️ Delete</button></div>
+<div class="small-edit"><button class="edit" onclick="openE(${ph.id})">✏️ Edit</button><button class="zoom" onclick="zoom('${src}','${nm} | ${refTxt}',${ph.id})">🔍 Zoom</button><button class="del" onclick="delPhoto(${ph.id})">Save/Delete</button></div>
+</div>`;
+});
+gEl.innerHTML=hg;
+}
+}
+async function exportZIPAll(){let phs=getAllPhotos();if(phs.length==0)return alert('No photos');let zip=new JSZip();let folder=zip.folder("Mediland_ALL_Photos");for(let i=0;i<phs.length;i++){let ph=phs[i];let src=ph.data||ph.image;if(!src.includes(','))continue;let base64=src.split(',')[1];let nm=(ph.name||'Unknown').replace(/[^a-z0-9]/gi,'_');let ref=(ph.ref||'').replace(/[^a-z0-9]/gi,'_');folder.file(`${nm}_${ref}_${ph.date}_${ph.id}.jpg`, base64, {base64:true});}let content=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(content);a.download='Mediland_ALL_Database_Photos.zip';a.click();}
+async function exportZIPSpecific(){let phs=getAllPhotos();let w=document.getElementById('expWorker').value;let d=document.getElementById('expDate').value;if(!w&&!d)return alert('Worker ya Date select karen');if(w)phs=phs.filter(x=>(x.name||x.distributor)===w);if(d)phs=phs.filter(x=>x.date===d);if(phs.length==0)return alert('No photos for selected Worker/Date');let zip=new JSZip();let folder=zip.folder(`Mediland_${w||'All'}_${d||'All'}`);for(let i=0;i<phs.length;i++){let ph=phs[i];let src=ph.data||ph.image;if(!src.includes(','))continue;let base64=src.split(',')[1];let nm=(ph.name||'Unknown').replace(/[^a-z0-9]/gi,'_');let ref=(ph.ref||'').replace(/[^a-z0-9]/gi,'_');folder.file(`${nm}_${ref}_${ph.date}_${ph.id}.jpg`, base64, {base64:true});}let content=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(content);a.download=`Mediland_${w||'All'}_${d||'All'}.zip`;a.click();}
+function downCSV(){let r=getAllRecords();let fDate=document.getElementById('fDate').value||document.getElementById('fDate2').value;let fDist=document.getElementById('fDist').value;if(fDate)r=r.filter(x=>x.date===fDate);if(fDist)r=r.filter(x=>(x.name||x.distributor)===fDist);if(r.length==0)return alert('No data');let csv="Name,REF,Address,GPS,Date,Time\n";r.forEach(x=>{let nm=x.name||x.distributor;let ad=(x.addr||x.address||'').replace(/\n/g,' ').replace(/"/g,'""');csv+=`"${nm}","${x.ref}","${ad}","${x.gps}","${x.date}","${x.time}"\n`});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Mediland_'+(fDate||'All')+'.csv';a.click();}
+function clearAll(){if(confirm('⚠️ RESET WORKER COUNTING & ALL DATA - SARA DATA DELETE HOGA?')){localStorage.removeItem('mediland_records_v5');localStorage.removeItem('mediland_photos_v5');localStorage.removeItem('med_rec');localStorage.removeItem('med_pho');localStorage.removeItem('records');localStorage.removeItem('photos');loadAdmin();upd();}}
 init();if(!wUnlock){document.getElementById('wPin').style.display='flex';}else{upd();setTimeout(getGPS,800);}document.getElementById('fDate').addEventListener('change',loadAdmin);
-</script>
-</body>
-</html>
+</script></body></html>

@@ -1,188 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEDILAND BILLS DISTRIBUTION - Toba Tek Singh</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MEDILAND BILLS DISTRIBUTION</title>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:Arial;background:#eef6f1}
-.header{background:#0a3d2e;color:#fff;padding:14px;text-align:center;border-bottom:4px solid #ffcc00}
-.header h1{margin:0;font-size:22px;letter-spacing:.5px}.header p{margin:4px 0 0;font-size:13px;opacity:.9}
-.tabs{display:flex;background:#d9e9df}.tab{flex:1;padding:12px;text-align:center;font-weight:bold;cursor:pointer;border-bottom:3px solid transparent}
-.tab.active{background:#fff;border-bottom:3px solid #0a3d2e;color:#0a3d2e}
-.panel{display:none;padding:10px}.panel.active{display:block}
-.card{background:#fff;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-select,input{width:100%;padding:12px;border-radius:10px;border:1px solid #c8dccf;background:#e8f3eb;margin:6px 0}
-.gps{background:#0b2e24;color:#d6ffea;border-radius:12px;padding:12px;border-left:5px solid #1aff8a;position:relative}
-.gps b{color:#1aff8a}.locked{position:absolute;right:12px;top:12px;background:#1aff8a;color:#000;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:bold}
-.btn{padding:12px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;width:100%;color:#fff;margin-top:8px}
-.btn-green{background:linear-gradient(90deg,#0a3d2e,#0f5c44)}.btn-yellow{background:#0a3d2e}
-.filters{display:flex;gap:6px;flex-wrap:wrap}.filters>*{flex:1;min-width:120px}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.stat{border-radius:12px;padding:12px;color:#fff;text-align:center}.s1{background:#0a3d2e}.s2{background:#fff;color:#0a3d2e;border:1px solid #cfe6d6}.s3{background:#fff;color:#0a3d2e;border:1px solid #cfe6d6}
-.stat h2{margin:4px 0;font-size:26px}
-.worker-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #eee}
-.avatar{width:32px;height:32px;border-radius:50%;background:#0a3d2e;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;margin-right:8px}
-.bar{width:80px;height:8px;background:#e0e0e0;border-radius:10px;overflow:hidden}.bar div{height:100%;background:#0fb06a}
-#selectedBar{display:none;position:sticky;top:0;z-index:99;background:#fff3cd;border:2px solid #ffc107;padding:10px;border-radius:10px;justify-content:space-between;align-items:center;margin-bottom:8px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
-.bill{background:#fff;border-radius:12px;overflow:hidden;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-.bill img{width:100%;height:150px;object-fit:cover}.bill input{position:absolute;top:6px;left:6px;width:20px;height:20px}
-.progress{width:100%;height:18px;background:#ddd;border-radius:10px;overflow:hidden;display:none;margin:8px 0}.progress div{height:100%;background:#0a3d2e;width:0%}
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#e9f2ec}
+.hdr{background:#0a3d2e;color:#fff;text-align:center;padding:14px 10px;border-bottom:4px solid #ffcc00}
+.hdr h1{margin:0;font-size:20px}.hdr small{opacity:.9}
+.topTabs{display:flex;background:#d9e9df}.t{flex:1;padding:12px;text-align:center;font-weight:bold;cursor:pointer;border-bottom:3px solid transparent}
+.t.active{background:#fff;border-bottom:3px solid #0a3d2e}
+.sub{display:flex;gap:8px;padding:10px;flex-wrap:wrap;align-items:center}
+.pill{padding:10px 18px;border-radius:30px;border:1px solid #0a3d2e;background:#fff;cursor:pointer;font-weight:bold}
+.pill.active{background:#0a3d2e;color:#fff}
+.card{background:#fff;border-radius:14px;padding:12px;margin:8px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.filters{display:grid;grid-template-columns:1fr 180px 1fr 200px;gap:10px}@media(max-width:700px){.filters{grid-template-columns:1fr}}
+.lbl{font-size:12px;font-weight:bold;color:#0a3d2e}input,select{width:100%;padding:11px;border-radius:10px;border:1px solid #b7cec0;background:#eef6f1}
+.btn{padding:10px 14px;border-radius:10px;border:none;font-weight:bold;cursor:pointer}
+.btn-dark{background:#0a3d2e;color:#fff}.btn-outline{background:#fff;border:1px solid #0a3d2e;color:#0a3d2e}
+.btn-orange{background:#d46a00;color:#fff}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px}
+.st{border-radius:12px;padding:12px}.st1{background:#0a3d2e;color:#fff}.st2,.st3{background:#fff}
+.st h2{margin:4px 0;font-size:28px}.st3 h2{color:#d46a00}
+.wRow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #eee}
+.av{width:28px;height:28px;background:#0a3d2e;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px}
+.bar{width:120px;height:8px;background:#eee;border-radius:10px;overflow:hidden}.bar div{height:100%;background:#10b26b}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.b{position:relative;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.b img{width:100%;height:140px;object-fit:cover}.b input{position:absolute;top:6px;left:6px;width:20px;height:20px}
+#selBar{display:none;position:sticky;top:0;z-index:99;background:#fff3cd;border:2px solid #ffcc00;padding:10px;border-radius:10px;justify-content:space-between;margin:8px}
+.gps{background:#0b2e24;color:#c6ffe0;padding:12px;border-radius:12px;border-left:5px solid #00ff88;line-height:1.5}
 </style>
 </head>
 <body>
-<div class="header"><h1>MEDILAND BILLS DISTRIBUTION</h1><p>Mediland Pakistan (Pvt) Ltd - Suthra Punjab Agency - Tehsil Toba Tek Singh</p></div>
-<div class="tabs"><div class="tab active" onclick="openTab('worker')">📱 Worker App</div><div class="tab" onclick="openTab('admin')">🛡️ Admin Panel</div></div>
+<div class="hdr"><h1>MEDILAND BILLS DISTRIBUTION</h1><small>Mediland Pakistan (Pvt) Ltd - Suthra Punjab Agency - Tehsil Toba Tek Singh</small></div>
+<div class="topTabs"><div class="t active" onclick="switchTab('w')">📱 Worker App</div><div class="t" onclick="switchTab('a')">🛡️ Admin Panel</div></div>
 
-<div id="worker" class="panel active">
+<div id="tab-w">
 <div class="card">
-<label><b>Select Bill Distributor Name: *</b></label>
-<select id="workerName">
-<option value="">-- Choose Your Name --</option>
-<option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman Ghani</option>
-</select>
-<label><b>House Reference / Meter Number: *</b></label>
-<input id="refNo" placeholder="e.g. METER-98745">
-<div class="gps" id="gpsCard">
-<b>📍 High-Accuracy GPS</b> <span class="locked" id="gpsStatus">Searching...</span>
-<div id="gpsText" style="margin-top:8px;line-height:1.5;font-size:13px">Location fetch ho rahi hai...</div>
+<b>Select Bill Distributor Name: *</b>
+<select id="wName"><option value="">-- Choose --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman Ghani</option></select>
+<b>House Reference / Meter Number: *</b><input id="refNo" placeholder="e.g. 013817">
+<div class="gps" id="gpsBox"><b>📍 High-Accuracy GPS - <span id="gpsStat">Searching...</span></b><div id="gpsTxt">GPS lock ho raha hai...</div></div>
+<button class="btn btn-outline" style="width:100%;margin-top:8px" onclick="getGPS()">🔄 Refresh Location GPS</button>
+<b style="display:block;margin-top:10px">Bill's Distribution Evidence (Photo): *</b><input type="file" id="photo" accept="image/*">
+<button class="btn btn-dark" style="width:100%;margin-top:10px;padding:14px" onclick="submitBill()">✈️ Submit Data - Speed Mode</button>
 </div>
-<button class="btn" style="background:#fff;color:#0a3d2e;border:1px solid #0a3d2e;margin-top:10px" onclick="refreshGPS()">🔄 Refresh Location GPS</button>
-<label style="margin-top:12px;display:block"><b>Bill's Distribution Evidence (Photo): *</b></label>
-<input type="file" id="photoInput" accept="image/*">
-<small>Photo lagane ke baad us par time, date, din, poora address aur lat/long stamp ho jayega.</small>
-<button class="btn btn-green" onclick="submitData()">✈️ Submit Data</button>
-</div>
-<div class="card"><b style="color:#0a3d2e">View My Submitted Photos</b><p style="font-size:13px">Apna naam select karke aap apni submit ki hui photos dekh sakte hain.</p><div id="myPhotos"></div></div>
 </div>
 
-<div id="admin" class="panel">
+<div id="tab-a" style="display:none">
+<div class="sub"><div class="pill active" onclick="showSub('overview',this)">📊 Worker Overview</div><div class="pill" onclick="showSub('gallery',this)">🖼️ Photo Gallery</div><div class="pill" onclick="showSub('settings',this)">⚙️ Settings</div><div style="margin-left:auto"><button class="btn btn-outline" onclick="loadAll(true)">🔄 Refresh</button></div></div>
+
+<div id="sub-overview">
 <div class="card">
 <div class="filters">
-<select id="fWorker"><option value="">-- All Workers --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman Ghani</option></select>
-<input type="date" id="fDate"><input id="fSearch" placeholder="Search Ref Num...">
-</div>
-<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-<button class="btn" style="background:#fff;color:#0a3d2e;border:1px solid #0a3d2e;width:auto" onclick="loadAdmin(true)">Reset Filters</button>
-<button class="btn btn-yellow" style="width:auto" onclick="exportFiltered()">⬇️ Download ZIP (Filtered)</button>
-<button class="btn btn-green" style="width:auto;background:#d46a00" onclick="exportAll1500()">🔥 Export ALL 1500+ in 1 Click (NEW)</button>
-</div>
-<div class="progress" id="progBox"><div id="progBar"></div></div><div id="progText" style="text-align:center;font-weight:bold;display:none"></div>
-<div id="selectedBar"><span id="selCount">0 Selected</span><div style="display:flex;gap:6px"><button class="btn" style="width:auto;background:#0d6efd;padding:8px 12px" onclick="downloadSelected()">Download Selected ZIP</button><button class="btn" style="width:auto;background:#dc3545;padding:8px 12px" onclick="deleteSelected()">Delete Selected</button></div></div>
-<div class="stats" style="margin-top:10px">
-<div class="stat s1"><small>Total Bills Distributed</small><h2 id="totalB">0</h2><small>Distributed</small></div>
-<div class="stat s2"><small>Active Workers</small><h2 id="activeW">0</h2><small>Active</small></div>
-<div class="stat s2"><small>Top Worker Bills</small><h2 id="topB" style="color:#d46a00">0</h2><small>Highest</small></div>
+<div><div class="lbl">Worker</div><select id="fWorker"><option value="">-- All Workers --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman Ghani</option></select></div>
+<div><div class="lbl">Date</div><input type="date" id="fDate"></div>
+<div><div class="lbl">Search Reference</div><input id="fSearch" placeholder="Search Ref Num..."></div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<button class="btn btn-outline" onclick="loadAll(true)">↻ Reset Filters</button>
+<button class="btn btn-dark" onclick="exportFiltered()">⬇️ Download ZIP (<span id="zipCount">0</span>)</button>
+<button class="btn btn-orange" onclick="export1500()">📦 Export ALL 1500+ in 1 Click (NEW)</button>
 </div>
 </div>
-<div class="card"><b>Worker Activity Summary - All 10 Workers Together</b><div id="workerSummary"></div></div>
-<div class="card"><div style="display:flex;justify-content:space-between"><b id="galleryTitle">Photo Gallery - Select All Visible | Delete Selected (0) | Date: --</b><span>📷 <span id="gCount">0</span> bills</span></div><div class="grid" id="gallery"></div></div>
+<div id="prog" style="display:none;margin-top:8px"><div style="background:#ddd;border-radius:10px;height:14px;overflow:hidden"><div id="progBar" style="height:100%;width:0%;background:#0a3d2e"></div></div><div id="progTxt" style="text-align:center;font-weight:bold;font-size:12px"></div></div>
+</div>
+
+<div id="selBar"><span id="selTxt">0 Selected</span><div><button class="btn btn-dark" onclick="downSel()">Download Selected ZIP</button> <button class="btn" style="background:#dc3545;color:#fff" onclick="delSel()">Delete Selected</button></div></div>
+
+<div class="stats"><div class="st st1"><small>Total Bills Distributed</small><h2 id="tB">0</h2><small>Distributed</small></div><div class="st st2"><small>Active Workers</small><h2 id="aW">0</h2><small>Active</small></div><div class="st st3"><small>Top Worker Bills</small><h2 id="topB">0</h2><small>Highest</small></div></div>
+
+<div class="card"><b>Worker Activity Summary - All 10 Workers Together</b><div id="wList"></div></div>
+</div>
+
+<div id="sub-gallery" style="display:none"><div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><b id="gTitle">Photo Gallery - Select All Visible | Delete Selected (0) | Date: --</b><span>📷 <span id="gCount">0</span> bills</span></div><div style="margin:8px 0"><input type="checkbox" id="checkAll" onchange="checkAll(this)"> <label for="checkAll"><b>Select All Visible</b></label></div><div class="grid" id="gallery"></div></div></div>
+<div id="sub-settings" style="display:none"><div class="card">Settings - Worker PIN / Admin PIN yahan add kar sakte hain</div></div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit, startAfter, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-// PASTE YOUR CONFIG HERE
-const firebaseConfig = { apiKey: "YOUR_KEY", authDomain: "YOUR_DOMAIN", projectId: "YOUR_PROJECT", storageBucket: "YOUR_BUCKET", messagingSenderId: "YOUR_ID", appId: "YOUR_APP" };
-const COLLECTION = "billings";
-const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,addDoc,getDocs,query,where,orderBy,limit,startAfter,deleteDoc,doc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// 👇 APNA CONFIG YAHAN PASTE KAREIN (purani file se)
+const firebaseConfig={apiKey:"PASTE",authDomain:"PASTE",projectId:"PASTE",storageBucket:"PASTE",messagingSenderId:"PASTE",appId:"PASTE"};
+const COLLECTION="billings";
+const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 
-let currentGPS = null; let lastVisible=null; let allDocs=[]; let selected=new Map();
+let curGPS=null,lastDoc=null,all=[],sel=new Map(),stamped="";
 
-window.openTab = function(t){ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active')); document.getElementById(t).classList.add('active'); event.target.classList.add('active'); if(t==='admin') loadAdmin(true); }
+window.switchTab=function(t){document.querySelectorAll('.t').forEach(x=>x.classList.remove('active'));document.getElementById('tab-w').style.display=t==='w'?'block':'none';document.getElementById('tab-a').style.display=t==='a'?'block':'none';event.target.classList.add('active');if(t==='a')loadAll(true)}
+window.showSub=function(id,el){document.querySelectorAll('[id^=sub-]').forEach(x=>x.style.display='none');document.getElementById('sub-'+id).style.display='block';document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
 
-window.refreshGPS = function(){
- document.getElementById('gpsStatus').innerText="Searching..."; document.getElementById('gpsText').innerText="High-accuracy location le rahe hain...";
- navigator.geolocation.getCurrentPosition(async pos=>{
-   const lat=pos.coords.latitude.toFixed(6); const lng=pos.coords.longitude.toFixed(6); const acc=Math.round(pos.coords.accuracy);
-   let address="Toba Tek Singh, Punjab"; let fullAddress=`Chak / Street, Tehsil Toba Tek Singh, District Toba Tek Singh, Punjab, Pakistan`;
-   try{ const res=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&zoom=18`); const j=await res.json(); if(j.display_name){ fullAddress=j.display_name; address=j.address.village||j.address.town||j.address.city||"Toba Tek Singh"; } }catch(e){}
-   currentGPS={ lat, lng, acc, address, fullAddress, time:new Date().toLocaleString('en-PK',{hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'long',year:'numeric',weekday:'long'}) };
-   document.getElementById('gpsStatus').innerText= acc<20? "Locked" : "Low ("+acc+"m)";
-   document.getElementById('gpsText').innerHTML=`<b>${address}, Toba Tek Singh, Punjab</b><br>${fullAddress}<br><b style="color:#1aff8a">Lat ${lat}° Long ${lng}°</b><br>${currentGPS.time} • Accuracy ${acc}m`;
+window.getGPS=function(){
+ document.getElementById('gpsStat').innerText="Searching...";
+ navigator.geolocation.getCurrentPosition(async p=>{
+  let lat=p.coords.latitude.toFixed(6),lng=p.coords.longitude.toFixed(6),acc=Math.round(p.coords.accuracy);
+  let full=`Tehsil Toba Tek Singh, District Toba Tek Singh, Punjab, Pakistan`,short=`Toba Tek Singh, Punjab`;
+  try{let r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.coords.latitude}&lon=${p.coords.longitude}&zoom=18`);let j=await r.json();if(j.display_name){full=j.display_name;short=j.address.village||j.address.town||j.address.suburb||short}}catch(e){}
+  curGPS={lat,lng,acc,short,full,time:new Date().toLocaleString('en-PK',{hour:'2-digit',minute:'2-digit',second:'2-digit',day:'2-digit',month:'long',year:'numeric',weekday:'long'})};
+  document.getElementById('gpsStat').innerText=acc<25?"Locked":"Low "+acc+"m";
+  document.getElementById('gpsTxt').innerHTML=`${short}<br>${full}<br><b style="color:#00ff88">Lat ${lat}° Long ${lng}°</b><br>${curGPS.time} • ${acc}m`;
  },{},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
 }
-refreshGPS();
+getGPS();
 
-// Photo stamp
-let stampedBase64="";
-document.getElementById('photoInput').addEventListener('change', async e=>{
- const file=e.target.files[0]; if(!file ||!currentGPS) return alert("Pehle GPS Locked hone dein");
- const img=new Image(); img.src=URL.createObjectURL(file); await img.decode();
- const canvas=document.createElement('canvas'); canvas.width=img.width; canvas.height=img.height; const ctx=canvas.getContext('2d');
- ctx.drawImage(img,0,0);
- const h= Math.round(canvas.height*0.22); ctx.fillStyle="rgba(0,0,0,0.75)"; ctx.fillRect(0,canvas.height-h,canvas.width,h);
- ctx.fillStyle="#fff"; ctx.font=`${Math.round(canvas.width*0.025)}px Arial`;
- ctx.fillText(`${currentGPS.time}`,20,canvas.height-h+30);
- ctx.fillText(`${currentGPS.address}`,20,canvas.height-h+60);
- ctx.fillText(`${currentGPS.fullAddress.slice(0,90)}`,20,canvas.height-h+85);
- ctx.fillStyle="#1affff"; ctx.fillText(`Lat ${currentGPS.lat}° Long ${currentGPS.lng}° | ${document.getElementById('workerName').value||'Worker'} | Ref ${document.getElementById('refNo').value||''}`,20,canvas.height-h+110);
- stampedBase64=canvas.toDataURL('image/jpeg',0.7);
+document.getElementById('photo').addEventListener('change',async e=>{
+ if(!curGPS) return alert("GPS Locked hone dein");
+ let file=e.target.files[0];let img=new Image();img.src=URL.createObjectURL(file);await img.decode();
+ let c=document.createElement('canvas');c.width=img.width;c.height=img.height;let ctx=c.getContext('2d');
+ ctx.drawImage(img,0,0);let h=Math.round(c.height*0.24);ctx.fillStyle="rgba(0,0,0,0.75)";ctx.fillRect(0,c.height-h,c.width,h);
+ ctx.fillStyle="#fff";ctx.font=`${Math.round(c.width*0.028)}px Arial`;
+ ctx.fillText(`${curGPS.time}`,20,c.height-h+35);
+ ctx.fillText(`${curGPS.short}`,20,c.height-h+65);
+ ctx.fillText(`${curGPS.full.slice(0,95)}`,20,c.height-h+90);
+ ctx.fillStyle="#00ffff";ctx.fillText(`Lat ${curGPS.lat} Long ${curGPS.lng} | ${document.getElementById('wName').value} | Ref ${document.getElementById('refNo').value}`,20,c.height-h+115);
+ stamped=c.toDataURL('image/jpeg',0.75);
 });
 
-window.submitData=async function(){
- const worker=document.getElementById('workerName').value; const ref=document.getElementById('refNo').value;
- if(!worker||!ref||!stampedBase64||!currentGPS) return alert("Name, Ref No, GPS Locked aur Photo zaroori hai");
- await addDoc(collection(db,COLLECTION),{ workerName:worker, refNo:ref, worker, ref:ref.split(' ')[0]||ref, imageBase64:stampedBase64, latitude:parseFloat(currentGPS.lat), longitude:parseFloat(currentGPS.lng), accuracy:currentGPS.acc, address_short:currentGPS.address, address_full:currentGPS.fullAddress, time:currentGPS.time, date:new Date().toISOString().slice(0,10), timestamp:serverTimestamp() });
- alert("Submitted!"); document.getElementById('refNo').value=""; document.getElementById('photoInput').value=""; stampedBase64="";
+window.submitBill=async function(){
+ let w=document.getElementById('wName').value,r=document.getElementById('refNo').value;
+ if(!w||!r||!stamped||!curGPS) return alert("Name, Ref, GPS, Photo zaroori");
+ await addDoc(collection(db,COLLECTION),{workerName:w,refNo:r,worker:w,ref:r,imageBase64:stamped,latitude:parseFloat(curGPS.lat),longitude:parseFloat(curGPS.lng),address_short:curGPS.short,address_full:curGPS.full,time:curGPS.time,date:new Date().toISOString().slice(0,10),timestamp:serverTimestamp()});
+ alert("Done!");document.getElementById('refNo').value="";document.getElementById('photo').value="";stamped="";
 }
 
-// ADMIN
-window.loadAdmin=async function(reset=true){
- if(reset){ document.getElementById('gallery').innerHTML=""; allDocs=[]; lastVisible=null; }
- const w=document.getElementById('fWorker').value; const d=document.getElementById('fDate').value;
+window.loadAll=async function(reset=true){
+ if(reset){document.getElementById('gallery').innerHTML="";all=[];lastDoc=null}
+ let w=document.getElementById('fWorker').value,d=document.getElementById('fDate').value;
  let q;
- if(w) q=query(collection(db,COLLECTION), where("workerName","==",w), orderBy("timestamp","desc"), limit(100));
- else if(d) q=query(collection(db,COLLECTION), where("date","==",d), orderBy("timestamp","desc"), limit(100));
- else { if(lastVisible) q=query(collection(db,COLLECTION), orderBy("timestamp","desc"), startAfter(lastVisible), limit(100)); else q=query(collection(db,COLLECTION), orderBy("timestamp","desc"), limit(100)); }
- const snap=await getDocs(q); if(snap.docs.length>0) lastVisible=snap.docs[snap.docs.length-1];
- snap.forEach(docSnap=>{ const data={id:docSnap.id,...docSnap.data()}; allDocs.push(data); renderCard(data); });
- updateStats();
+ if(w) q=query(collection(db,COLLECTION),where("workerName","==",w),orderBy("timestamp","desc"),limit(100));
+ else if(d) q=query(collection(db,COLLECTION),where("date","==",d),orderBy("timestamp","desc"),limit(100));
+ else {q=query(collection(db,COLLECTION),orderBy("timestamp","desc"),limit(100),...(lastDoc?[startAfter(lastDoc)]:[]))}
+ let snap=await getDocs(q);if(snap.docs.length>0)lastDoc=snap.docs[snap.docs.length-1];
+ snap.forEach(s=>{let data={id:s.id,...s.data()};all.push(data);render(data)});
+ upd();
 }
-
-function renderCard(data){
- const g=document.getElementById('gallery');
- const div=document.createElement('div'); div.className='bill';
- div.innerHTML=`<input type="checkbox" onchange="toggleSel('${data.id}',this.checked)"><img src="${data.imageBase64||data.imageUrl||''}" loading="lazy"><div style="padding:6px;font-size:11px"><b>Ref ${data.refNo||''}</b><br>👤 ${data.workerName||''}<br>📍 ${data.address_short||''}<br><small>Lat ${data.latitude||''} Long ${data.longitude||''}</small></div>`;
+function render(d){
+ let g=document.getElementById('gallery');let div=document.createElement('div');div.className='b';
+ div.innerHTML=`<input type="checkbox" onchange="toggle('${d.id}',this.checked)"><img src="${d.imageBase64||''}"><div style="padding:6px;font-size:11px"><b>Ref ${d.refNo||''}</b><br>👤 ${d.workerName||''}<br>📍 ${d.address_short||''}<br><small>Lat ${d.latitude} Long ${d.longitude}</small></div>`;
  g.appendChild(div);
 }
-window.toggleSel=function(id,chk){ const d=allDocs.find(x=>x.id===id); if(chk) selected.set(id,d); else selected.delete(id); document.getElementById('selectedBar').style.display=selected.size>0?'flex':'none'; document.getElementById('selCount').innerText=selected.size+" Selected"; }
-
-window.exportAll1500=async function(){
- const box=document.getElementById('progBox'); const bar=document.getElementById('progBar'); const txt=document.getElementById('progText');
- box.style.display='block'; txt.style.display='block'; txt.innerText="1500+ photos fetch ho rahi hain...";
- let all=[]; let last=null;
- while(true){
-   const q=query(collection(db,COLLECTION), orderBy("timestamp","desc"), limit(400),...(last?[startAfter(last)]:[]));
-   const snap=await getDocs(q); if(snap.empty) break;
-   snap.forEach(d=> all.push({id:d.id,...d.data()})); if(snap.docs.length<400) break; last=snap.docs[snap.docs.length-1];
-   txt.innerText=`Fetching... ${all.length} mil gayi`; if(all.length>=2000) break;
- }
- if(all.length===0){ alert("No data"); return; }
- const zip=new JSZip();
- for(let i=0;i<all.length;i++){ let b64=all[i].imageBase64||""; if(b64.includes(',')) b64=b64.split(',')[1]; if(b64) zip.file(`${all[i].refNo||all[i].id}_Lat${all[i].latitude}_Long${all[i].longitude}.jpg`, b64,{base64:true}); bar.style.width=Math.round((i/all.length)*100)+"%"; txt.innerText=`Zipping ${i+1}/${all.length}`; if(i%80===0) await new Promise(r=>setTimeout(r,5)); }
- const blob=await zip.generateAsync({type:"blob"}); saveAs(blob,`ALL_${all.length}_Photos_${new Date().toISOString().slice(0,10)}.zip`);
- box.style.display='none'; txt.style.display='none'; alert(all.length+" Photos 1 ZIP me download!");
-}
-window.exportFiltered=async function(){ if(allDocs.length===0) return alert("Pehle load karein"); const zip=new JSZip(); allDocs.forEach(d=>{ let b64=d.imageBase64||""; if(b64.includes(',')) b64=b64.split(',')[1]; if(b64) zip.file(`${d.refNo||d.id}.jpg`, b64,{base64:true}); }); const blob=await zip.generateAsync({type:"blob"}); saveAs(blob,`Filtered_${allDocs.length}.zip`); }
-window.downloadSelected=async function(){ if(selected.size===0) return; const zip=new JSZip(); for(let [id,d] of selected){ let b64=d.imageBase64||""; if(b64.includes(',')) b64=b64.split(',')[1]; if(b64) zip.file(`${d.refNo||id}.jpg`, b64,{base64:true}); } const blob=await zip.generateAsync({type:"blob"}); saveAs(blob,`Selected_${selected.size}.zip`); }
-window.deleteSelected=async function(){ if(!confirm(selected.size+" delete?")) return; for(let id of selected.keys()){ await deleteDoc(doc(db,COLLECTION,id)); } selected.clear(); loadAdmin(true); }
-
-function updateStats(){
- document.getElementById('totalB').innerText=allDocs.length; document.getElementById('gCount').innerText=allDocs.length;
- const map={}; allDocs.forEach(d=>{ const w=d.workerName||'Unknown'; map[w]=(map[w]||0)+1; });
- document.getElementById('activeW').innerText=Object.keys(map).length;
- let max=0; Object.values(map).forEach(v=>{if(v>max) max=v;}); document.getElementById('topB').innerText=max;
- const sum=document.getElementById('workerSummary'); sum.innerHTML="";
- Object.entries(map).sort((a,b)=>b[1]-a[1]).forEach(([name,c])=>{
-   const div=document.createElement('div'); div.className='worker-item';
-   div.innerHTML=`<div style="display:flex;align-items:center"><div class="avatar">${name.charAt(0)}</div><div><b style="font-size:13px">${name}</b><br><small>distributed ${c} bills</small></div></div><div style="display:flex;align-items:center;gap:8px"><b style="color:#d46a00">${c}</b><div class="bar"><div style="width:${Math.min(100,c*2)}%"></div></div></div>`;
-   sum.appendChild(div);
+window.toggle=function(id,c){let d=all.find(x=>x.id===id);if(c)sel.set(id,d);else sel.delete(id);document.getElementById('selBar').style.display=sel.size>0?'flex':'none';document.getElementById('selTxt').innerText=sel.size+" Selected";}
+window.checkAll=function(el){document.querySelectorAll('.b input').forEach(ch=>{ch.checked=el.checked;let id=ch.getAttribute('onchange').split("'")[1];toggle(id,el.checked)})}
+window.upd=function(){
+ document.getElementById('tB').innerText=all.length;document.getElementById('zipCount').innerText=all.length;document.getElementById('gCount').innerText=all.length;document.getElementById('gTitle').innerText=`Photo Gallery - Select All Visible | Delete Selected (${sel.size}) | Date: ${document.getElementById('fDate').value||'--'}`;
+ let m={};all.forEach(x=>{let n=x.workerName||'Unknown';m[n]=(m[n]||0)+1});document.getElementById('aW').innerText=Object.keys(m).length;let max=0;Object.values(m).forEach(v=>{if(v>max)max=v});document.getElementById('topB').innerText=max;
+ let l=document.getElementById('wList');l.innerHTML="";Object.entries(m).sort((a,b)=>b[1]-a[1]).forEach(([name,cnt])=>{
+  let r=document.createElement('div');r.className='wRow';r.innerHTML=`<div style="display:flex;align-items:center"><div class="av">${name.charAt(0)}</div><div><b style="font-size:13px">${name}</b><br><small>distributed ${cnt} bills</small></div></div><div style="display:flex;align-items:center;gap:8px"><b style="color:#d46a00">${cnt}</b><div class="bar"><div style="width:${Math.min(100,cnt*3)}%"></div></div></div>`;l.appendChild(r);
  });
 }
+window.export1500=async function(){
+ let prog=document.getElementById('prog'),bar=document.getElementById('progBar'),txt=document.getElementById('progTxt');
+ prog.style.display='block';txt.innerText="1500+ fetch ho rahi...";let allF=[],last=null;
+ while(true){let q=query(collection(db,COLLECTION),orderBy("timestamp","desc"),limit(400),...(last?[startAfter(last)]:[]));let snap=await getDocs(q);if(snap.empty)break;snap.forEach(d=>allF.push({id:d.id,...d.data()}));if(snap.docs.length<400)break;last=snap.docs[snap.docs.length-1];txt.innerText=`Fetching ${allF.length}...`;if(allF.length>=2000)break;}
+ if(allF.length===0)return alert("No data");let zip=new JSZip();
+ for(let i=0;i<allF.length;i++){let b=allF[i].imageBase64||"";if(b.includes(','))b=b.split(',')[1];if(b)zip.file(`${allF[i].refNo||allF[i].id}_Lat${allF[i].latitude}.jpg`,b,{base64:true});bar.style.width=Math.round((i/allF.length)*100)+"%";txt.innerText=`Zipping ${i+1}/${allF.length}`;if(i%80===0)await new Promise(r=>setTimeout(r,5))}
+ let blob=await zip.generateAsync({type:"blob"});saveAs(blob,`ALL_${allF.length}_1500PLUS_${new Date().toISOString().slice(0,10)}.zip`);prog.style.display='none';alert(allF.length+" Photos 1 ZIP me!");
+}
+window.exportFiltered=async function(){if(all.length===0)return alert("Pehle load karein");let zip=new JSZip();all.forEach(d=>{let b=d.imageBase64||"";if(b.includes(','))b=b.split(',')[1];if(b)zip.file(`${d.refNo||d.id}.jpg`,b,{base64:true})});let blob=await zip.generateAsync({type:"blob"});saveAs(blob,`Filtered_${all.length}.zip`)}
+window.downSel=async function(){if(sel.size===0)return;let zip=new JSZip();for(let [id,d] of sel){let b=d.imageBase64||"";if(b.includes(','))b=b.split(',')[1];if(b)zip.file(`${d.refNo||id}.jpg`,b,{base64:true})}let blob=await zip.generateAsync({type:"blob"});saveAs(blob,`Selected_${sel.size}.zip`)}
+window.delSel=async function(){if(!confirm(sel.size+" delete?"))return;for(let id of sel.keys()){await deleteDoc(doc(db,COLLECTION,id))}sel.clear();loadAll(true)}
+loadAll(true);
 </script>
 </body>
 </html>

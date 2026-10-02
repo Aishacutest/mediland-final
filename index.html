@@ -1,13 +1,15 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BILLS DISTRIBUTION - MEDILAND</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>BILLS DISTRIBUTION - MEDILAND - FIXED</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/open-location-code@1.0.3/openlocationcode.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, setDoc, getDoc, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 const firebaseConfig = { apiKey: "AIzaSyCeZZ3EUkuKC0tfVdGatyIyxFfNo2ktZW4", authDomain: "mediland-app.firebaseapp.com", projectId: "mediland-app", storageBucket: "mediland-app.firebasestorage.app", messagingSenderId: "401966804808", appId: "1:401966804808:web:c866b3750e826bbf3fcd7d" };
 const app = initializeApp(firebaseConfig);
 window.db = getFirestore(app);
-window.fb = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, setDoc, getDoc };
+window.storage = getStorage(app);
+window.fb = { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, setDoc, getDoc, limit, startAfter, ref, uploadString, getDownloadURL, deleteObject };
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
 <style>
@@ -18,8 +20,6 @@ window.dispatchEvent(new Event('firebase-ready'));
 .tabs{display:flex;position:sticky;top:0;z-index:20;background:#fff;border-bottom:3px solid #0a3d2a}.tabs button{flex:1;padding:14px;border:none;background:#f1f5f1;font-weight:900;cursor:pointer}.tabs button.active{background:#fff;color:#0a3d2a;border-bottom:3px solid #0a3d2a}
 .card{background:#fff;border-radius:14px;padding:14px;margin:10px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .label{font-size:13px;font-weight:800;color:#0a3d2a;margin:10px 0 5px;display:block}.input,.select{width:100%;padding:12px;border:1.5px solid #cbd5cb;border-radius:10px;font-size:14px}
-.input:disabled{background:#e9ecef;color:#777;cursor:not-allowed;border-color:#ddd}
-.select:disabled{background:#e9ecef;color:#777;cursor:not-allowed}
 .gps{padding:12px;background:#e0f8d8;border:2px solid #16a34a;border-radius:12px;font-weight:700;font-size:11px;min-height:110px;white-space:pre-line;line-height:1.4}
 .btn{padding:12px;border:none;border-radius:10px;font-weight:800;cursor:pointer}.btn-g{background:#0a3d2a;color:#fff;width:100%;margin-top:10px;font-size:16px}.btn-y{background:#ffeb3b;color:#000;width:100%;margin-top:8px}
 .page{display:none}.page.active{display:block}
@@ -59,7 +59,7 @@ window.dispatchEvent(new Event('firebase-ready'));
 .ref-error{background:#ffe0e0;border:1.5px solid #ff6b6b;color:#c0392b;padding:8px;border-radius:8px;font-size:12px;font-weight:700;margin-top:6px;display:none}
 .ref-ok{background:#e0f8d8;border:1.5px solid #16a34a;color:#0a5c36;padding:8px;border-radius:8px;font-size:12px;font-weight:700;margin-top:6px;display:none}
 </style></head><body>
-<div class="header"><div class="logo"><img src="suthra-logo.jpg"></div><div class="center"><h1>BILLS DISTRIBUTION</h1><h2>MEDILAND PRIVATE LIMITED</h2></div><div class="logo"><img src="mediland-logo.jpg"></div></div>
+<div class="header"><div class="logo"><img src="suthra-logo.jpg"></div><div class="center"><h1>BILLS DISTRIBUTION</h1><h2>MEDILAND PRIVATE LIMITED - 1000+ FIXED</h2></div><div class="logo"><img src="mediland-logo.jpg"></div></div>
 <div class="tabs"><button id="tW" class="active" onclick="go('worker')">Worker Panel</button><button id="tA" onclick="go('admin')">Admin Panel</button></div>
 <div id="workerPage" class="page active"><div class="card">
 <label class="label">1. Select Distributor Name *</label><select id="dist" class="select" onchange="loadMyData()"><option value="">-- Select --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select>
@@ -71,11 +71,11 @@ window.dispatchEvent(new Event('firebase-ready'));
 <div class="card" style="background:#fff7ed;border:2px solid #f59e0b"><h3>🔐 Worker / Admin PIN Settings</h3><div style="display:flex;gap:6px;margin-top:8px"><input id="newWPin" class="input" placeholder="New Worker PIN" style="flex:1"><button class="btn" style="background:#0a3d2a;color:#fff;width:auto" onclick="updateWPIN()">Save Worker PIN</button></div><div style="display:flex;gap:6px;margin-top:8px"><input id="newAPin" class="input" placeholder="New Admin PIN" style="flex:1"><button class="btn" style="background:#b45309;color:#fff;width:auto" onclick="updateAPIN()">Save Admin PIN</button></div><div id="pinMsg" style="text-align:center;font-weight:700;margin-top:8px;color:green"></div></div>
 <div class="statsRow"><div class="statGreen"><div class="statNum" id="statTotal">0</div><div class="statLbl" style="color:#c9e8d8">Total Bills Distributed</div></div><div class="statWhite"><div class="statNum" id="statActive">0</div><div class="statLbl">Active Workers</div></div><div class="statWhite"><div class="statNum" id="statTop" style="color:#f59e0b">0</div><div class="statLbl">Top Worker Bills</div></div></div>
 <div class="workerSum"><h4>Worker Activity Summary</h4><div id="workerSummaryList">Loading...</div></div>
-<div class="backupBox"><div style="font-weight:900;color:#1a73e8;font-size:13px;margin-bottom:10px">📦 Save / Export Backup ZIP:</div><button class="btn" style="background:#16a34a;color:#fff;width:100%;padding:14px" onclick="exportAll()">📥 Export ALL Database Photos (ZIP)</button><div style="border-top:1px solid #cfe2ff;margin:14px 0"></div><div style="font-weight:800;font-size:12px;margin-bottom:8px">Export specific Worker or Date ZIP:</div><select id="expWorker" class="select" style="margin-bottom:8px"><option value="">-- All Workers --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select><div style="display:flex;gap:8px"><input type="date" id="expDate" class="input" style="flex:1"><button class="btn" style="background:#0e8ea8;color:#fff;flex:1" onclick="exportSpecific()">📥 Save ZIP</button></div></div>
+<div class="backupBox"><div style="font-weight:900;color:#1a73e8;font-size:13px;margin-bottom:10px">📦 Save / Export Backup ZIP (1000 Pics):</div><button class="btn" style="background:#16a34a;color:#fff;width:100%;padding:14px" onclick="exportAll()">📥 Export ALL Database Photos (ZIP)</button><div style="border-top:1px solid #cfe2ff;margin:14px 0"></div><div style="font-weight:800;font-size:12px;margin-bottom:8px">Export specific Worker or Date ZIP:</div><select id="expWorker" class="select" style="margin-bottom:8px"><option value="">-- All Workers --</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select><div style="display:flex;gap:8px"><input type="date" id="expDate" class="input" style="flex:1"><button class="btn" style="background:#0e8ea8;color:#fff;flex:1" onclick="exportSpecific()">📥 Save ZIP</button></div></div>
 <div class="delBox"><div style="font-weight:900;color:#c0392b;font-size:13px;margin-bottom:10px">🗑️ Delete All Photos / Data of Specific Date:</div><div style="display:flex;gap:8px"><input type="date" id="delDate" class="input" style="flex:1"><button class="btn" style="background:#d93d3d;color:#fff;flex:1" onclick="deleteByDate()">🗑️ Delete Date Photos</button></div></div>
 <div class="card" style="background:#eef2f7;display:flex;justify-content:space-between;align-items:center"><label style="font-weight:800;font-size:13px"><input type="checkbox" id="selAll" onchange="toggleSelectAll(this)"> Select All Visible</label><button class="btn" style="background:#c0392b;color:#fff;width:auto;padding:10px 18px" onclick="deleteSelected()">🗑️ Delete Selected</button></div>
 <div class="card"><h4>📅 Filter Bills</h4><div style="display:flex;gap:6px;margin-top:8px"><select id="fDist" class="select" style="flex:1" onchange="loadAdmin()"><option value="">All 10 Workers</option><option>Mr Hanan</option><option>Mr Zubair</option><option>Ms Anila</option><option>Mr Waris ali</option><option>Mr Faraz Ahmed</option><option>Mr Samiullah</option><option>Mr Zahid</option><option>Mr Faizan Javed</option><option>Mr hussnain</option><option>Usman ghani</option></select><input id="fRef" class="input" style="flex:1" placeholder="Search Ref" oninput="loadAdmin()"></div><div style="display:flex;gap:8px;margin-top:8px"><input type="date" id="fDate" class="input" style="flex:1" onchange="loadAdmin()"><button class="btn" style="background:#eee;flex:1" onclick="document.getElementById('fDate').value='';loadAdmin()">Clear</button></div></div>
-<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h4>Gallery - All Bills Photos</h4><span id="galCount" style="background:#e0f2f1;padding:4px 10px;border-radius:20px;font-size:11px">0 photos</span></div><div id="gal" class="gallery" style="margin-top:14px"></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h4>Gallery - All Bills Photos <span style="font-size:10px;color:#888" id="loadInfo"></span></h4><span id="galCount" style="background:#e0f2f1;padding:4px 10px;border-radius:20px;font-size:11px">0 photos</span></div><div id="gal" class="gallery" style="margin-top:14px"></div><button class="btn" id="loadMoreBtn" style="background:#0a3d2a;color:#fff;width:100%;margin-top:12px;display:none" onclick="loadAdmin(true)">Load More 100 - Next 100 Pics Dekhen</button></div>
 <div class="card" style="background:#e7f1ff"><button class="btn btn-g" style="background:#0d6efd" onclick="exportCSV()">Download CSV Report</button></div>
 </div>
 <div id="wPin" class="pin"><div class="pin-box"><h3>Worker Panel Locked</h3><input id="wPinIn" type="password" placeholder="Worker PIN 1111"><button class="btn btn-g" onclick="checkW()">Unlock</button></div></div>
@@ -94,185 +94,34 @@ window.dispatchEvent(new Event('firebase-ready'));
 let WPIN=localStorage.getItem('wpin')||"1111",APIN=localStorage.getItem('apin')||"381381";
 let lat=null,lon=null,fullAddr="",plusCode="",curImg=null,wUnlock=false,aUnlock=false,fbReady=false,editId=null,editRole="admin";
 let lastDetails={timeStr:"",dateStr:"",dayName:"",cityLine:"",plusLine:"",latLong:""};
-let allCache=[];
+let allCache=[],lastVisible=null;
 window.addEventListener('firebase-ready',async()=>{fbReady=true;try{let d=await fb.getDoc(fb.doc(window.db,"settings","pins"));if(d.exists()){WPIN=d.data().wPin||WPIN;APIN=d.data().aPin||APIN;}}catch(e){} loadAdmin();});
 function go(p){if(p==='worker'){document.getElementById('workerPage').classList.add('active');document.getElementById('adminPage').classList.remove('active');document.getElementById('tW').classList.add('active');document.getElementById('tA').classList.remove('active');document.getElementById('aPin').style.display='none';if(!wUnlock){document.getElementById('wPin').style.display='flex';}}else{document.getElementById('adminPage').classList.add('active');document.getElementById('workerPage').classList.remove('active');document.getElementById('tA').classList.add('active');document.getElementById('tW').classList.remove('active');document.getElementById('wPin').style.display='none';if(!aUnlock){document.getElementById('aPin').style.display='flex';}else{loadAdmin();}}}
 function checkW(){if(document.getElementById('wPinIn').value===WPIN){wUnlock=true;document.getElementById('wPin').style.display='none';setTimeout(getGPS,300);loadMyData();}else alert('Wrong PIN');}
 function checkA(){if(document.getElementById('aPinIn').value===APIN){aUnlock=true;document.getElementById('aPin').style.display='none';loadAdmin();}else alert('Wrong PIN');}
 async function updateWPIN(){let v=document.getElementById('newWPin').value.trim();if(!v)return;WPIN=v;localStorage.setItem('wpin',v);document.getElementById('pinMsg').innerText='Worker PIN Updated!';try{await fb.setDoc(fb.doc(window.db,"settings","pins"),{wPin:WPIN,aPin:APIN},{merge:true});}catch(e){}}
 async function updateAPIN(){let v=document.getElementById('newAPin').value.trim();if(!v)return;APIN=v;localStorage.setItem('apin',v);document.getElementById('pinMsg').innerText='Admin PIN Updated!';try{await fb.setDoc(fb.doc(window.db,"settings","pins"),{wPin:WPIN,aPin:APIN},{merge:true});}catch(e){}}
-async function getGPS(){
- let b=document.getElementById('gpsTxt');b.innerHTML="⏳ HIGH ACCURACY GPS locking...";
- navigator.geolocation.getCurrentPosition(async p=>{
-  lat=p.coords.latitude;lon=p.coords.longitude;let acc=Math.round(p.coords.accuracy);
-  try{
-   try{ plusCode = OpenLocationCode.encode(lat, lon, 10); }catch(e){ plusCode=""; }
-   let r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1`);
-   let d=await r.json();let a=d.address||{};let city=a.city||a.town||a.county||"Toba Tek Singh";let state=a.state||"Punjab";let country=a.country||"Pakistan";let display=d.display_name||"";
-   let now=new Date();let dayName=now.toLocaleDateString('en-US',{weekday:'long'});let dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});let timeStr=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
-   lastDetails={timeStr:timeStr,dateStr:dateStr,dayName:dayName,cityLine:`${city}, ${state}, ${country}`,plusLine:`${display}`.substring(0,220),latLong:`Lat ${lat.toFixed(5)}° Long ${lon.toFixed(5)}° ±${acc}m`};
-   fullAddr=`${timeStr} | ${dateStr}\n${dayName}\n${lastDetails.cityLine}\n${lastDetails.plusLine}\n${lastDetails.latLong}`;
-   b.innerHTML=`✅ ±${acc}m:\n${timeStr} | ${dateStr}\n${city}\n${plusCode}\nLat ${lat.toFixed(5)}° Long ${lon.toFixed(5)}°`;
-  }catch(e){ fullAddr=`Lat ${lat.toFixed(5)} Long ${lon.toFixed(5)}`; b.innerHTML=`✅ GPS Locked`; lastDetails={timeStr:new Date().toLocaleTimeString(),dateStr:new Date().toLocaleDateString(),dayName:new Date().toLocaleDateString('en-US',{weekday:'long'}),cityLine:"Toba Tek Singh, Punjab, Pakistan",plusLine:"",latLong:`Lat ${lat.toFixed(5)}° Long ${lon.toFixed(5)}°`} }
-  document.getElementById('addr').value=fullAddr;
- },err=>{b.innerHTML="❌ Location OFF";},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
-}
+async function getGPS(){let b=document.getElementById('gpsTxt');b.innerHTML="⏳ HIGH ACCURACY GPS locking...";navigator.geolocation.getCurrentPosition(async p=>{lat=p.coords.latitude;lon=p.coords.longitude;let acc=Math.round(p.coords.accuracy);try{try{ plusCode = OpenLocationCode.encode(lat, lon, 10); }catch(e){ plusCode=""; }let r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1`);let d=await r.json();let a=d.address||{};let city=a.city||a.town||a.county||"Toba Tek Singh";let state=a.state||"Punjab";let country=a.country||"Pakistan";let display=d.display_name||"";let now=new Date();let dayName=now.toLocaleDateString('en-US',{weekday:'long'});let dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});let timeStr=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});lastDetails={timeStr:timeStr,dateStr:dateStr,dayName:dayName,cityLine:`${city}, ${state}, ${country}`,plusLine:`${display}`.substring(0,220),latLong:`Lat ${lat.toFixed(5)}° Long ${lon.toFixed(5)}° ±${acc}m`};fullAddr=`${timeStr} | ${dateStr}\n${dayName}\n${lastDetails.cityLine}\n${lastDetails.plusLine}\n${lastDetails.latLong}`;b.innerHTML=`✅ ±${acc}m:\n${timeStr} | ${dateStr}\n${city}\n${plusCode}\nLat ${lat.toFixed(5)}° Long ${lon.toFixed(5)}°`;}catch(e){ fullAddr=`Lat ${lat.toFixed(5)} Long ${lon.toFixed(5)}`; b.innerHTML=`✅ GPS Locked`; lastDetails={timeStr:new Date().toLocaleTimeString(),dateStr:new Date().toLocaleDateString(),dayName:new Date().toLocaleDateString('en-US',{weekday:'long'}),cityLine:"Toba Tek Singh, Punjab, Pakistan",plusLine:"",latLong:`Lat ${lat.toFixed(5)}° Long ${lon.toFixed(5)}°`} }document.getElementById('addr').value=fullAddr;},err=>{b.innerHTML="❌ Location OFF";},{enableHighAccuracy:true,timeout:15000,maximumAge:0});}
 document.getElementById('photoFile').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=ev=>{curImg=new Image();curImg.onload=()=>{document.getElementById('prev').src=ev.target.result;document.getElementById('prev').style.display='block';};curImg.src=ev.target.result;};r.readAsDataURL(f);});
-function wrapText(ctx, text, x, y, maxWidth, lineHeight){
- let words=text.split(' ');let line='';let lines=0;
- for(let n=0;n<words.length;n++){let testLine=line+words[n]+' ';let metrics=ctx.measureText(testLine);let testWidth=metrics.width;if(testWidth>maxWidth && n>0){ctx.fillText(line,x,y);line=words[n]+' ';y+=lineHeight;lines++;if(lines>=2) break;}else{line=testLine;}}
- ctx.fillText(line,x,y);return y+lineHeight;
-}
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){let words=text.split(' ');let line='';let lines=0;for(let n=0;n<words.length;n++){let testLine=line+words[n]+' ';let metrics=ctx.measureText(testLine);let testWidth=metrics.width;if(testWidth>maxWidth && n>0){ctx.fillText(line,x,y);line=words[n]+' ';y+=lineHeight;lines++;if(lines>=2) break;}else{line=testLine;}}ctx.fillText(line,x,y);return y+lineHeight;}
 function normalizeRef(ref){ return ref.toString().trim().toLowerCase().replace(/\s+/g,'').replace(/[^a-z0-9]/g,''); }
-function checkDuplicateLive(val){
- let errBox=document.getElementById('refError'); let okBox=document.getElementById('refOk');
- if(!val.trim()){ errBox.style.display='none'; okBox.style.display='none'; return false; }
- let norm=normalizeRef(val);
- let exists=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm);
- if(exists){
-   errBox.innerHTML=`❌ Ye Reference pehle hi enter ho chuka hai! (${exists.workerName||exists.name} ne ${exists.refNumber} enter kiya tha)`;
-   errBox.style.display='block'; okBox.style.display='none'; return true;
- } else { errBox.style.display='none'; okBox.style.display='block'; return false; }
-}
-function checkDuplicateLiveEdit(val){
- let errBox=document.getElementById('editRefError');
- if(!val.trim()){ errBox.style.display='none'; return false; }
- let norm=normalizeRef(val);
- let exists=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm && x.id!== editId);
- if(exists){
-   errBox.innerHTML=`❌ Ye Reference pehle hi mojood hai! (${exists.workerName} ne enter kiya hua hai)`;
-   errBox.style.display='block'; return true;
- } else { errBox.style.display='none'; return false; }
-}
-async function saveData(){
- let d=document.getElementById('dist').value,ref=document.getElementById('ref').value.trim();
- if(!d)return alert('Select Name');if(!ref)return alert('REF likhen');if(!lat){getGPS();return alert('Wait GPS');}if(!curImg)return alert('Photo');if(!fbReady)return alert('Loading...');
- let norm=normalizeRef(ref);
- let dup=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm);
- if(dup){ alert(`❌ Same REF Error!\nYe "${ref}" pehle hi ${dup.workerName||dup.name} ne enter kiya hua hai`); return; }
- let now=new Date();let rec={workerName:d,refNumber:ref,ref:ref,name:d,address:fullAddr,addr:fullAddr,lat:lat,lng:lon,plusCode:plusCode,date:now.toISOString().slice(0,10),formattedDate:now.toLocaleDateString(),time:now.toLocaleTimeString(),formattedTime:now.toLocaleTimeString(),timestamp:now.toISOString(),timestampNum:Date.now()};
- let cv=document.getElementById('can'),ctx=cv.getContext('2d');let MAX_W=800;let sc=curImg.width>MAX_W?MAX_W/curImg.width:1;cv.width=curImg.width*sc;cv.height=curImg.height*sc;ctx.drawImage(curImg,0,0,cv.width,cv.height);
- let h=cv.height,w=cv.width,stampH=Math.floor(h*0.34);ctx.fillStyle="rgba(0,0,0,0.85)";ctx.fillRect(0,h-stampH,w,stampH);ctx.fillStyle="#ffffff";
- let fontBig=Math.floor(h*0.038),fontMed=Math.floor(h*0.024),fontSmall=Math.floor(h*0.020),fontTiny=Math.floor(h*0.019);
- let padX=Math.floor(w*0.03);let curY=h-stampH+Math.floor(h*0.06);
- ctx.font=`bold ${fontBig}px Arial`;ctx.fillText(`${lastDetails.timeStr} | ${lastDetails.dateStr}`,padX,curY);
- curY+=Math.floor(h*0.055);
- ctx.fillStyle="#ffeb3b";ctx.fillRect(Math.floor(w*0.33),curY-Math.floor(h*0.03),Math.floor(w*0.008),Math.floor(h*0.045));ctx.fillStyle="#ffffff";
- ctx.font=`bold ${fontMed}px Arial`;ctx.fillText(`${lastDetails.dayName}`,padX,curY);
- curY+=Math.floor(h*0.05);
- ctx.font=`${fontMed}px Arial`;ctx.fillText(`${lastDetails.cityLine} 🇵🇰`.substring(0,80),padX,curY);
- curY+=Math.floor(h*0.045);
- ctx.font=`${fontTiny}px Arial`;let maxW=w-padX*2;curY=wrapText(ctx, lastDetails.plusLine, padX, curY, maxW, Math.floor(h*0.032));
- curY+=Math.floor(h*0.01);
- ctx.font=`bold ${fontSmall}px Arial`;ctx.fillText(lastDetails.latLong,padX,curY);
- let stamped=cv.toDataURL('image/jpeg',0.45);rec.imageUrl=stamped;rec.photo=stamped;
- document.getElementById('msg').style.color="green";document.getElementById('msg').innerText="Uploading...";
- try{await fb.addDoc(fb.collection(window.db,"bill_records"),rec);document.getElementById('msg').innerText="✅ Saved! Ref: "+ref;document.getElementById('ref').value='';document.getElementById('photoFile').value='';curImg=null;document.getElementById('prev').style.display='none';document.getElementById('refError').style.display='none';document.getElementById('refOk').style.display='none';loadAdmin();loadMyData();}catch(e){document.getElementById('msg').style.color="red";document.getElementById('msg').innerText=e.message;}
-}
+function checkDuplicateLive(val){let errBox=document.getElementById('refError'); let okBox=document.getElementById('refOk');if(!val.trim()){ errBox.style.display='none'; okBox.style.display='none'; return false; }let norm=normalizeRef(val);let exists=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm);if(exists){errBox.innerHTML=`❌ Ye Reference pehle hi enter ho chuka hai! (${exists.workerName||exists.name} ne ${exists.refNumber} enter kiya tha)`;errBox.style.display='block'; okBox.style.display='none'; return true;} else { errBox.style.display='none'; okBox.style.display='block'; return false; }}
+function checkDuplicateLiveEdit(val){let errBox=document.getElementById('editRefError');if(!val.trim()){ errBox.style.display='none'; return false; }let norm=normalizeRef(val);let exists=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm && x.id!== editId);if(exists){errBox.innerHTML=`❌ Ye Reference pehle hi mojood hai! (${exists.workerName} ne enter kiya hua hai)`;errBox.style.display='block'; return true;} else { errBox.style.display='none'; return false; }}
+async function saveData(){let d=document.getElementById('dist').value,ref=document.getElementById('ref').value.trim();if(!d)return alert('Select Name');if(!ref)return alert('REF likhen');if(!lat){getGPS();return alert('Wait GPS');}if(!curImg)return alert('Photo');if(!fbReady)return alert('Loading...');let norm=normalizeRef(ref);let dup=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm);if(dup){ alert(`❌ Same REF Error!\nYe "${ref}" pehle hi ${dup.workerName||dup.name} ne enter kiya hua hai`); return; }let now=new Date();let rec={workerName:d,refNumber:ref,ref:ref,name:d,address:fullAddr,addr:fullAddr,lat:lat,lng:lon,plusCode:plusCode,date:now.toISOString().slice(0,10),formattedDate:now.toLocaleDateString(),time:now.toLocaleTimeString(),formattedTime:now.toLocaleTimeString(),timestamp:now.toISOString(),timestampNum:Date.now()};let cv=document.getElementById('can'),ctx=cv.getContext('2d');let MAX_W=800;let sc=curImg.width>MAX_W?MAX_W/curImg.width:1;cv.width=curImg.width*sc;cv.height=curImg.height*sc;ctx.drawImage(curImg,0,0,cv.width,cv.height);let h=cv.height,w=cv.width,stampH=Math.floor(h*0.34);ctx.fillStyle="rgba(0,0,0,0.85)";ctx.fillRect(0,h-stampH,w,stampH);ctx.fillStyle="#ffffff";let fontBig=Math.floor(h*0.038),fontMed=Math.floor(h*0.024),fontSmall=Math.floor(h*0.020),fontTiny=Math.floor(h*0.019);let padX=Math.floor(w*0.03);let curY=h-stampH+Math.floor(h*0.06);ctx.font=`bold ${fontBig}px Arial`;ctx.fillText(`${lastDetails.timeStr} | ${lastDetails.dateStr}`,padX,curY);curY+=Math.floor(h*0.055);ctx.fillStyle="#ffeb3b";ctx.fillRect(Math.floor(w*0.33),curY-Math.floor(h*0.03),Math.floor(w*0.008),Math.floor(h*0.045));ctx.fillStyle="#ffffff";ctx.font=`bold ${fontMed}px Arial`;ctx.fillText(`${lastDetails.dayName}`,padX,curY);curY+=Math.floor(h*0.05);ctx.font=`${fontMed}px Arial`;ctx.fillText(`${lastDetails.cityLine} 🇵🇰`.substring(0,80),padX,curY);curY+=Math.floor(h*0.045);ctx.font=`${fontTiny}px Arial`;let maxW=w-padX*2;curY=wrapText(ctx, lastDetails.plusLine, padX, curY, maxW, Math.floor(h*0.032));curY+=Math.floor(h*0.01);ctx.font=`bold ${fontSmall}px Arial`;ctx.fillText(lastDetails.latLong,padX,curY);let stamped=cv.toDataURL('image/jpeg',0.45);document.getElementById('msg').style.color="green";document.getElementById('msg').innerText="Uploading to Storage...";try{let storageRef = fb.ref(window.storage, `bills/${Date.now()}_${ref.replace(/[^a-zA-Z0-9]/g,'_')}.jpg`);await fb.uploadString(storageRef, stamped, 'data_url');let downloadURL = await fb.getDownloadURL(storageRef);rec.imageUrl = downloadURL;rec.photo = downloadURL;rec.storagePath = storageRef.fullPath;await fb.addDoc(fb.collection(window.db,"bill_records"),rec);document.getElementById('msg').innerText="✅ Saved! Ref: "+ref;document.getElementById('ref').value='';document.getElementById('photoFile').value='';curImg=null;document.getElementById('prev').style.display='none';document.getElementById('refError').style.display='none';document.getElementById('refOk').style.display='none';loadAdmin();loadMyData();}catch(e){document.getElementById('msg').style.color="red";document.getElementById('msg').innerText=e.message; console.error(e);}}
 function openZoom(s,t){document.getElementById('zImg').src=s;document.getElementById('zTxt').innerText=t||'';document.getElementById('zBox').style.display='flex';}
-function openEdit(id,ref,name,addr,role){
- editId=id; editRole=role||"admin";
- document.getElementById('eRef').value=ref;
- document.getElementById('eName').value=name;
- document.getElementById('eAddr').value=addr;
- if(editRole==="worker"){
-   document.getElementById('editTitle').innerText="Edit House Caption Only - Worker";
-   document.getElementById('eName').disabled=true;
-   document.getElementById('eAddr').disabled=true;
-   document.getElementById('lblName').style.opacity="0.4";
-   document.getElementById('lblAddr').style.opacity="0.4";
-   document.getElementById('editNote').innerText="Worker sirf REF edit kar sakta hai - Name/Address edit nahi kar sakta";
- } else {
-   document.getElementById('editTitle').innerText="Edit Bill - Admin Full Access";
-   document.getElementById('eName').disabled=false;
-   document.getElementById('eAddr').disabled=false;
-   document.getElementById('lblName').style.opacity="1";
-   document.getElementById('lblAddr').style.opacity="1";
-   document.getElementById('editNote').innerText="Admin sab kuch edit kar sakta hai";
- }
- document.getElementById('editRefError').style.display='none';
- document.getElementById('editBox').style.display='flex';
-}
+function openEdit(id,ref,name,addr,role){editId=id; editRole=role||"admin";document.getElementById('eRef').value=ref;document.getElementById('eName').value=name;document.getElementById('eAddr').value=addr;if(editRole==="worker"){document.getElementById('editTitle').innerText="Edit House Caption Only - Worker";document.getElementById('eName').disabled=true;document.getElementById('eAddr').disabled=true;document.getElementById('lblName').style.opacity="0.4";document.getElementById('lblAddr').style.opacity="0.4";document.getElementById('editNote').innerText="Worker sirf REF edit kar sakta hai";} else {document.getElementById('editTitle').innerText="Edit Bill - Admin Full Access";document.getElementById('eName').disabled=false;document.getElementById('eAddr').disabled=false;document.getElementById('lblName').style.opacity="1";document.getElementById('lblAddr').style.opacity="1";document.getElementById('editNote').innerText="Admin sab kuch edit kar sakta hai";}document.getElementById('editRefError').style.display='none';document.getElementById('editBox').style.display='flex';}
 function closeEdit(){document.getElementById('editBox').style.display='none';editId=null;editRole="admin";}
-async function saveEdit(){
- if(!editId)return;
- let ref=document.getElementById('eRef').value.trim();
- if(!ref) return alert('REF likhen');
- let norm=normalizeRef(ref);
- let dup=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm && x.id!== editId);
- if(dup){ alert(`❌ Same Reference Error! Ye "${ref}" pehle hi ${dup.workerName} ne enter kiya hua hai`); return; }
- try{
-   if(editRole==="worker"){
-     await fb.setDoc(fb.doc(window.db,"bill_records",editId),{refNumber:ref,ref:ref},{merge:true});
-   } else {
-     let name=document.getElementById('eName').value,addr=document.getElementById('eAddr').value;
-     await fb.setDoc(fb.doc(window.db,"bill_records",editId),{refNumber:ref,ref:ref,workerName:name,name:name,address:addr,addr:addr},{merge:true});
-   }
-   closeEdit();loadAdmin();loadMyData();alert('Updated Successfully');
- }catch(e){alert(e.message);}
-}
-async function delDoc(id){if(!confirm('Delete this?'))return;await fb.deleteDoc(fb.doc(window.db,"bill_records",id));loadAdmin();loadMyData();}
-
-// === FIXED EXPORT - NO UNDERSCORE FOR SPACE ===
-async function saveSingle(imgData,ref){
-  let base = ref.toString().trim();
-  base = base.replace(/[\\\/:*?"<>|]/g,'').trim(); // space ko rehne dega
-  if(base=="") base="NoRef";
-  let a=document.createElement('a');a.href=imgData;a.download=base+'.jpg';a.click();
-}
-async function getAllDocs(){let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push({id:d.id,...d.data()});});allCache=all;return all;}
-async function exportAll(){
- let all=await getAllDocs();if(all.length==0)return alert('No photos');
- let zip=new JSZip(),f=zip.folder("Bills");
- all.forEach((ph)=>{
-   let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(!b64) return;
-   let base=(ph.refNumber||ph.ref||'NoRef').toString().trim();
-   base = base.replace(/[\\\/:*?"<>|]/g,'').trim(); // space same rahega
-   if(base=="") base="NoRef";
-   f.file(base+'.jpg',b64,{base64:true});
- });
- let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ALL_'+new Date().toISOString().slice(0,10)+'.zip';a.click();
-}
-async function exportSpecific(){
- let w=document.getElementById('expWorker').value;let d=document.getElementById('expDate').value;let all=await getAllDocs();let filtered=all;
- if(w)filtered=filtered.filter(x=>(x.workerName||x.name)===w);if(d)filtered=filtered.filter(x=>x.date===d);
- if(filtered.length==0)return alert('No photos for filter');
- let zip=new JSZip(),f=zip.folder("Filtered");
- filtered.forEach((ph)=>{
-   let b64=(ph.imageUrl||ph.photo||'').split(',')[1];if(!b64) return;
-   let base=(ph.refNumber||ph.ref||'NoRef').toString().trim();
-   base = base.replace(/[\\\/:*?"<>|]/g,'').trim();
-   if(base=="") base="NoRef";
-   f.file(base+'.jpg',b64,{base64:true});
- });
- let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Bills_${w||'All'}_${d||'All'}.zip`;a.click();
-}
-async function deleteByDate(){let d=document.getElementById('delDate').value;if(!d)return alert('Select Date');if(!confirm(`${d} ki sari photos delete?`))return;let all=await getAllDocs();let toDel=all.filter(x=>x.date===d);if(toDel.length==0)return alert('No photos on this date');for(let ph of toDel){await fb.deleteDoc(fb.doc(window.db,"bill_records",ph.id));}alert(`${toDel.length} deleted`);loadAdmin();}
+async function saveEdit(){if(!editId)return;let ref=document.getElementById('eRef').value.trim();if(!ref) return alert('REF likhen');let norm=normalizeRef(ref);let dup=allCache.find(x=> normalizeRef(x.refNumber||x.ref||'') === norm && x.id!== editId);if(dup){ alert(`❌ Same Reference Error! Ye "${ref}" pehle hi ${dup.workerName} ne enter kiya hua hai`); return; }try{if(editRole==="worker"){await fb.setDoc(fb.doc(window.db,"bill_records",editId),{refNumber:ref,ref:ref},{merge:true});} else {let name=document.getElementById('eName').value,addr=document.getElementById('eAddr').value;await fb.setDoc(fb.doc(window.db,"bill_records",editId),{refNumber:ref,ref:ref,workerName:name,name:name,address:addr,addr:addr},{merge:true});}closeEdit();loadAdmin();loadMyData();alert('Updated Successfully');}catch(e){alert(e.message);}}
+async function delDoc(id){if(!confirm('Delete this?'))return;try{let docSnap = await fb.getDoc(fb.doc(window.db,"bill_records",id));if(docSnap.exists() && docSnap.data().storagePath){try{ await fb.deleteObject(fb.ref(window.storage, docSnap.data().storagePath)); }catch(e){}}await fb.deleteDoc(fb.doc(window.db,"bill_records",id));loadAdmin();loadMyData();}catch(e){alert(e.message);}}
+async function getAllDocsForExport(){let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"));let snap=await fb.getDocs(q);let all=[];snap.forEach(d=>{all.push({id:d.id,...d.data()});});return all;}
+async function getAllDocsPaginated(loadMore=false){if(!loadMore){ allCache=[]; lastVisible=null; }let q;if(lastVisible){ q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"), fb.startAfter(lastVisible), fb.limit(100)); } else { q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"), fb.limit(100)); }let snap=await fb.getDocs(q);if(!snap.empty){ lastVisible=snap.docs[snap.docs.length-1]; }let newDocs=[]; snap.forEach(d=>{newDocs.push({id:d.id,...d.data()});});if(loadMore){ allCache = allCache.concat(newDocs); } else { allCache = newDocs; }return {all:allCache, hasMore: snap.size===100};}
+function saveSingle(imgData,ref){let base = ref.toString().trim().replace(/[\\\/:*?"<>|]/g,'').trim();if(base=="") base="NoRef";let a=document.createElement('a');a.href=imgData;a.download=base+'.jpg';a.target='_blank';a.click();}
+async function exportAll(){let all=await getAllDocsForExport();if(all.length==0)return alert('No photos');let zip=new JSZip(),f=zip.folder("Bills");for(let ph of all){let url=ph.imageUrl||ph.photo||'';try{if(url.startsWith('data:')){let b64=url.split(',')[1]; if(!b64) continue;let base=(ph.refNumber||ph.ref||'NoRef').toString().trim().replace(/[\\\/:*?"<>|]/g,'').trim(); if(base=="") base="NoRef";f.file(base+'.jpg',b64,{base64:true});} else if(url.startsWith('http')){let resp=await fetch(url); let blob=await resp.blob();let base=(ph.refNumber||ph.ref||'NoRef').toString().trim().replace(/[\\\/:*?"<>|]/g,'').trim(); if(base=="") base="NoRef";f.file(base+'.jpg',blob);}}catch(e){}}let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ALL_'+new Date().toISOString().slice(0,10)+'.zip';a.click();}
+async function exportSpecific(){let w=document.getElementById('expWorker').value;let d=document.getElementById('expDate').value;let all=await getAllDocsForExport();let filtered=all;if(w)filtered=filtered.filter(x=>(x.workerName||x.name)===w);if(d)filtered=filtered.filter(x=>x.date===d);if(filtered.length==0)return alert('No photos for filter');let zip=new JSZip(),f=zip.folder("Filtered");for(let ph of filtered){let url=ph.imageUrl||ph.photo||'';try{if(url.startsWith('data:')){let b64=url.split(',')[1]; if(!b64) continue;let base=(ph.refNumber||ph.ref||'NoRef').toString().trim().replace(/[\\\/:*?"<>|]/g,'').trim(); if(base=="") base="NoRef";f.file(base+'.jpg',b64,{base64:true});} else {let resp=await fetch(url); let blob=await resp.blob();let base=(ph.refNumber||ph.ref||'NoRef').toString().trim().replace(/[\\\/:*?"<>|]/g,'').trim(); if(base=="") base="NoRef";f.file(base+'.jpg',blob);}}catch(e){}}let blob=await zip.generateAsync({type:"blob"});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Bills_${w||'All'}_${d||'All'}.zip`;a.click();}
+async function deleteByDate(){let d=document.getElementById('delDate').value;if(!d)return alert('Select Date');if(!confirm(`${d} ki sari photos delete?`))return;let all=await getAllDocsForExport();let toDel=all.filter(x=>x.date===d);if(toDel.length==0)return alert('No photos on this date');for(let ph of toDel){ try{ if(ph.storagePath){ await fb.deleteObject(fb.ref(window.storage, ph.storagePath)); } }catch(e){} await fb.deleteDoc(fb.doc(window.db,"bill_records",ph.id));}alert(`${toDel.length} deleted`);loadAdmin();}
 function toggleSelectAll(chk){document.querySelectorAll('.g-check').forEach(b=>b.checked=chk.checked);}
-async function deleteSelected(){let boxes=document.querySelectorAll('.g-check:checked');if(boxes.length==0)return alert('Select photos');if(!confirm(`${boxes.length} delete?`))return;for(let b of boxes){await fb.deleteDoc(fb.doc(window.db,"bill_records",b.getAttribute('data-id')));}document.getElementById('selAll').checked=false;loadAdmin();}
-async function loadAdmin(){
- if(!fbReady)return;let all=await getAllDocs();
- document.getElementById('statTotal').innerText=all.length;
- let workersMap={};all.forEach(x=>{let n=x.workerName||x.name||'Unknown';workersMap[n]=(workersMap[n]||0)+1;});
- document.getElementById('statActive').innerText=Object.keys(workersMap).length;
- let maxCount=Math.max(...Object.values(workersMap),0);document.getElementById('statTop').innerText=maxCount;
- let sorted=Object.entries(workersMap).sort((a,b)=>b[1]-a[1]);let summaryHtml='';
- if(sorted.length==0) summaryHtml='<p style="text-align:center;color:#888;padding:10px">No data yet</p>';
- else{sorted.forEach(([name,count])=>{let initial=name.charAt(0).toUpperCase();let percent=maxCount>0?(count/maxCount*100):0;summaryHtml+=`<div class="wRow"><div class="wLeft"><div class="wCircle">${initial}</div><div><div class="wName">${name}</div><div class="wSub">distributed ${count} bills</div></div></div><div class="wRight"><div class="wCount">${count}</div><div class="wBarWrap"><div class="wBar" style="width:${percent}%"></div></div></div></div>`;});}
- document.getElementById('workerSummaryList').innerHTML=summaryHtml;
- let fDist=document.getElementById('fDist').value,fRef=(document.getElementById('fRef').value||'').toLowerCase(),fDate=document.getElementById('fDate').value;
- let filtered=all;if(fDist)filtered=filtered.filter(x=>(x.workerName||x.name)===fDist);if(fRef)filtered=filtered.filter(x=>((x.refNumber||x.ref||'')+'').toLowerCase().includes(fRef));if(fDate)filtered=filtered.filter(x=>x.date===fDate);
- document.getElementById('galCount').innerText=filtered.length+' photos';
- let gal=document.getElementById('gal');
- if(filtered.length==0)gal.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:20px;color:#666">Gallery Empty</p>';
- else{let h='';filtered.forEach(ph=>{let img=ph.imageUrl||ph.photo||'';let r=(ph.refNumber||ph.ref||'NoRef');let rSafe=r.replace(/'/g,'');let n=(ph.workerName||ph.name||'Unknown');let nSafe=n.replace(/'/g,'');let dateStr=ph.formattedDate||ph.date||'';let timeStr=ph.formattedTime||ph.time||'';h+=`<div class="g-card"><input type="checkbox" class="g-check" data-id="${ph.id}"><img src="${img}" onclick="openZoom('${img}','Ref: ${rSafe}')"><div class="g-info"><div class="g-ref">Ref: ${r}</div><div class="g-name">👤 ${n}</div><div class="g-time">${dateStr}, ${timeStr}</div><div class="g-btns"><button class="btn-save" onclick="saveSingle('${img}','${rSafe}')">💾 Save</button><button class="btn-del" onclick="delDoc('${ph.id}')">🗑️ Delete</button></div><div class="g-btns"><button class="btn-edit" onclick="openEdit('${ph.id}','${rSafe}','${nSafe}','','admin')">✏️ Edit</button></div></div></div>`;});gal.innerHTML=h;}
-}
-async function loadMyData(){
- if(!fbReady)return;let sel=document.getElementById('dist').value;if(!sel){document.getElementById('myGal').innerHTML='<p style="grid-column:1/-1;text-align:center;padding:15px;color:#888">Select your name</p>';document.getElementById('myCount').innerText='0';return;}
- let all=await getAllDocs();let mine=all.filter(d=>(d.workerName||d.name)===sel);
- document.getElementById('myCount').innerText=mine.length;let gal=document.getElementById('myGal');
- if(mine.length==0)gal.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:15px;color:#888">No bills</p>';
- else{let h='';mine.forEach(ph=>{let img=ph.imageUrl||ph.photo||'';let r=(ph.refNumber||ph.ref||'');let n=(ph.workerName||ph.name||'');h+=`<div class="g-card"><img src="${img}"><div class="g-info"><div class="g-ref">Ref: ${r}</div><div class="g-time">${ph.formattedDate||''}</div><div class="g-btns"><button class="btn-edit" onclick="openEdit('${ph.id}','${r}','${n}','','worker')">✏️ Edit Ref</button><button class="btn-del" onclick="delDoc('${ph.id}')">🗑️ Delete</button></div></div></div>`;});gal.innerHTML=h;}
-}
-async function exportCSV(){let all=await getAllDocs();if(all.length==0)return alert('No data');let csv="WorkerName,RefNumber,Address,Lat,Lng,Date,Time\n";all.forEach(x=>{let addr=(x.address||'').replace(/\n/g,' ').replace(/"/g,'""');csv+=`"${x.workerName}","${x.refNumber}","${addr}","${x.lat}","${x.lng}","${x.formattedDate}","${x.formattedTime}"\n`;});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Report_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
+async function deleteSelected(){let boxes=document.querySelectorAll('.g-check:checked');if(boxes.length==0)return alert('Select photos');if(!confirm(`${boxes.length} delete?`))return;for(let b of boxes){ let id=b.getAttribute('data-id'); try{ let ds=await fb.getDoc(fb.doc(window.db,"bill_records",id)); if(ds.exists() && ds.data().storagePath){ await fb.deleteObject(fb.ref(window.storage, ds.data().storagePath)); } }catch(e){} await fb.deleteDoc(fb.doc(window.db,"bill_records",id));}document.getElementById('selAll').checked=false;loadAdmin();}
+async function loadAdmin(loadMore=false){if(!fbReady)return;document.getElementById('workerSummaryList').innerHTML='Loading...';try{let result = await getAllDocsPaginated(loadMore);let all=result.all;document.getElementById('statTotal').innerText=all.length + (result.hasMore? '+' : '');document.getElementById('loadInfo').innerText=`Showing ${all.length}${result.hasMore? ' - Click Load More' : ' (All)'}`;document.getElementById('loadMoreBtn').style.display = result.hasMore? 'block' : 'none';let workersMap={};all.forEach(x=>{let n=x.workerName||x.name||'Unknown';workersMap[n]=(workersMap[n]||0)+1;});document.getElementById('statActive').innerText=Object.keys(workersMap).length;let maxCount=Math.max(...Object.values(workersMap),0);document.getElementById('statTop').innerText=maxCount;let sorted=Object.entries(workersMap).sort((a,b)=>b[1]-a[1]);let summaryHtml='';if(sorted.length==0) summaryHtml='<p style="text-align:center;color:#888;padding:10px">No data yet</p>';else{sorted.forEach(([name,count])=>{let initial=name.charAt(0).toUpperCase();let percent=maxCount>0?(count/maxCount*100):0;summaryHtml+=`<div class="wRow"><div class="wLeft"><div class="wCircle">${initial}</div><div><div class="wName">${name}</div><div class="wSub">distributed ${count} bills</div></div></div><div class="wRight"><div class="wCount">${count}</div><div class="wBarWrap"><div class="wBar" style="width:${percent}%"></div></div></div></div>`;});}document.getElementById('workerSummaryList').innerHTML=summaryHtml;let fDist=document.getElementById('fDist').value,fRef=(document.getElementById('fRef').value||'').toLowerCase(),fDate=document.getElementById('fDate').value;let filtered=all;if(fDist)filtered=filtered.filter(x=>(x.workerName||x.name)===fDist);if(fRef)filtered=filtered.filter(x=>((x.refNumber||x.ref||'')+'').toLowerCase().includes(fRef));if(fDate)filtered=filtered.filter(x=>x.date===fDate);document.getElementById('galCount').innerText=filtered.length+' photos';let gal=document.getElementById('gal');if(filtered.length==0)gal.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:20px;color:#666">Gallery Empty - Click Load More</p>';else{let h='';filtered.forEach(ph=>{let img=ph.imageUrl||ph.photo||'';let r=(ph.refNumber||ph.ref||'NoRef');let rSafe=r.replace(/'/g,'');let n=(ph.workerName||ph.name||'Unknown');let nSafe=n.replace(/'/g,'');let dateStr=ph.formattedDate||ph.date||'';let timeStr=ph.formattedTime||ph.time||'';h+=`<div class="g-card"><input type="checkbox" class="g-check" data-id="${ph.id}"><img src="${img}" loading="lazy" onclick="openZoom('${img}','Ref: ${rSafe}')"><div class="g-info"><div class="g-ref">Ref: ${r}</div><div class="g-name">👤 ${n}</div><div class="g-time">${dateStr}, ${timeStr}</div><div class="g-btns"><button class="btn-save" onclick="saveSingle('${img}','${rSafe}')">💾 Save</button><button class="btn-del" onclick="delDoc('${ph.id}')">🗑️ Delete</button></div><div class="g-btns"><button class="btn-edit" onclick="openEdit('${ph.id}','${rSafe}','${nSafe}','','admin')">✏️ Edit</button></div></div></div>`;});gal.innerHTML=h;}}catch(e){document.getElementById('workerSummaryList').innerHTML='<p style="color:red">Error: '+e.message+'</p>';}}
+async function loadMyData(){if(!fbReady)return;let sel=document.getElementById('dist').value;if(!sel){document.getElementById('myGal').innerHTML='<p style="grid-column:1/-1;text-align:center;padding:15px;color:#888">Select your name</p>';document.getElementById('myCount').innerText='0';return;}let q=fb.query(fb.collection(window.db,"bill_records"), fb.orderBy("timestampNum","desc"), fb.limit(200));let snap=await fb.getDocs(q); let all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));let mine=all.filter(d=>(d.workerName||d.name)===sel);document.getElementById('myCount').innerText=mine.length;let gal=document.getElementById('myGal');if(mine.length==0)gal.innerHTML='<p style="grid-column:1/-1;text-align:center;padding:15px;color:#888">No bills</p>';else{let h='';mine.forEach(ph=>{let img=ph.imageUrl||ph.photo||'';let r=(ph.refNumber||ph.ref||'');let n=(ph.workerName||ph.name||'');h+=`<div class="g-card"><img src="${img}" loading="lazy"><div class="g-info"><div class="g-ref">Ref: ${r}</div><div class="g-time">${ph.formattedDate||''}</div><div class="g-btns"><button class="btn-edit" onclick="openEdit('${ph.id}','${r}','${n}','','worker')">✏️ Edit Ref</button><button class="btn-del" onclick="delDoc('${ph.id}')">🗑️ Delete</button></div></div></div>`;});gal.innerHTML=h;}}
+async function exportCSV(){let all=await getAllDocsForExport();if(all.length==0)return alert('No data');let csv="WorkerName,RefNumber,Address,Lat,Lng,Date,Time,ImageURL\n";all.forEach(x=>{let addr=(x.address||'').replace(/\n/g,' ').replace(/"/g,'""');csv+=`"${x.workerName}","${x.refNumber}","${addr}","${x.lat}","${x.lng}","${x.formattedDate}","${x.formattedTime}","${x.imageUrl||''}"\n`;});let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='Report_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
 </script></body></html>
